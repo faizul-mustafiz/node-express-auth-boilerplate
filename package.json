@@ -1,0 +1,42 @@
+{
+  "name": "express-auth-boilerplate",
+  "version": "1.0.0",
+  "description": "This is a jwt authentication boilerplate using node.js express redis and mongoose",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faiz-fiz/node-express-auth-boilerplate.git"
+  },
+  "keywords": [
+    "express",
+    "jwt",
+    "boilerplate"
+  ],
+  "author": "Faizul Mustafiz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/faiz-fiz/node-express-auth-boilerplate/issues"
+  },
+  "homepage": "https://github.com/faiz-fiz/node-express-auth-boilerplate#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bip39": "^3.0.4",
+    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-jwt": "^7.7.7",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "mongodb": "^4.11.0",
+    "mongoose": "^6.7.2",
+    "nodemon": "^2.0.20",
+    "pm2": "^5.2.2",
+    "swagger-jsdoc": "^6.2.5",
+    "swagger-ui-express": "^4.6.0",
+    "winston": "^3.8.2"
+  }
+}
