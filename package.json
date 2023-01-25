@@ -1,7 +1,7 @@
 {
   "name": "express-auth-boilerplate",
   "version": "1.0.0",
-  "description": "This is a jwt authentication boilerplate using node.js express redis and mongoose",
+  "description": "This is a jwt authentication boilerplate using node.js express redis and mongoose with all the best practices",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
