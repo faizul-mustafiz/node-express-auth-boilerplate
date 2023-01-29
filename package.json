@@ -2,9 +2,14 @@
   "name": "express-auth-boilerplate",
   "version": "1.0.0",
   "description": "This is a jwt authentication boilerplate using node.js express redis and mongoose with all the best practices",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "husky":{
+    "hooks": {
+      "pre-commit":"pretty-quick --staged"
+    }
   },
   "repository": {
     "type": "git",
@@ -28,11 +33,14 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "husky": "^8.0.3",
     "lodash": "^4.17.21",
     "mongodb": "^4.11.0",
     "mongoose": "^6.7.2",
     "nodemon": "^2.0.20",
     "pm2": "^5.2.2",
+    "prettier": "^2.8.3",
+    "pretty-quick": "^3.1.3",
     "swagger-jsdoc": "^6.2.5",
     "swagger-ui-express": "^4.6.0",
     "winston": "^3.8.2"
