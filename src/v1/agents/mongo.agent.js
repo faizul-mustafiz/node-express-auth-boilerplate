@@ -1,13 +1,8 @@
 require('dotenv').config();
-const mongoConfig = require('../configs/mongo.config');
+const { config, options } = require('../configs/mongo.config');
 const mongoose = require('mongoose');
 
-const options = {
-  maxPoolSize: 10,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  family: 4,
-};
+mongoose.set('strictQuery', true);
 
 connectCallback = (response) => {
   console.log(
@@ -24,15 +19,18 @@ errorCallback = (error) => {
 disconnectFromMongoAgent = (stack = 'disconnect-call') => {
   mongoose.connection.close();
   console.log('Disconnected form mongo agent;', 'stack:', stack);
+  process.exit();
 };
 
 connectToMongoAgent = async () => {
-  mongoose.set('strictQuery', true);
-  await mongoose.connect(mongoConfig.url, options).then(
-    (response) => connectCallback(response),
-    (error) => errorCallback(error),
-  );
-  mongoose.Promise = global.Promise;
+  try {
+    await mongoose
+      .connect(config.url, options)
+      .then((response) => connectCallback(response));
+    mongoose.Promise = global.Promise;
+  } catch (error) {
+    errorCallback(error);
+  }
 };
 connectToMongoAgent();
 
