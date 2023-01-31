@@ -15,10 +15,8 @@ connectCallback = () => {
 
 errorCallback = (error) => {
   console.log('redis-error-callback-error', error);
-  if (error.code == 'ECONNREFUSED') {
-    redisClient.disconnect();
-    return;
-  }
+  redisClient.disconnect();
+  process.exit();
 };
 
 redisClient.connect();
