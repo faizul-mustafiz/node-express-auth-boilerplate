@@ -1,4 +1,7 @@
-const { encryptMessage } = require('../helpers/encrypt.helper');
+const {
+  encryptMessage,
+  encryptMessageToSingleBase64,
+} = require('../helpers/encrypt.helper');
 
 messageEncryptionTest = async (message) => {
   if (message) {
@@ -9,6 +12,19 @@ messageEncryptionTest = async (message) => {
   }
 };
 
-messageEncryptionTest('encryption-test-successful');
+singleEncryptedPayloadTest = async (message) => {
+  if (message) {
+    const data = await encryptMessageToSingleBase64(message);
+    console.log('singleEncryptedPayloadTest-data:', data);
+  } else {
+    console.log('Single encrypted payload test was unsuccessful');
+  }
+};
 
-module.exports = { messageEncryptionTest };
+messageEncryptionTest(JSON.stringify({ username: 'jhon', password: 'dow' }));
+
+singleEncryptedPayloadTest(
+  JSON.stringify({ username: 'jhon', password: 'dow' }),
+);
+
+module.exports = { messageEncryptionTest, singleEncryptedPayloadTest };
