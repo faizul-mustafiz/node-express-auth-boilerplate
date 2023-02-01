@@ -1,4 +1,7 @@
-const { decryptMessage } = require('../helpers/decrypt.helper');
+const {
+  decryptMessage,
+  decryptFormSingleEncryptedPayload,
+} = require('../helpers/decrypt.helper');
 
 messageDecryptionTest = async (sharedKey, sharedIv, encryptedMessage) => {
   if (sharedKey && sharedIv && encryptedMessage) {
@@ -13,10 +16,17 @@ messageDecryptionTest = async (sharedKey, sharedIv, encryptedMessage) => {
   }
 };
 
-messageDecryptionTest(
-  'b/Ydg6z04ZBzNtk9e3Oy+PV0BGK4pgAgWr/i9pt5tuE=',
-  'P0nDi0/bX/BJhm20',
-  'gK93tB17b115pN+t77hMAQG4qwlqCeMY15/piVxDf/G8+Fj4YAG+2CSs',
-);
+messageDecryptionFromSingleEncryptedPayload = (payload) => {
+  const { key, iv, message } = decryptFormSingleEncryptedPayload(payload);
+  console.log('key:', key, 'iv:', iv, 'message:', message);
+  messageDecryptionTest(key, iv, message);
+};
 
-module.exports = { messageDecryptionTest };
+const payload =
+  'SmZka0pIUmdpN2VSVmRDblh2ZnQ3VytjbzRYb25ZOExjNGpGbGlXbi9ZQT1yRHA5M2c5NkphajVPZWVSSE52SXBmV0I1VmFTQmQ5anVUUG5LUGU0S2hyUnN4Zk8zaE43NmJ1UGQxK004M01uK1BUMHN0ZWhBemR2OVllblhpOUUrZz09';
+messageDecryptionFromSingleEncryptedPayload(payload);
+
+module.exports = {
+  messageDecryptionTest,
+  messageDecryptionFromSingleEncryptedPayload,
+};
