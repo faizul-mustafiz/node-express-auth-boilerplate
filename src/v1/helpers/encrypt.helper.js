@@ -1,6 +1,6 @@
 const _crypto = require('crypto');
 const { hashingAlgorithm } = require('../configs/hashing.config');
-const { arrayBufferToBase64 } = require('./conversion.helper');
+const { arrayBufferToBase64, stringToBase64 } = require('./conversion.helper');
 
 generateCryptoIv = () => {
   const cryptoIv = _crypto.getRandomValues(new Uint8Array(12));
@@ -32,6 +32,11 @@ exportCryptoKey = async (cryptoKey) => {
   return base64;
 };
 
+/* 
+  One thing to remember only arrayBuffer payload can be encrypted using this 
+  encryption process if you want to encrypt json object just use JSON.stringify() 
+  and then pass to the method.
+*/
 encrypt = async (cryptoKey, cryptoIv, data) => {
   const cipherText = await _crypto.subtle.encrypt(
     {
@@ -79,13 +84,39 @@ encryptMessage = async (message) => {
   return payload;
 };
 
-test = async () => {};
-test();
+/* 
+  This function is for encrypting message and sending to client 
+  in a certain manner. The generated cryptoKey is always 44 characters 
+  long & the  generated cryptoIv is always 16 characters long.
+  the encrypted message payload may vary as it depends on the 
+  payload size.
+  
+  The final generated string will be {cryptoKey}{cryptoIv}{encryptedMessage}
+  and then the generated string is again encrypted to base64 string and send
+  to the client.
+
+  So the consumer of this method has to know, in order to decrypt the message 
+  they need to decrypt the message from base64 to string and then take the first 
+  44 characters as cryptoKey following 16 characters as cryptoIv and rest as encryptedMessage.
+*/
+
+generateSingleEncryptedPayload = async (payload) => {
+  try {
+    if (payload) {
+      const { key, iv, message } = await encryptMessage(payload);
+      let singleEncryptedPayload = `${key}${iv}${message}`;
+      singleEncryptedPayload = stringToBase64(singleEncryptedPayload);
+      console.log('singleEncryptedPayload-base64', singleEncryptedPayload);
+      return singleEncryptedPayload;
+    } else {
+      throw 'There is no payload given for encryption.';
+    }
+  } catch (error) {
+    console.log('generateSingleExportableEncryptedPayload-error', error);
+  }
+};
 
 module.exports = {
-  generateCryptoIv,
-  generateCryptoKey,
-  exportCryptoKey,
-  encrypt,
   encryptMessage,
+  generateSingleEncryptedPayload,
 };
