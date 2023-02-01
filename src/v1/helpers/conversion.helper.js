@@ -15,9 +15,20 @@ arrayBufferToBase64 = (arrayBuffer) => {
   const base64 = buffer.toString('base64');
   return base64;
 };
+extractKeyIvAndMessage = (payload) => {
+  // the first 44 characters of that given payload is sharedKey
+  const key = payload.substr(0, 44);
+  // the first 16 characters of that given payload is sharedIv
+  const iv = payload.substr(44, 16);
+  // rest of the string is encryptedMessage
+  const message = payload.substr(60);
+  return { key, iv, message };
+};
+
 module.exports = {
   base64ToString,
   stringToBase64,
   base64ToArrayBuffer,
   arrayBufferToBase64,
+  extractKeyIvAndMessage,
 };

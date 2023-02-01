@@ -4,6 +4,7 @@ const {
   base64ToString,
   arrayBufferToBase64,
   base64ToArrayBuffer,
+  extractKeyIvAndMessage,
 } = require('./conversion.helper');
 
 importCryptoKey = async (sharedKey) => {
@@ -64,6 +65,30 @@ decryptMessage = async (sharedKey, sharedIv, sharedMessage) => {
   return { payload: decryptedMessage };
 };
 
+/* 
+  The payload passed into this method is a base64 encoded combination of 
+  {sharedKey}{sharedIv}{encryptedMessage}.
+
+  In order to decrypt the message consumer need to decrypt the message from base64 to 
+  string and then pass to extractKeyIvAndMessage() function to export the {key, iv, message}. 
+  extractKeyIvAndMessage() takes the first 44 characters as sharedKey, following 16 characters 
+  as sharedIv and rest is encryptedMessage.
+*/
+decryptFormSingleEncryptedPayload = (payload) => {
+  // decodes the base64 encrypted payload
+  const decodedPayload = base64ToString(payload);
+  console.log(
+    'decryptFormSingleEncryptedPayload-decryptedPayload',
+    decodedPayload,
+  );
+
+  // extracts {sharedKey, sharedIv, encryptedMessage} from decoded base64 string.
+  const extractedJson = extractKeyIvAndMessage(decodedPayload);
+  console.log('decryptFormSingleEncryptedPayload-extractedJson', extractedJson);
+  return extractedJson;
+};
+
 module.exports = {
   decryptMessage,
+  decryptFormSingleEncryptedPayload,
 };
