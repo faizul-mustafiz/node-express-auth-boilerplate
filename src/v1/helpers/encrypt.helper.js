@@ -91,7 +91,7 @@ encryptMessage = async (message) => {
   the encrypted message payload may vary as it depends on the 
   payload size.
   
-  The final generated string will be {cryptoKey}{cryptoIv}{encryptedMessage}
+  The final generated string will be`${sharedKey}${sharedIv}${encryptedMessage}`
   and then the generated string is again encrypted to base64 string and send
   to the client.
 
@@ -100,7 +100,7 @@ encryptMessage = async (message) => {
   44 characters as cryptoKey following 16 characters as cryptoIv and rest as encryptedMessage.
 */
 
-generateSingleEncryptedPayload = async (payload) => {
+encryptMessageToSingleBase64 = async (payload) => {
   try {
     if (payload) {
       const { key, iv, message } = await encryptMessage(payload);
@@ -118,5 +118,5 @@ generateSingleEncryptedPayload = async (payload) => {
 
 module.exports = {
   encryptMessage,
-  generateSingleEncryptedPayload,
+  encryptMessageToSingleBase64,
 };
