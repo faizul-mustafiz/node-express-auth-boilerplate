@@ -4,16 +4,15 @@ const mongoose = require('mongoose');
 
 mongoose.set('strictQuery', true);
 
-connectCallback = (response) => {
-  console.log(
-    'mongo-connect-callback-response:',
-    response.options,
-    '\nmongoDB is running successfully',
-  );
+mongoConnectCallback = () => {
+  console.log('mongo-connect-callback:', 'mongoDB is connected');
 };
-errorCallback = (error) => {
+mongoErrorCallback = (error) => {
   console.log('mongo-error-callback-error', error);
   disconnectFromMongoAgent('error-callback');
+};
+mongoDisconnectCallback = () => {
+  console.log('mongo-disconnect-callback:', 'mongoDB is disconnected');
 };
 
 disconnectFromMongoAgent = (stack = 'disconnect-call') => {
@@ -22,19 +21,13 @@ disconnectFromMongoAgent = (stack = 'disconnect-call') => {
   process.exit();
 };
 
-connectToMongoAgent = async () => {
-  try {
-    await mongoose
-      .connect(config.url, options)
-      .then((response) => connectCallback(response));
-    mongoose.Promise = global.Promise;
-  } catch (error) {
-    errorCallback(error);
-  }
-};
-connectToMongoAgent();
+mongoose.connect(config.url, options);
+mongoose.Promise = global.Promise;
+mongoose.connection.on('connected', () => mongoConnectCallback());
+mongoose.connection.on('error', (error) => mongoErrorCallback(error));
+mongoose.connection.on('disconnected', () => mongoDisconnectCallback());
 
 module.exports = {
-  disconnectFromMongoAgent,
   mongoose,
+  disconnectFromMongoAgent,
 };
