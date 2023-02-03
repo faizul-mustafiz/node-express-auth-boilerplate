@@ -1,6 +1,12 @@
 const app = require('./src/v1/app');
-const server = app.listen(3030, () => {
-  console.log('Express is running on →', 'port', 3030);
+const { port, host } = require('./src/v1/configs/app.config');
+
+const server = app.listen(port, host, () => {
+  console.log('Express is running on →');
+  console.table({
+    host: host,
+    port: port,
+  });
 });
 
 [
