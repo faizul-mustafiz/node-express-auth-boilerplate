@@ -1,10 +1,6 @@
 const app = require('./src/v1/app');
 const server = app.listen(3030, () => {
-  console.log('Express is running on →');
-  console.table({
-    host: host,
-    port: port,
-  });
+  console.log('Express is running on →', 'port', 3030);
 });
 
 [
