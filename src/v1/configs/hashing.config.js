@@ -1,5 +1,6 @@
 require('dotenv').config();
-const environment = require('../environments/index');
+const { HASHING_ALGORITHM } = require('../environments');
+
 module.exports = {
-  hashingAlgorithm: environment.HASHING_ALGORITHM,
+  hashingAlgorithm: HASHING_ALGORITHM,
 };

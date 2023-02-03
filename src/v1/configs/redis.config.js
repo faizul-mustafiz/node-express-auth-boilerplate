@@ -1,9 +1,15 @@
 require('dotenv').config();
-const environment = require('../environments/index');
+const {
+  REDIS_URL,
+  REDIS_HOST,
+  REDIS_PORT,
+  REDIS_USERNAME,
+  REDIS_PASSWORD,
+} = require('../environments');
 module.exports = {
-  url: environment.REDIS_URL,
-  host: environment.REDIS_HOST,
-  port: environment.REDIS_PORT,
-  username: environment.REDIS_USERNAME,
-  password: environment.REDIS_PASSWORD,
+  url: REDIS_URL,
+  host: REDIS_HOST,
+  port: REDIS_PORT,
+  username: REDIS_USERNAME,
+  password: REDIS_PASSWORD,
 };

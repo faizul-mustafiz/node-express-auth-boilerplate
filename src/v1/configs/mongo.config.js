@@ -1,10 +1,14 @@
 require('dotenv').config();
-const environment = require('../environments/index');
+const {
+  MONGO_URL,
+  MONGO_USERNAME,
+  MONGO_PASSWORD,
+} = require('../environments');
 
 const config = {
-  url: environment.MONGO_URL,
-  username: environment.MONGO_USERNAME,
-  password: environment.MONGO_PASSWORD,
+  url: MONGO_URL,
+  username: MONGO_USERNAME,
+  password: MONGO_PASSWORD,
 };
 
 const options = {
