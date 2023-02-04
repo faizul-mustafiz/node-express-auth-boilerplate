@@ -17,8 +17,7 @@ const userSchema = new Schema(
       required: true,
     },
     name: {
-      first_name: String,
-      last_name: String,
+      type: String,
       index: true,
     },
     avatar: {
@@ -47,12 +46,12 @@ const userSchema = new Schema(
 );
 
 // generating a hash
-userSchema.methods.generateHash = function (password) {
+userSchema.statics.generateHash = function (password) {
   return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 };
 
 // checking if password is valid
-userSchema.methods.validPassword = function (password) {
+userSchema.statics.validPassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
@@ -62,14 +61,16 @@ userSchema.statics.emailExist = function (email) {
 };
 
 // virtual function for getting full name from name
-userSchema.virtual('fullName').get(function () {
-  return `${this.name.first_name} ${this.name.last_name}`;
-});
+// userSchema.virtual('fullName').get(function () {
+//   return `${this.name.first_name} ${this.name.last_name}`;
+// });
 
 // delete these object keys before returning the db document to consumer
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.isLoggedIn;
+  delete obj.isVerified;
   return obj;
 };
 
