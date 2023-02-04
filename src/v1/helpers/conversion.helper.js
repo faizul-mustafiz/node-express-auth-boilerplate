@@ -6,6 +6,14 @@ stringToBase64 = (string) => {
   const base64 = Buffer.from(string, 'utf8').toString('base64');
   return base64;
 };
+jsonToBase64 = (json) => {
+  const string = JSON.stringify(json);
+  return stringToBase64(string);
+};
+base64ToJson = (base64) => {
+  const string = base64ToString(base64);
+  return JSON.parse(string);
+};
 base64ToArrayBuffer = (base64) => {
   const buffer = Buffer.from(base64, 'base64');
   return buffer;
@@ -28,6 +36,8 @@ extractKeyIvAndMessage = (payload) => {
 module.exports = {
   base64ToString,
   stringToBase64,
+  jsonToBase64,
+  base64ToJson,
   base64ToArrayBuffer,
   arrayBufferToBase64,
   extractKeyIvAndMessage,
