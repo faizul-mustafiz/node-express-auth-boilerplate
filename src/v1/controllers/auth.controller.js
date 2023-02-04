@@ -1,5 +1,13 @@
 require('dotenv');
 const User = require('../models/user.model');
+const { signAccessToken, signRefreshToken } = require('../helpers/jwt.helper');
+const {
+  generateIdentityHash,
+  generateAccessTokenData,
+  generateRefreshTokenData,
+} = require('../utility/jwt.utility');
+
+const { jsonToBase64 } = require('../helpers/conversion.helper');
 
 signUp = async (req, res, next) => {
   try {
@@ -17,6 +25,28 @@ signUp = async (req, res, next) => {
     user.password = await User.generateHash(password);
     console.log('user', user);
     const result = await user.save();
+    // access token generation
+    const accessTokenData = generateAccessTokenData(user);
+    const bas64AccessTokenData = jsonToBase64(accessTokenData);
+    const accessTokenIdentity = generateIdentityHash(bas64AccessTokenData);
+    const accessToken = await signAccessToken(
+      accessTokenIdentity,
+      bas64AccessTokenData,
+    );
+
+    // access token generation
+    const refreshTokenData = generateRefreshTokenData(user);
+    const base64RefreshTokenData = jsonToBase64(refreshTokenData);
+    const refreshTokenIdentity = generateIdentityHash(base64RefreshTokenData);
+    const refreshToken = await signRefreshToken(
+      refreshTokenIdentity,
+      base64RefreshTokenData,
+    );
+    result._doc = {
+      ...result._doc,
+      accessToken,
+      refreshToken,
+    };
     res.status(201).json({
       success: true,
       message: 'Successfully use created',
@@ -33,6 +63,7 @@ signOut = async (req, res, next) => {};
 verify = async (req, res, next) => {};
 resetPassword = async (req, res, next) => {};
 changePassword = async (req, res, next) => {};
+refresh = async (req, res, next) => {};
 revokeAccessToken = async (req, res, next) => {};
 revokeRefreshToken = async (req, res, next) => {};
 
@@ -43,6 +74,7 @@ module.exports = {
   verify,
   resetPassword,
   changePassword,
+  refresh,
   revokeAccessToken,
   revokeRefreshToken,
 };
