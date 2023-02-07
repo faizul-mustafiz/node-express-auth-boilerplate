@@ -6,15 +6,16 @@ const {
   privateKey,
 } = require('../configs/jwt.config');
 const { generateTokenId } = require('../utility/jwt.utility');
-const { setTokenIdentity } = require('../helpers/redis.helper');
+const { saveTokenIdentityWithPayload } = require('../helpers/redis.helper');
 
 signAccessToken = async (identity, payload) => {
   const jwtId = generateTokenId();
+  const tokenExpire =
+    Math.floor(new Date().getTime() / 1000) + Number(accessToken.expiryTime);
   const jwtPayload = {
     iat: Math.floor(new Date().getTime() / 1000),
     nbf: Math.floor(new Date().getTime() / 1000),
-    exp:
-      Math.floor(new Date().getTime() / 1000) + Number(accessToken.expiryTime),
+    exp: tokenExpire,
     type: 'access',
     identity: identity,
     jti: jwtId,
@@ -23,16 +24,17 @@ signAccessToken = async (identity, payload) => {
     algorithm: 'ES512',
   });
   console.log('access-token:', token);
-  await setTokenIdentity(identity, Number(accessToken.expiryTime), payload);
+  await saveTokenIdentityWithPayload(identity, Number(tokenExpire), payload);
   return token;
 };
 signRefreshToken = async (identity, payload) => {
   const jwtId = generateTokenId();
+  const tokenExpire =
+    Math.floor(new Date().getTime() / 1000) + Number(refreshToken.expiryTime);
   const jwtPayload = {
     iat: Math.floor(new Date().getTime() / 1000),
     nbf: Math.floor(new Date().getTime() / 1000),
-    exp:
-      Math.floor(new Date().getTime() / 1000) + Number(refreshToken.expiryTime),
+    exp: tokenExpire,
     type: 'refresh',
     identity: identity,
     jti: jwtId,
@@ -41,7 +43,7 @@ signRefreshToken = async (identity, payload) => {
     algorithm: 'ES512',
   });
   console.log('refresh-token:', token);
-  await setTokenIdentity(identity, Number(refreshToken.expiryTime), payload);
+  await saveTokenIdentityWithPayload(identity, Number(tokenExpire), payload);
   return token;
 };
 signVerifyToken = () => {};
