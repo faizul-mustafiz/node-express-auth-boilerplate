@@ -3,11 +3,8 @@ const User = require('../models/user.model');
 const { signAccessToken, signRefreshToken } = require('../helpers/jwt.helper');
 const {
   generateIdentityHash,
-  generateAccessTokenData,
-  generateRefreshTokenData,
+  generateTokenPayloadForRedis,
 } = require('../utility/jwt.utility');
-
-const { jsonToBase64 } = require('../helpers/conversion.helper');
 
 signUp = async (req, res, next) => {
   try {
@@ -21,27 +18,53 @@ signUp = async (req, res, next) => {
         result: {},
       });
     }
+    /**
+     * * creating new User model object and generating password salt.
+     */
     const user = new User({ email: email, password: password });
     user.password = await User.generateHash(password);
     console.log('user', user);
-    const result = await user.save();
-    // access token generation
-    const accessTokenData = generateAccessTokenData(user);
-    const bas64AccessTokenData = jsonToBase64(accessTokenData);
-    const accessTokenIdentity = generateIdentityHash(bas64AccessTokenData);
+    /**
+     * * generate access token payload data that needs to be stored in redis
+     */
+    const accessTokenPayload = generateTokenPayloadForRedis(user, 'access');
+    /**
+     * * generate access token identity hash for redis key
+     */
+    const accessTokenIdentity = generateIdentityHash(
+      JSON.stringify(accessTokenPayload),
+    );
+    /**
+     * * generate access token.
+     */
     const accessToken = await signAccessToken(
       accessTokenIdentity,
-      bas64AccessTokenData,
+      accessTokenPayload,
     );
-
-    // access token generation
-    const refreshTokenData = generateRefreshTokenData(user);
-    const base64RefreshTokenData = jsonToBase64(refreshTokenData);
-    const refreshTokenIdentity = generateIdentityHash(base64RefreshTokenData);
+    /**
+     * * generate refresh token payload data that needs to be stored in redis
+     */
+    const refreshTokenPayload = generateTokenPayloadForRedis(user, 'refresh');
+    /**
+     * * generate refresh token identity hash for redis key
+     */
+    const refreshTokenIdentity = generateIdentityHash(
+      JSON.stringify(refreshTokenPayload),
+    );
+    /**
+     * * generate refresh token.
+     */
     const refreshToken = await signRefreshToken(
       refreshTokenIdentity,
-      base64RefreshTokenData,
+      refreshTokenPayload,
     );
+    /**
+     * * save user to mongoDB
+     */
+    const result = await user.save();
+    /**
+     * * appending  access_token & refresh_token with user save response
+     */
     result._doc = {
       ...result._doc,
       accessToken,
