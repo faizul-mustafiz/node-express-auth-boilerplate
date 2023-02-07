@@ -6,6 +6,8 @@ const redisClient = require('../plugins/redis.plugin');
  * @param set('key', 'value')
  * * you can pass the expiry with the set init as object
  * @param set('key', 'value', {EX: seconds<Number>})
+ * * you can use setEX() to set value with expiry
+ * @param setEx('key', expiry<Number>,'value')
  * * or you can pass the expiry explicitly like
  * @param redisClient.expire('key', seconds<Number>)
  */
@@ -112,9 +114,27 @@ hGetDemo = async () => {
   }
 };
 
+/**
+ * * Redis del() demo code.
+ * ! This method only supports string key.
+ * @param del('key')
+ * * This method delete any given key.
+ * @param hGet('key', 'field1')
+ */
+deleteDemo = async () => {
+  try {
+    let result = await redisClient.del('key');
+    console.log('deleteDemo-result', result);
+  } catch (error) {
+    console.log('deleteDemo-error', error);
+  }
+};
+
 setDemo();
 getDemo();
 mSetDemo();
 mgetDemo();
 hSetDemo();
 hGetDemo();
+
+deleteDemo();
