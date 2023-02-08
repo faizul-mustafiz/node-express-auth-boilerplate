@@ -1,5 +1,7 @@
 const _crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const uuid = require('uuid').v4();
+const otpGenerator = require('otp-generator');
 
 /**
  * * The data must be of type string or an instance of Buffer, TypedArray, or DataView.
@@ -13,13 +15,39 @@ generateTokenId = () => {
 };
 generateTokenPayloadForRedis = (user, type) => {
   return {
-    user_id: user.id,
-    user_email: user.email,
+    email: user.email,
+    id: user.id,
     type: type,
   };
 };
+
+generateVerifyTokenPayloadForRedis = (email, password, type, otp) => {
+  return {
+    email: email,
+    password: password,
+    type: type,
+    otp: otp,
+  };
+};
+
+generateOtp = (length) => {
+  return otpGenerator.generate(length, {
+    digits: true,
+    upperCaseAlphabets: true,
+    lowerCaseAlphabets: false,
+    specialChars: false,
+  });
+};
+
+generatePasswordHash = (password) => {
+  return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+};
+
 module.exports = {
   generateIdentityHash,
   generateTokenId,
   generateTokenPayloadForRedis,
+  generateVerifyTokenPayloadForRedis,
+  generateOtp,
+  generatePasswordHash,
 };
