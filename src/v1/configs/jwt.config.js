@@ -14,37 +14,37 @@ const {
   PRIVATE_KEY,
 } = require('../environments');
 
-const accessToken = {
+const accessTokenConfig = {
   secret: ACCESS_TOKEN_SECRET,
   expiryTime: ACCESS_TOKEN_EXPIRY_TIME,
 };
 
-const refreshToken = {
+const refreshTokenConfig = {
   secret: REFRESH_TOKEN_SECRET,
   expiryTime: REFRESH_TOKEN_EXPIRY_TIME,
 };
 
-const verifyToken = {
+const verifyTokenConfig = {
   verifyTokenSecret: VERIFY_TOKEN_SECRET,
   expiryTime: VERIFY_TOKEN_EXPIRY_TIME,
 };
 
-const resetPasswordToken = {
+const resetPasswordTokenConfig = {
   secret: RESET_PASSWORD_TOKEN_SECRET,
   expiryTime: RESET_PASSWORD_TOKEN_EXPIRY_TIME,
 };
 
-const changePasswordToken = {
+const changePasswordTokenConfig = {
   secret: CHANGE_PASSWORD_TOKEN_SECRET,
   expiryTime: CHANGE_PASSWORD_TOKEN_EXPIRY_TIME,
 };
 
 module.exports = {
-  accessToken,
-  refreshToken,
-  verifyToken,
-  resetPasswordToken,
-  changePasswordToken,
+  accessTokenConfig,
+  refreshTokenConfig,
+  verifyTokenConfig,
+  resetPasswordTokenConfig,
+  changePasswordTokenConfig,
   publicKey: PUBLIC_KEY,
   privateKey: PRIVATE_KEY,
 };
