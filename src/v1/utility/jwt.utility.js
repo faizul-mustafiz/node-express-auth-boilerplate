@@ -45,5 +45,4 @@ module.exports = {
   generateTokenPayloadForRedis,
   generateVerifyTokenPayloadForRedis,
   generateOtp,
-  generatePasswordHash,
 };
