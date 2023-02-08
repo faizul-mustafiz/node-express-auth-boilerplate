@@ -1,22 +1,24 @@
 const jwt = require('jsonwebtoken');
 const {
-  accessToken,
-  refreshToken,
+  accessTokenConfig,
+  refreshTokenConfig,
   publicKey,
   privateKey,
 } = require('../configs/jwt.config');
 const { generateTokenId } = require('../utility/jwt.utility');
-const { saveTokenIdentityWithPayload } = require('../helpers/redis.helper');
+const { setIdentityWithHSet } = require('../helpers/redis.helper');
+const TokenType = require('../models/static/token-type.model');
 
 signAccessToken = async (identity, payload) => {
   const jwtId = generateTokenId();
   const tokenExpire =
-    Math.floor(new Date().getTime() / 1000) + Number(accessToken.expiryTime);
+    Math.floor(new Date().getTime() / 1000) +
+    Number(accessTokenConfig.expiryTime);
   const jwtPayload = {
     iat: Math.floor(new Date().getTime() / 1000),
     nbf: Math.floor(new Date().getTime() / 1000),
     exp: tokenExpire,
-    type: 'access',
+    type: TokenType.Access,
     identity: identity,
     jti: jwtId,
   };
@@ -24,18 +26,19 @@ signAccessToken = async (identity, payload) => {
     algorithm: 'ES512',
   });
   console.log('access-token:', token);
-  await saveTokenIdentityWithPayload(identity, Number(tokenExpire), payload);
+  await setIdentityWithHSet(identity, Number(tokenExpire), payload);
   return token;
 };
 signRefreshToken = async (identity, payload) => {
   const jwtId = generateTokenId();
   const tokenExpire =
-    Math.floor(new Date().getTime() / 1000) + Number(refreshToken.expiryTime);
+    Math.floor(new Date().getTime() / 1000) +
+    Number(refreshTokenConfig.expiryTime);
   const jwtPayload = {
     iat: Math.floor(new Date().getTime() / 1000),
     nbf: Math.floor(new Date().getTime() / 1000),
     exp: tokenExpire,
-    type: 'refresh',
+    type: TokenType.Refresh,
     identity: identity,
     jti: jwtId,
   };
@@ -43,7 +46,7 @@ signRefreshToken = async (identity, payload) => {
     algorithm: 'ES512',
   });
   console.log('refresh-token:', token);
-  await saveTokenIdentityWithPayload(identity, Number(tokenExpire), payload);
+  await setIdentityWithHSet(identity, Number(tokenExpire), payload);
   return token;
 };
 signVerifyToken = () => {};
