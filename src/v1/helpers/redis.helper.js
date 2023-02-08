@@ -30,9 +30,9 @@ setIdentityWithHSet = async (identity, expiry, payload) => {
     console.log('setTokenIdentity-error', error);
   }
 };
-setIdentity = async (identity, expiry) => {
+setIdentity = async (identity, expiry, payload) => {
   try {
-    const result = await redisClient.setEx(identity, expiry, '');
+    const result = await redisClient.setEx(identity, expiry, payload);
     console.log('saveTokenIdentity-result', result);
     return result;
   } catch (error) {
@@ -72,7 +72,7 @@ isIdentityBlacklisted = async (identity) => {
 };
 setIdentityToBlacklist = async (identity, expiry) => {
   try {
-    const result = await this.setIdentity(`bl:${identity}`, expiry);
+    const result = await this.setIdentity(`bl:${identity}`, expiry, '');
     console.log('setIdentityToBlacklist-result', result);
     return result;
   } catch (error) {
@@ -101,9 +101,9 @@ isVerifyTokenIdentityExists = async (identity) => {
     console.log('isVerifyTokenIdentityExists-error', error);
   }
 };
-satVerifyTokenIdentity = async (identity, expiry) => {
+satVerifyTokenIdentity = async (identity, expiry, code) => {
   try {
-    const result = await this.setIdentity(`v:${identity}`, expiry);
+    const result = await this.setIdentity(`v:${identity}`, expiry, code);
     console.log('satVerifyTokenIdentity-result', result);
     return result;
   } catch (error) {
@@ -131,9 +131,9 @@ isRestPasswordTokenIdentityExists = async (identity) => {
     console.log('isRestPasswordTokenIdentityExists-error', error);
   }
 };
-setRestPasswordTokenIdentity = async (identity, expiry) => {
+setRestPasswordTokenIdentity = async (identity, expiry, code) => {
   try {
-    const result = await this.setIdentity(`rp:${identity}`, expiry);
+    const result = await this.setIdentity(`rp:${identity}`, expiry, code);
     console.log('setRestPasswordTokenIdentity-result', result);
     return result;
   } catch (error) {
@@ -162,9 +162,9 @@ isChangePasswordTokenIdentityExists = async (identity) => {
     console.log('isChangePasswordTokenIdentityExists-error', error);
   }
 };
-saveChangePasswordTokenIdentity = async (identity, expiry) => {
+saveChangePasswordTokenIdentity = async (identity, expiry, code) => {
   try {
-    const result = await this.setIdentity(`cp:${identity}`, expiry);
+    const result = await this.setIdentity(`cp:${identity}`, expiry, code);
     console.log('saveChangePasswordTokenIdentity-result', result);
     return result;
   } catch (error) {
