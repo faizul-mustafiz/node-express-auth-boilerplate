@@ -1,10 +1,12 @@
 require('dotenv');
-const User = require('../models/user.model');
+const User = require('../models/schema/user.model');
 const { signAccessToken, signRefreshToken } = require('../helpers/jwt.helper');
 const {
   generateIdentityHash,
   generateTokenPayloadForRedis,
 } = require('../utility/jwt.utility');
+
+const TokenType = require('../models/static/token-type.model');
 
 signUp = async (req, res, next) => {
   try {
@@ -27,7 +29,10 @@ signUp = async (req, res, next) => {
     /**
      * * generate access token payload data that needs to be stored in redis
      */
-    const accessTokenPayload = generateTokenPayloadForRedis(user, 'access');
+    const accessTokenPayload = generateTokenPayloadForRedis(
+      user,
+      TokenType.Access,
+    );
     /**
      * * generate access token identity hash for redis key
      */
@@ -44,7 +49,10 @@ signUp = async (req, res, next) => {
     /**
      * * generate refresh token payload data that needs to be stored in redis
      */
-    const refreshTokenPayload = generateTokenPayloadForRedis(user, 'refresh');
+    const refreshTokenPayload = generateTokenPayloadForRedis(
+      user,
+      TokenType.Refresh,
+    );
     /**
      * * generate refresh token identity hash for redis key
      */
