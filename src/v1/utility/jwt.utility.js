@@ -39,10 +39,6 @@ generateOtp = (length) => {
   });
 };
 
-generatePasswordHash = (password) => {
-  return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-};
-
 module.exports = {
   generateIdentityHash,
   generateTokenId,

@@ -10,17 +10,13 @@ const {
   generateTokenPayloadForRedis,
   generateVerifyTokenPayloadForRedis,
   generateOtp,
-  generatePasswordHash,
 } = require('../utility/jwt.utility');
 
 const TokenType = require('../models/static/token-type.model');
 signUp = async (req, res, next) => {
   try {
     let { email, password } = req.body;
-    // console.log('signUp-req', req.body);
-    password = generatePasswordHash(password);
-    console.log(email, password);
-
+    password = await User.generateHash(password);
     const existingUser = await User.emailExist(email);
     console.log('existingUser', existingUser);
 
