@@ -15,6 +15,11 @@ arrayBufferToBase64 = (arrayBuffer) => {
   const base64 = buffer.toString('base64');
   return base64;
 };
+jsonToArray = (jsonData) => {
+  const array = Object.keys(jsonData).map((key) => [key, jsonData[key]]);
+  console.log('array', array);
+  return array;
+};
 extractKeyIvAndMessage = (payload) => {
   // the first 44 characters of that given payload is sharedKey
   const key = payload.substr(0, 44);
@@ -30,5 +35,6 @@ module.exports = {
   stringToBase64,
   base64ToArrayBuffer,
   arrayBufferToBase64,
+  jsonToArray,
   extractKeyIvAndMessage,
 };
