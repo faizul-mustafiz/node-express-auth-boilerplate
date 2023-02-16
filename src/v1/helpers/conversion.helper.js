@@ -17,7 +17,6 @@ arrayBufferToBase64 = (arrayBuffer) => {
 };
 jsonToArray = (jsonData) => {
   const array = Object.keys(jsonData).map((key) => [key, jsonData[key]]);
-  console.log('array', array);
   return array;
 };
 extractKeyIvAndMessage = (payload) => {
