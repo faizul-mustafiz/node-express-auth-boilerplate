@@ -14,9 +14,23 @@ const {
   setVerifyTokenIdentity,
   setRestPasswordTokenIdentity,
   setChangePasswordTokenIdentity,
+  isIdentityExists,
+  getVerifyTokenIdentity,
 } = require('../helpers/redis.helper');
 const TokenType = require('../models/static/token-type.model');
 
+/**
+ * * Different type of token signing methods
+ * @param signAccessToken(identity, payload)
+ * @param signRefreshToken(identity, payload)
+ * @param signVerifyToken(identity, payload)
+ * @param signResetPasswordToken(identity, payload)
+ * @param signChangePasswordToken(identity, payload)
+ * @param signNewAccessAndRefreshToken(identity, payload)
+ * * identity parameter is the key that needs to be stored as a key in redis
+ * * payload parameter is the payload that needs to be stored in redis.
+ * @param setIdentityWithHSet(identity, expiry, payload)
+ */
 signAccessToken = async (identity, payload) => {
   const jwtId = generateTokenId();
   const tokenExpire =
@@ -131,6 +145,48 @@ signNewAccessAndRefreshToken = async (
     refresh_token: refreshToken,
   };
 };
+
+verifyAccessToken = async (token) => {};
+verifyRefreshToken = async (token) => {};
+verifyVerificationToken = async (token, res) => {
+  return jwt.verify(
+    token,
+    verifyTokenConfig.verifyTokenSecret,
+    async (err, decoded) => {
+      console.log('error', err);
+      console.log('decoded', decoded);
+      if (err)
+        return res.status(401).json({
+          success: false,
+          message: 'Verification failed, invalid token',
+          result: err,
+        });
+      if (decoded && decoded.identity) {
+        if (!isIdentityExists(decoded.identity))
+          return res.status(401).json({
+            success: false,
+            message: 'Verification failed, invalid token',
+            result: err,
+          });
+        const verifyTokenRedisResponse = await getVerifyTokenIdentity(
+          decoded.identity,
+        );
+        if (!verifyTokenRedisResponse) {
+          return res.status(401).json({
+            success: false,
+            message: 'Verification failed, invalid token',
+            result: err,
+          });
+        } else {
+          return verifyTokenRedisResponse;
+        }
+      }
+    },
+  );
+};
+verifyResetPasswordToken = async (token) => {};
+verifyChangePasswordToken = async (token) => {};
+
 _revokeAccessToken = async (identity) => {};
 _revokeRefreshToken = async (identity) => {};
 
@@ -141,6 +197,11 @@ module.exports = {
   signResetPasswordToken,
   signChangePasswordToken,
   signNewAccessAndRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  verifyVerificationToken,
+  verifyResetPasswordToken,
+  verifyChangePasswordToken,
   _revokeAccessToken,
   _revokeRefreshToken,
 };

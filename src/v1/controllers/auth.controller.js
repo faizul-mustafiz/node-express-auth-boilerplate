@@ -4,18 +4,28 @@ const {
   signAccessToken,
   signRefreshToken,
   signVerifyToken,
+  verifyVerificationToken,
 } = require('../helpers/jwt.helper');
 const {
   generateIdentityHash,
   generateTokenPayloadForRedis,
   generateVerifyTokenPayloadForRedis,
   generateOtp,
+  getAuthorizationHeader,
+  splitAuthorizationHeader,
 } = require('../utility/jwt.utility');
 
 const TokenType = require('../models/static/token-type.model');
 signUp = async (req, res, next) => {
   try {
     let { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({
+        success: false,
+        message: 'Any of these fields {email, password} not provided',
+        result: {},
+      });
+
     password = await User.generateHash(password);
     const existingUser = await User.emailExist(email);
     console.log('existingUser', existingUser);
@@ -60,38 +70,96 @@ signUp = async (req, res, next) => {
      */
     const result = {
       verify_token: verifyToken,
-      otp: OTP,
+      code: OTP,
     };
 
     res.status(200).json({
       success: true,
-      message: 'Please verify OTP for successful sign-up',
+      message: 'Please provided verification code for successful sign-up',
       result,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: 'Oops there is an Error', result: {} });
+    return res.status(500).json({
+      success: false,
+      message: 'Oops there is an Error',
+      result: error,
+    });
   }
 };
 signIn = async (req, res, next) => {};
 signOut = async (req, res, next) => {};
-verify = async (req, res, next) => {
+verifySingUp = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { code } = req.body;
+    if (!code)
+      return res.status(400).json({
+        success: false,
+        message: 'Verification code was not provided',
+        result: {},
+      });
+    // check authorization header exists
+    const authorization = getAuthorizationHeader(req);
+    // console.log('authorization', authorization);
+    if (!authorization) {
+      return res.status(403).json({
+        success: false,
+        message: 'Authorization header is not present',
+        result: {},
+      });
+    }
+    // check bearer part exists
+    const { bearer, token } = splitAuthorizationHeader(authorization);
+    if (!bearer) {
+      return res.status(403).json({
+        success: false,
+        message: 'Format for authorization: Bearer [token]',
+        result: {},
+      });
+    }
+    // check token part exists
+    if (!token) {
+      return res.status(403).json({
+        success: false,
+        message: 'Verification token was not provided',
+        result: {},
+      });
+    }
+    // decrypt token and check if the token exists in redis if yes the send the email and password response
+    const { email, password, otp, type } = await verifyVerificationToken(
+      token,
+      res,
+    );
+    if (type != TokenType.Verify)
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token',
+        result: {},
+      });
+
+    if (otp != code)
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid code',
+        result: {},
+      });
+
+    // after above steps start signUp process
     const existingUser = await User.emailExist(email);
     console.log('existingUser', existingUser);
-    if (existingUser) {
+    if (existingUser)
       return res.status(400).json({
         success: false,
         message: 'An account with this email already exists',
         result: {},
       });
-    }
     /**
      * * creating new User model object and generating password salt.
      */
-    const user = new User({ email: email, password: password });
+    const user = new User({
+      email: email,
+      password: password,
+      isVerified: true,
+    });
     user.password = await User.generateHash(password);
     console.log('user', user);
     /**
@@ -152,9 +220,11 @@ verify = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: 'Oops there is an Error', result: {} });
+    return res.status(500).json({
+      success: false,
+      message: 'Oops there is an Error',
+      result: error,
+    });
   }
 };
 resetPassword = async (req, res, next) => {};
@@ -167,7 +237,7 @@ module.exports = {
   signUp,
   signIn,
   signOut,
-  verify,
+  verifySingUp,
   resetPassword,
   changePassword,
   refresh,

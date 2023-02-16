@@ -5,7 +5,7 @@ const { AuthController } = require('../controllers/index');
 authRouter.post('/sign-up', AuthController.signUp);
 authRouter.post('/sign-in', AuthController.signIn);
 authRouter.post('/sign-out', AuthController.signOut);
-authRouter.post('/verify', AuthController.verify);
+authRouter.post('/verify', AuthController.verifySingUp);
 authRouter.post('/rest-password', AuthController.resetPassword);
 authRouter.post('/change-password', AuthController.changePassword);
 authRouter.post('/refresh', AuthController.refresh);
