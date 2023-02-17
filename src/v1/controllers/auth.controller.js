@@ -5,7 +5,6 @@ const {
   signRefreshToken,
   signVerifyToken,
   verifyVerificationToken,
-  verifyAccessToken,
 } = require('../helpers/jwt.helper');
 const {
   generateIdentityHash,
@@ -343,7 +342,7 @@ verifySingUp = async (req, res, next) => {
     });
   }
 };
-resetPassword = async (req, res, next) => {};
+forgotPassword = async (req, res, next) => {};
 changePassword = async (req, res, next) => {};
 refresh = async (req, res, next) => {};
 revokeAccessToken = async (req, res, next) => {};
@@ -354,7 +353,7 @@ module.exports = {
   signIn,
   signOut,
   verifySingUp,
-  resetPassword,
+  forgotPassword,
   changePassword,
   refresh,
   revokeAccessToken,
