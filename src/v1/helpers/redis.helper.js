@@ -26,7 +26,8 @@ setIdentityWithHSet = async (identity, expiry, payload) => {
 };
 setIdentity = async (identity, expiry, payload) => {
   try {
-    const result = await redisClient.setEx(identity, expiry, payload);
+    let result = await redisClient.set(identity, payload);
+    result = await redisClient.expireAt(identity, expiry);
     console.log('saveTokenIdentity-result', result);
     return result;
   } catch (error) {
@@ -57,7 +58,7 @@ deleteIdentity = async (identity) => {
  */
 isIdentityBlacklisted = async (identity) => {
   try {
-    let result = await isIdentityExists(`bl:${identity}`);
+    let result = await redisClient.exists(`bl:${identity}`);
     console.log('isIdentityBlacklisted-result', result);
     return result;
   } catch (error) {

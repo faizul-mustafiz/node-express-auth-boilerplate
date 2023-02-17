@@ -4,8 +4,10 @@ const {
   signAccessToken,
   signRefreshToken,
   signVerifyToken,
-  verifyVerificationToken,
   signChangePasswordToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  verifyVerificationToken,
   verifyChangePasswordToken,
 } = require('../helpers/jwt.helper');
 const {
@@ -19,6 +21,10 @@ const {
 } = require('../utility/jwt.utility');
 
 const TokenType = require('../enums/token-type.enum');
+const {
+  setIdentityToBlacklist,
+  deleteIdentity,
+} = require('../helpers/redis.helper');
 signUp = async (req, res, next) => {
   try {
     /**
@@ -91,6 +97,7 @@ signUp = async (req, res, next) => {
       result,
     });
   } catch (error) {
+    console.log('catch-error', error);
     return res.status(500).json({
       success: false,
       message: 'Oops there is an Error',
@@ -162,6 +169,7 @@ signIn = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
+    console.log('catch-error', error);
     return res.status(500).json({
       success: false,
       message: 'Oops there is an Error',
@@ -226,76 +234,79 @@ verifySingUp = async (req, res, next) => {
       token,
       res,
     );
-    /**
-     * * if decoded token type is not verify, send 401 unauthorized
-     */
-    if (type != TokenType.Verify) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid token',
-        result: {},
+    if (email && password && type && otp) {
+      /**
+       * * if decoded token type is not verify, send 401 unauthorized
+       */
+      if (type != TokenType.Verify) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token',
+          result: {},
+        });
+      }
+      /**
+       * * if provided code is not equal to redis otp, send 400 bad request
+       */
+      if (otp != code) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid code',
+          result: {},
+        });
+      }
+      /**
+       * * check if email exists, send 400 bad request
+       */
+      const existingUser = await User.emailExist(email);
+      console.log('existingUser', existingUser);
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'An account with this email already exists',
+          result: {},
+        });
+      }
+      /**
+       * * creating new User model object and generating password salt.
+       */
+      const user = new User({
+        email: email,
+        password: password,
+        isVerified: true,
+      });
+      console.log('user', user);
+      /**
+       * * generate access token.
+       */
+      const accessToken = await signAccessToken(user);
+      /**
+       * * generate refresh token.
+       */
+      const refreshToken = await signRefreshToken(user);
+      /**
+       * * save user to mongoDB
+       */
+      const result = await user.save();
+      /**
+       * * generate verify-sign-up response body
+       */
+      result._doc = {
+        ...result._doc,
+        accessToken,
+        refreshToken,
+      };
+      /**
+       * * send 201 created response
+       */
+      res.status(201).json({
+        success: true,
+        message: 'Successfully use created',
+        result,
       });
     }
-    /**
-     * * if provided code is not equal to redis otp, send 400 bad request
-     */
-    if (otp != code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid code',
-        result: {},
-      });
-    }
-    /**
-     * * check if email exists, send 400 bad request
-     */
-    const existingUser = await User.emailExist(email);
-    console.log('existingUser', existingUser);
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'An account with this email already exists',
-        result: {},
-      });
-    }
-    /**
-     * * creating new User model object and generating password salt.
-     */
-    const user = new User({
-      email: email,
-      password: password,
-      isVerified: true,
-    });
-    console.log('user', user);
-    /**
-     * * generate access token.
-     */
-    const accessToken = await signAccessToken(user);
-    /**
-     * * generate refresh token.
-     */
-    const refreshToken = await signRefreshToken(user);
-    /**
-     * * save user to mongoDB
-     */
-    const result = await user.save();
-    /**
-     * * generate verify-sign-up response body
-     */
-    result._doc = {
-      ...result._doc,
-      accessToken,
-      refreshToken,
-    };
-    /**
-     * * send 201 created response
-     */
-    res.status(201).json({
-      success: true,
-      message: 'Successfully use created',
-      result,
-    });
   } catch (error) {
+    console.log('catch-error', error);
     return res.status(500).json({
       success: false,
       message: 'Oops there is an Error',
@@ -373,6 +384,7 @@ forgotPassword = async (req, res, next) => {
       result,
     });
   } catch (error) {
+    console.log('catch-error', error);
     return res.status(500).json({
       success: false,
       message: 'Oops there is an Error',
@@ -440,69 +452,72 @@ changePassword = async (req, res, next) => {
      * @package verifyChangePasswordToken(token, res)
      */
     const { email, type, otp } = await verifyChangePasswordToken(token, res);
-    /**
-     * * if decoded token type is not change password, send 401 unauthorized
-     */
-    if (type != TokenType.ChangePassword) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid token',
+    if (email && type && otp) {
+      /**
+       * * if decoded token type is not change password, send 401 unauthorized
+       */
+      if (type != TokenType.ChangePassword) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token',
+          result: {},
+        });
+      }
+      /**
+       * * if provided code is not equal to redis otp, send 400 bad request
+       */
+      if (otp != code) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid code',
+          result: {},
+        });
+      }
+      /**
+       * * check if user email doesn't exists, send 400 bad request
+       */
+      const user = await User.emailExist(email);
+      console.log('user', user);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'This email is not registered, SignUp first',
+          result: {},
+        });
+      }
+      /**
+       * * compare the new_password with the existing password
+       * * if the new_password and the old_password is same send 409 conflict
+       */
+      const comparePassword = await user.validPassword(new_password);
+      console.log('comparePassword', comparePassword);
+      if (comparePassword) {
+        return res.status(409).json({
+          success: false,
+          message:
+            'Provided password is among the old passwords, please try with a different password',
+          result: {},
+        });
+      }
+      /**
+       * * generate hash form the new_password
+       * * sand assign the newPasswordHash as the current password
+       * * then save the user with new password
+       */
+      const newPasswordHash = await User.generateHash(new_password);
+      user.password = newPasswordHash;
+      await user.save();
+      /**
+       * * send 200 success response
+       */
+      res.status(200).json({
+        success: true,
+        message: 'Successfully changed password',
         result: {},
       });
     }
-    /**
-     * * if provided code is not equal to redis otp, send 400 bad request
-     */
-    if (otp != code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid code',
-        result: {},
-      });
-    }
-    /**
-     * * check if user email doesn't exists, send 400 bad request
-     */
-    const user = await User.emailExist(email);
-    console.log('user', user);
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: 'This email is not registered, SignUp first',
-        result: {},
-      });
-    }
-    /**
-     * * compare the new_password with the existing password
-     * * if the new_password and the old_password is same send 409 conflict
-     */
-    const comparePassword = await user.validPassword(new_password);
-    console.log('comparePassword', comparePassword);
-    if (comparePassword) {
-      return res.status(409).json({
-        success: false,
-        message:
-          'Provided password is among the old passwords, please try with a different password',
-        result: {},
-      });
-    }
-    /**
-     * * generate hash form the new_password
-     * * sand assign the newPasswordHash as the current password
-     * * then save the user with new password
-     */
-    const newPasswordHash = await User.generateHash(new_password);
-    user.password = newPasswordHash;
-    await user.save();
-    /**
-     * * send 200 success response
-     */
-    res.status(200).json({
-      success: true,
-      message: 'Successfully changed password',
-      result: {},
-    });
   } catch (error) {
+    console.log('catch-error', error);
     return res.status(500).json({
       success: false,
       message: 'Oops there is an Error',
@@ -510,7 +525,110 @@ changePassword = async (req, res, next) => {
     });
   }
 };
-refresh = async (req, res, next) => {};
+refresh = async (req, res, next) => {
+  try {
+    /**
+     * * check if authorization header exists
+     * * if there is no authorization header send 403 forbidden
+     */
+    const authorization = getAuthorizationHeader(req);
+    if (!authorization) {
+      return res.status(403).json({
+        success: false,
+        message: 'Authorization header is not present',
+        result: {},
+      });
+    }
+    /**
+     * * check if Bearer and Token header exists
+     * * if the token format is not Bearer [token] format send 403 forbidden
+     */
+    const { bearer, token } = splitAuthorizationHeader(authorization);
+    if (!bearer) {
+      return res.status(403).json({
+        success: false,
+        message: 'Format for authorization: Bearer [token]',
+        result: {},
+      });
+    }
+    if (!token) {
+      return res.status(403).json({
+        success: false,
+        message: 'Verification token was not provided',
+        result: {},
+      });
+    }
+    /**
+     * * decode refresh token and check if the token is a valid token
+     * * jwt token related error send 401 unauthorized
+     * * if the decoded token identity is not present in redis send 401 unauthorized
+     * * Token is a valid token then fetch the token data from redis return data.
+     * @package verifyVerificationToken(token, res)
+     */
+    const { email, type, identity, exp } = await verifyRefreshToken(token, res);
+    if (email && type && identity && exp) {
+      /**
+       * * if decoded token type is not refresh, send 401 unauthorized
+       */
+      if (type && type != TokenType.Refresh) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token',
+          result: {},
+        });
+      }
+      /**
+       * * check if user email doesn't exists, send 400 bad request
+       */
+      const user = await User.emailExist(email);
+      console.log('user', user);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'This email is not registered, SignUp first',
+          result: {},
+        });
+      }
+
+      /**
+       * * blacklist existing token and then generate new access token
+       */
+      await setIdentityToBlacklist(identity, exp);
+      await deleteIdentity(identity);
+      /**
+       * * generate access token.
+       */
+      const accessToken = await signAccessToken(user);
+
+      /**
+       * * generate refresh token.
+       */
+      const refreshToken = await signRefreshToken(user);
+      /**
+       * * generate sing-in response body
+       */
+      const result = {
+        accessToken,
+        refreshToken,
+      };
+      /**
+       * * Send 200 success response
+       */
+      return res.status(200).json({
+        success: true,
+        message: 'New access and refresh token generation successful',
+        result: result,
+      });
+    }
+  } catch (error) {
+    console.log('catch-error', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Oops there is an Error',
+      result: error,
+    });
+  }
+};
 revokeAccessToken = async (req, res, next) => {};
 revokeRefreshToken = async (req, res, next) => {};
 

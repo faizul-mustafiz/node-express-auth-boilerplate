@@ -15,6 +15,8 @@ const {
   isIdentityExists,
   getVerifyTokenIdentity,
   getChangePasswordTokenIdentity,
+  isIdentityBlacklisted,
+  isChangePasswordTokenIdentityExists,
 } = require('../helpers/redis.helper');
 const TokenType = require('../enums/token-type.enum');
 
@@ -162,14 +164,9 @@ signChangePasswordToken = async (identity, payload) => {
   await setChangePasswordTokenIdentity(identity, Number(tokenExpire), payload);
   return changePasswordToken;
 };
-signNewAccessAndRefreshToken = async (
-  accessIdentity,
-  accessPayload,
-  refreshIdentity,
-  refreshPayload,
-) => {
-  const accessToken = await signAccessToken(accessIdentity, accessPayload);
-  const refreshToken = await signRefreshToken(refreshIdentity, refreshPayload);
+signNewAccessAndRefreshToken = async (payload) => {
+  const accessToken = await signAccessToken(payload);
+  const refreshToken = await signRefreshToken(payload);
   console.table(accessToken, refreshToken);
   return {
     access_token: accessToken,
@@ -198,21 +195,24 @@ verifyAccessToken = async (token, res) => {
           });
         }
         if (decoded && decoded.identity) {
-          if (!isIdentityExists(decoded.identity)) {
+          const identityExists = await isIdentityExists(decoded.identity);
+          if (!identityExists) {
             return res.status(401).json({
               success: false,
               message: 'Invalid token',
-              result: err,
+              result: {},
             });
           }
-          if (isIdentityBlacklisted(decoded.identity)) {
+          const identityBlackListed = await isIdentityBlacklisted(
+            decoded.identity,
+          );
+          if (identityBlackListed) {
             return res.status(401).json({
               success: false,
               message: 'Invalid token',
-              result: err,
+              result: {},
             });
           }
-
           const accessTokenRedisResponse = await getHSetIdentityPayload(
             decoded.identity,
           );
@@ -221,7 +221,7 @@ verifyAccessToken = async (token, res) => {
             return res.status(401).json({
               success: false,
               message: 'Invalid token',
-              result: err,
+              result: {},
             });
           } else {
             return accessTokenRedisResponse;
@@ -230,6 +230,7 @@ verifyAccessToken = async (token, res) => {
       },
     );
   } catch (error) {
+    console.log('catch-error', error);
     return res.status(500).json({
       success: false,
       message: 'Oops there is an Error',
@@ -237,7 +238,66 @@ verifyAccessToken = async (token, res) => {
     });
   }
 };
-verifyRefreshToken = async (token, res) => {};
+verifyRefreshToken = async (token, res) => {
+  try {
+    return jwt.verify(
+      token,
+      publicKey,
+      { algorithms: ['ES512'] },
+      async (err, decoded) => {
+        console.log('err', err);
+        console.log('decoded', decoded);
+        if (err) {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid token',
+            result: err,
+          });
+        }
+        if (decoded && decoded.identity) {
+          if (!(await isIdentityExists(decoded.identity))) {
+            return res.status(401).json({
+              success: false,
+              message: 'Invalid token',
+              result: {},
+            });
+          }
+
+          if (await isIdentityBlacklisted(decoded.identity)) {
+            return res.status(401).json({
+              success: false,
+              message: 'Invalid token',
+              result: {},
+            });
+          }
+          const refreshTokenRedisResponse = await getHSetIdentityPayload(
+            decoded.identity,
+          );
+          console.log('refreshTokenRedisResponse', refreshTokenRedisResponse);
+          if (!refreshTokenRedisResponse) {
+            return res.status(401).json({
+              success: false,
+              message: 'Invalid token',
+              result: {},
+            });
+          } else {
+            return {
+              ...refreshTokenRedisResponse,
+              ...decoded,
+            };
+          }
+        }
+      },
+    );
+  } catch (error) {
+    console.log('catch-error', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Oops there is an Error',
+      result: error,
+    });
+  }
+};
 verifyVerificationToken = async (token, res) => {
   try {
     return jwt.verify(token, verifyTokenConfig.secret, async (err, decoded) => {
@@ -251,11 +311,11 @@ verifyVerificationToken = async (token, res) => {
         });
       }
       if (decoded && decoded.identity) {
-        if (!isIdentityExists(decoded.identity)) {
+        if (!isVerifyTokenIdentityExists(decoded.identity)) {
           return res.status(401).json({
             success: false,
             message: 'Verification failed, invalid token',
-            result: err,
+            result: {},
           });
         }
         const verifyTokenRedisResponse = await getVerifyTokenIdentity(
@@ -265,7 +325,7 @@ verifyVerificationToken = async (token, res) => {
           return res.status(401).json({
             success: false,
             message: 'Verification failed, invalid token',
-            result: err,
+            result: {},
           });
         } else {
           return verifyTokenRedisResponse;
@@ -273,6 +333,7 @@ verifyVerificationToken = async (token, res) => {
       }
     });
   } catch (error) {
+    console.log('catch-error', error);
     return res.status(500).json({
       success: false,
       message: 'Oops there is an Error',
@@ -296,11 +357,11 @@ verifyChangePasswordToken = async (token, res) => {
           });
         }
         if (decoded && decoded.identity) {
-          if (!isIdentityExists(decoded.identity)) {
+          if (!isChangePasswordTokenIdentityExists(decoded.identity)) {
             return res.status(401).json({
               success: false,
               message: 'Invalid token',
-              result: err,
+              result: {},
             });
           }
           const changePasswordTokenRedisResponse =
@@ -309,7 +370,7 @@ verifyChangePasswordToken = async (token, res) => {
             return res.status(401).json({
               success: false,
               message: 'Invalid token',
-              result: err,
+              result: {},
             });
           } else {
             return changePasswordTokenRedisResponse;
@@ -318,6 +379,7 @@ verifyChangePasswordToken = async (token, res) => {
       },
     );
   } catch (error) {
+    console.log('catch-error', error);
     return res.status(500).json({
       success: false,
       message: 'Oops there is an Error',
