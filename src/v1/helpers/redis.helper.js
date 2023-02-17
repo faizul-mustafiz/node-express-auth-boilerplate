@@ -122,45 +122,6 @@ deleteVerifyTokenIdentity = async (identity) => {
     console.log('deleteVerifyTokenIdentity-error', error);
   }
 };
-/**
- * * resetPassword token related methods
- */
-isRestPasswordTokenIdentityExists = async (identity) => {
-  try {
-    const result = await isIdentityExists(`rp:${identity}`);
-    console.log('isRestPasswordTokenIdentityExists-result', result);
-    return result;
-  } catch (error) {
-    console.log('isRestPasswordTokenIdentityExists-error', error);
-  }
-};
-setRestPasswordTokenIdentity = async (identity, expiry, payload) => {
-  try {
-    const result = await setIdentityWithHSet(`rp:${identity}`, expiry, payload);
-    console.log('setRestPasswordTokenIdentity-result', result);
-    return result;
-  } catch (error) {
-    console.log('setRestPasswordTokenIdentity-error', error);
-  }
-};
-getRestPasswordTokenIdentity = async (identity) => {
-  try {
-    let result = await getHSetIdentityPayload(`rp:${identity}`);
-    console.log('getRestPasswordTokenIdentity-result', result);
-    return result;
-  } catch (error) {
-    console.log('getRestPasswordTokenIdentity-error', error);
-  }
-};
-deleteResetPasswordIdentity = async (identity) => {
-  try {
-    const result = await deleteIdentity(`rp:${identity}`);
-    console.log('deleteResetPasswordIdentity-result', result);
-    return result;
-  } catch (error) {
-    console.log('deleteResetPasswordIdentity-error', error);
-  }
-};
 
 /**
  * * changePassword token related methods

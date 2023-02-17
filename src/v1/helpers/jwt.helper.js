@@ -3,7 +3,6 @@ const {
   accessTokenConfig,
   refreshTokenConfig,
   verifyTokenConfig,
-  resetPasswordTokenConfig,
   changePasswordTokenConfig,
   publicKey,
   privateKey,
@@ -12,7 +11,6 @@ const { generateTokenId } = require('../utility/jwt.utility');
 const {
   setIdentityWithHSet,
   setVerifyTokenIdentity,
-  setRestPasswordTokenIdentity,
   setChangePasswordTokenIdentity,
   isIdentityExists,
   getVerifyTokenIdentity,
@@ -88,27 +86,6 @@ signVerifyToken = async (identity, payload) => {
   console.log('verify-token', verifyToken);
   await setVerifyTokenIdentity(identity, Number(tokenExpire), payload);
   return verifyToken;
-};
-signResetPasswordToken = async (identity, payload) => {
-  const jwtId = generateTokenId();
-  const tokenExpire =
-    Math.floor(new Date().getTime() / 1000) +
-    Number(resetPasswordTokenConfig.expiryTime);
-  const jwtPayload = {
-    iat: Math.floor(new Date().getTime() / 1000),
-    nbf: Math.floor(new Date().getTime() / 1000),
-    exp: tokenExpire,
-    type: TokenType.ResetPassword,
-    identity: identity,
-    jti: jwtId,
-  };
-  const resetPasswordToken = jwt.sign(
-    jwtPayload,
-    resetPasswordTokenConfig.secret,
-  );
-  console.log('reset-password-token', resetPasswordToken);
-  await setRestPasswordTokenIdentity(identity, Number(tokenExpire), payload);
-  return resetPasswordToken;
 };
 signChangePasswordToken = async (identity, payload) => {
   const jwtId = generateTokenId();
@@ -247,7 +224,6 @@ verifyVerificationToken = async (token, res) => {
     });
   }
 };
-verifyResetPasswordToken = async (token) => {};
 verifyChangePasswordToken = async (token) => {};
 
 _revokeAccessToken = async (identity) => {};
@@ -257,13 +233,11 @@ module.exports = {
   signAccessToken,
   signRefreshToken,
   signVerifyToken,
-  signResetPasswordToken,
   signChangePasswordToken,
   signNewAccessAndRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
   verifyVerificationToken,
-  verifyResetPasswordToken,
   verifyChangePasswordToken,
   _revokeAccessToken,
   _revokeRefreshToken,

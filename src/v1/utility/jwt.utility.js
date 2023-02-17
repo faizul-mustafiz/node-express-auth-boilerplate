@@ -5,7 +5,7 @@ const otpGenerator = require('otp-generator');
 
 /**
  * * The data must be of type string or an instance of Buffer, TypedArray, or DataView.
- * *If you want to pass json first stringify and then pass the data.
+ * * If you want to pass json first stringify and then pass the data.
  */
 generateIdentityHash = (data) => {
   return _crypto.createHash('sha1').update(data).digest('hex');
