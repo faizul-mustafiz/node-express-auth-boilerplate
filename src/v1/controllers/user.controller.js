@@ -1,5 +1,5 @@
 require('dotenv');
-const User = require('../models/schema/user.model');
+const User = require('../models/user.model');
 
 getAllUser = async (req, res, next) => {
   try {
