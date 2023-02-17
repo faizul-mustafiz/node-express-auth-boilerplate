@@ -17,7 +17,7 @@ const {
   isIdentityExists,
   getVerifyTokenIdentity,
 } = require('../helpers/redis.helper');
-const TokenType = require('../models/static/token-type.model');
+const TokenType = require('../enums/token-type.enum');
 
 /**
  * * Different type of token signing methods
@@ -146,43 +146,106 @@ signNewAccessAndRefreshToken = async (
   };
 };
 
-verifyAccessToken = async (token) => {};
+verifyAccessToken = async (token, res) => {
+  try {
+    return jwt.verify(
+      token,
+      publicKey,
+      { algorithms: ['ES512'] },
+      async (err, decoded) => {
+        if (err) {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid token',
+            result: err,
+          });
+        }
+        if (decoded && decoded.identity) {
+          if (!isIdentityExists(decoded.identity)) {
+            return res.status(401).json({
+              success: false,
+              message: 'Invalid token',
+              result: err,
+            });
+          }
+          if (isIdentityBlacklisted(decoded.identity)) {
+            return res.status(401).json({
+              success: false,
+              message: 'Invalid token',
+              result: err,
+            });
+          }
+
+          const accessTokenRedisResponse = await getHSetIdentityPayload(
+            decoded.identity,
+          );
+          console.log('accessTokenRedisResponse', accessTokenRedisResponse);
+          if (!accessTokenRedisResponse) {
+            return res.status(401).json({
+              success: false,
+              message: 'Invalid token',
+              result: err,
+            });
+          } else {
+            return accessTokenRedisResponse;
+          }
+        }
+      },
+    );
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Oops there is an Error',
+      result: error,
+    });
+  }
+};
 verifyRefreshToken = async (token) => {};
 verifyVerificationToken = async (token, res) => {
-  return jwt.verify(
-    token,
-    verifyTokenConfig.verifyTokenSecret,
-    async (err, decoded) => {
-      console.log('error', err);
-      console.log('decoded', decoded);
-      if (err)
-        return res.status(401).json({
-          success: false,
-          message: 'Verification failed, invalid token',
-          result: err,
-        });
-      if (decoded && decoded.identity) {
-        if (!isIdentityExists(decoded.identity))
+  try {
+    return jwt.verify(
+      token,
+      verifyTokenConfig.verifyTokenSecret,
+      async (err, decoded) => {
+        console.log('error', err);
+        console.log('decoded', decoded);
+        if (err) {
           return res.status(401).json({
             success: false,
             message: 'Verification failed, invalid token',
             result: err,
           });
-        const verifyTokenRedisResponse = await getVerifyTokenIdentity(
-          decoded.identity,
-        );
-        if (!verifyTokenRedisResponse) {
-          return res.status(401).json({
-            success: false,
-            message: 'Verification failed, invalid token',
-            result: err,
-          });
-        } else {
-          return verifyTokenRedisResponse;
         }
-      }
-    },
-  );
+        if (decoded && decoded.identity) {
+          if (!isIdentityExists(decoded.identity)) {
+            return res.status(401).json({
+              success: false,
+              message: 'Verification failed, invalid token',
+              result: err,
+            });
+          }
+          const verifyTokenRedisResponse = await getVerifyTokenIdentity(
+            decoded.identity,
+          );
+          if (!verifyTokenRedisResponse) {
+            return res.status(401).json({
+              success: false,
+              message: 'Verification failed, invalid token',
+              result: err,
+            });
+          } else {
+            return verifyTokenRedisResponse;
+          }
+        }
+      },
+    );
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Oops there is an Error',
+      result: error,
+    });
+  }
 };
 verifyResetPasswordToken = async (token) => {};
 verifyChangePasswordToken = async (token) => {};

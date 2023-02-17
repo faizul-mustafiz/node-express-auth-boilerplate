@@ -1,10 +1,11 @@
 require('dotenv');
-const User = require('../models/schema/user.model');
+const User = require('../models/user.model');
 const {
   signAccessToken,
   signRefreshToken,
   signVerifyToken,
   verifyVerificationToken,
+  verifyAccessToken,
 } = require('../helpers/jwt.helper');
 const {
   generateIdentityHash,
@@ -15,16 +16,17 @@ const {
   splitAuthorizationHeader,
 } = require('../utility/jwt.utility');
 
-const TokenType = require('../models/static/token-type.model');
+const TokenType = require('../enums/token-type.enum');
 signUp = async (req, res, next) => {
   try {
     let { email, password } = req.body;
-    if (!email || !password)
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
         message: 'Any of these fields {email, password} not provided',
         result: {},
       });
+    }
 
     password = await User.generateHash(password);
     const existingUser = await User.emailExist(email);
@@ -86,7 +88,94 @@ signUp = async (req, res, next) => {
     });
   }
 };
-signIn = async (req, res, next) => {};
+signIn = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Any of these fields {email, password} not provided',
+        result: {},
+      });
+    }
+    /**
+     * * Check if the user email exists, send 400 bad request
+     */
+    const user = await User.emailExist(email);
+    console.log('user', user);
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'This email is not registered, SignUp first',
+        result: {},
+      });
+    }
+    const comparePassword = await user.validPassword(password);
+    console.log('comparePassword', comparePassword);
+    if (!comparePassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Incorrect password',
+        result: {},
+      });
+    }
+    /**
+     * * generate access token payload data that needs to be stored in redis
+     */
+    const accessTokenPayload = generateTokenPayloadForRedis(
+      user,
+      TokenType.Access,
+    );
+    /**
+     * * generate access token identity hash for redis key
+     */
+    const accessTokenIdentity = generateIdentityHash(
+      JSON.stringify(accessTokenPayload),
+    );
+    /**
+     * * generate access token.
+     */
+    const accessToken = await signAccessToken(
+      accessTokenIdentity,
+      accessTokenPayload,
+    );
+    /**
+     * * generate refresh token payload data that needs to be stored in redis
+     */
+    const refreshTokenPayload = generateTokenPayloadForRedis(
+      user,
+      TokenType.Refresh,
+    );
+    /**
+     * * generate refresh token identity hash for redis key
+     */
+    const refreshTokenIdentity = generateIdentityHash(
+      JSON.stringify(refreshTokenPayload),
+    );
+    /**
+     * * generate refresh token.
+     */
+    const refreshToken = await signRefreshToken(
+      refreshTokenIdentity,
+      refreshTokenPayload,
+    );
+    const result = {
+      accessToken,
+      refreshToken,
+    };
+    return res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      result: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Oops there is an Error',
+      result: error,
+    });
+  }
+};
 signOut = async (req, res, next) => {};
 verifySingUp = async (req, res, next) => {
   try {
@@ -185,7 +274,6 @@ verifySingUp = async (req, res, next) => {
       password: password,
       isVerified: true,
     });
-    user.password = await User.generateHash(password);
     console.log('user', user);
     /**
      * * generate access token payload data that needs to be stored in redis
