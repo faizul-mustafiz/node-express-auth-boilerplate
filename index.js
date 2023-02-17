@@ -9,6 +9,9 @@ const server = app.listen(port, host, () => {
   });
 });
 
+process.on('uncaughtException', function (err) {
+  console.log(err);
+});
 [
   `exit`,
   `SIGINT`,
