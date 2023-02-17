@@ -90,16 +90,23 @@ signIn = async (req, res, next) => {};
 signOut = async (req, res, next) => {};
 verifySingUp = async (req, res, next) => {
   try {
+    /**
+     * * Check if verification code is given in the body
+     * * If there is no verification code send 400 bad request
+     */
     const { code } = req.body;
-    if (!code)
+    if (!code) {
       return res.status(400).json({
         success: false,
         message: 'Verification code was not provided',
         result: {},
       });
-    // check authorization header exists
+    }
+    /**
+     * * Check if authorization header exists
+     * * If there is no authorization header send 403 forbidden
+     */
     const authorization = getAuthorizationHeader(req);
-    // console.log('authorization', authorization);
     if (!authorization) {
       return res.status(403).json({
         success: false,
@@ -107,7 +114,10 @@ verifySingUp = async (req, res, next) => {
         result: {},
       });
     }
-    // check bearer part exists
+    /**
+     * * Check if Bearer and Token header exists
+     * * If the token format is not Bearer [token] format send 403 forbidden
+     */
     const { bearer, token } = splitAuthorizationHeader(authorization);
     if (!bearer) {
       return res.status(403).json({
@@ -116,7 +126,6 @@ verifySingUp = async (req, res, next) => {
         result: {},
       });
     }
-    // check token part exists
     if (!token) {
       return res.status(403).json({
         success: false,
@@ -124,34 +133,50 @@ verifySingUp = async (req, res, next) => {
         result: {},
       });
     }
-    // decrypt token and check if the token exists in redis if yes the send the email and password response
+    /**
+     * * Decode verification token and check if the token is a valid token
+     * * jwt token related error send 401 unauthorized
+     * * if the decoded token identity is not present in redis send 401 unauthorized
+     * * Token is a valid token then fetch the token data from redis return data.
+     * @package verifyVerificationToken(token, res)
+     *
+     */
     const { email, password, otp, type } = await verifyVerificationToken(
       token,
       res,
     );
-    if (type != TokenType.Verify)
+    /**
+     * * If decoded token type is not verify, send 401 unauthorized
+     */
+    if (type != TokenType.Verify) {
       return res.status(401).json({
         success: false,
         message: 'Invalid token',
         result: {},
       });
-
-    if (otp != code)
+    }
+    /**
+     * * If provided code is not equal to redis otp, send 400 bad request
+     */
+    if (otp != code) {
       return res.status(400).json({
         success: false,
         message: 'Invalid code',
         result: {},
       });
-
-    // after above steps start signUp process
+    }
+    /**
+     * * Check if the user email exists, send 400 bad request
+     */
     const existingUser = await User.emailExist(email);
     console.log('existingUser', existingUser);
-    if (existingUser)
+    if (existingUser) {
       return res.status(400).json({
         success: false,
         message: 'An account with this email already exists',
         result: {},
       });
+    }
     /**
      * * creating new User model object and generating password salt.
      */
@@ -214,6 +239,9 @@ verifySingUp = async (req, res, next) => {
       accessToken,
       refreshToken,
     };
+    /**
+     * * Send 201 created request
+     */
     res.status(201).json({
       success: true,
       message: 'Successfully use created',
