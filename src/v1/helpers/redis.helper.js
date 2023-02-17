@@ -18,10 +18,10 @@ setIdentityWithHSet = async (identity, expiry, payload) => {
     const payloadArray = jsonToArray(payload);
     let result = await redisClient.hSet(identity, payloadArray);
     result = await redisClient.expireAt(identity, expiry);
-    console.log('setTokenIdentity-result', result);
+    console.log('setIdentityWithHSet-result', result);
     return result;
   } catch (error) {
-    console.log('setTokenIdentity-error', error);
+    console.log('setIdentityWithHSet-error', error);
   }
 };
 setIdentity = async (identity, expiry, payload) => {
