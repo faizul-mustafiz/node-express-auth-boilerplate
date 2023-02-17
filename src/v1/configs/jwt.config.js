@@ -25,7 +25,7 @@ const refreshTokenConfig = {
 };
 
 const verifyTokenConfig = {
-  verifyTokenSecret: VERIFY_TOKEN_SECRET,
+  secret: VERIFY_TOKEN_SECRET,
   expiryTime: VERIFY_TOKEN_EXPIRY_TIME,
 };
 

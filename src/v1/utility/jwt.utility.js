@@ -28,6 +28,13 @@ generateVerifyTokenPayloadForRedis = (email, password, type, otp) => {
     otp: otp,
   };
 };
+generateChangePasswordTokenPayloadForRedis = (email, type, otp) => {
+  return {
+    email: email,
+    type: type,
+    otp: otp,
+  };
+};
 generateOtp = (length) => {
   return otpGenerator.generate(length, {
     digits: true,
@@ -54,6 +61,7 @@ module.exports = {
   generateTokenId,
   generateTokenPayloadForRedis,
   generateVerifyTokenPayloadForRedis,
+  generateChangePasswordTokenPayloadForRedis,
   generateOtp,
   getAuthorizationHeader,
   splitAuthorizationHeader,

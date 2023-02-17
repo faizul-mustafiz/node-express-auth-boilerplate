@@ -5,6 +5,8 @@ const {
   signRefreshToken,
   signVerifyToken,
   verifyVerificationToken,
+  signChangePasswordToken,
+  verifyChangePasswordToken,
 } = require('../helpers/jwt.helper');
 const {
   generateIdentityHash,
@@ -13,11 +15,16 @@ const {
   generateOtp,
   getAuthorizationHeader,
   splitAuthorizationHeader,
+  generateChangePasswordTokenPayloadForRedis,
 } = require('../utility/jwt.utility');
 
 const TokenType = require('../enums/token-type.enum');
 signUp = async (req, res, next) => {
   try {
+    /**
+     * * get {email, password } form request body
+     * * if any of these not provided send 400 bad request
+     */
     let { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({
@@ -26,11 +33,15 @@ signUp = async (req, res, next) => {
         result: {},
       });
     }
-
+    /**
+     * * generate password hash form the provided password
+     * @param User.generateHash(password)
+     */
     password = await User.generateHash(password);
+    /**
+     * * check if email exists, send 400 bad request
+     */
     const existingUser = await User.emailExist(email);
-    console.log('existingUser', existingUser);
-
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -38,12 +49,12 @@ signUp = async (req, res, next) => {
         result: {},
       });
     }
-
-    const OTP = generateOtp(8);
-    console.log('OTP', OTP);
-
     /**
-     * * generate verify token payload data that needs to be stored in redis
+     * * generate OTP for verify sign-up
+     */
+    const OTP = generateOtp(8);
+    /**
+     * * generate verify token payload that needs to be stored in redis
      */
     const verifyTokenPayload = generateVerifyTokenPayloadForRedis(
       email,
@@ -51,7 +62,6 @@ signUp = async (req, res, next) => {
       TokenType.Verify,
       OTP,
     );
-    console.log('verifyTokenPayload', verifyTokenPayload);
     /**
      * * generate verify token identity hash for redis key
      */
@@ -59,13 +69,12 @@ signUp = async (req, res, next) => {
       JSON.stringify(verifyTokenPayload),
     );
     /**
-     * * generate verify token.
+     * * generate verify token
      */
     const verifyToken = await signVerifyToken(
       verifyTokenIdentity,
       verifyTokenPayload,
     );
-
     /**
      * * generate verify token response
      */
@@ -73,7 +82,9 @@ signUp = async (req, res, next) => {
       verify_token: verifyToken,
       code: OTP,
     };
-
+    /**
+     * * send 200 success response
+     */
     res.status(200).json({
       success: true,
       message: 'Please provided verification code for successful sign-up',
@@ -89,6 +100,10 @@ signUp = async (req, res, next) => {
 };
 signIn = async (req, res, next) => {
   try {
+    /**
+     * * get {email, password } form request body
+     * * if any of these not provided send 400 bad request
+     */
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({
@@ -98,7 +113,7 @@ signIn = async (req, res, next) => {
       });
     }
     /**
-     * * Check if the user email exists, send 400 bad request
+     * * check if user email doesn't exists, send 400 bad request
      */
     const user = await User.emailExist(email);
     console.log('user', user);
@@ -109,6 +124,10 @@ signIn = async (req, res, next) => {
         result: {},
       });
     }
+    /**
+     * * compare the request password and db password
+     * * if password doesn't match send 400 bad request
+     */
     const comparePassword = await user.validPassword(password);
     console.log('comparePassword', comparePassword);
     if (!comparePassword) {
@@ -158,10 +177,16 @@ signIn = async (req, res, next) => {
       refreshTokenIdentity,
       refreshTokenPayload,
     );
+    /**
+     * * generate sing-in response body
+     */
     const result = {
       accessToken,
       refreshToken,
     };
+    /**
+     * * Send 200 success response
+     */
     return res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -179,8 +204,8 @@ signOut = async (req, res, next) => {};
 verifySingUp = async (req, res, next) => {
   try {
     /**
-     * * Check if verification code is given in the body
-     * * If there is no verification code send 400 bad request
+     * * check if verification code is given in the body
+     * * if there is no verification code send 400 bad request
      */
     const { code } = req.body;
     if (!code) {
@@ -191,8 +216,8 @@ verifySingUp = async (req, res, next) => {
       });
     }
     /**
-     * * Check if authorization header exists
-     * * If there is no authorization header send 403 forbidden
+     * * check if authorization header exists
+     * * if there is no authorization header send 403 forbidden
      */
     const authorization = getAuthorizationHeader(req);
     if (!authorization) {
@@ -203,8 +228,8 @@ verifySingUp = async (req, res, next) => {
       });
     }
     /**
-     * * Check if Bearer and Token header exists
-     * * If the token format is not Bearer [token] format send 403 forbidden
+     * * check if Bearer and Token header exists
+     * * if the token format is not Bearer [token] format send 403 forbidden
      */
     const { bearer, token } = splitAuthorizationHeader(authorization);
     if (!bearer) {
@@ -222,19 +247,18 @@ verifySingUp = async (req, res, next) => {
       });
     }
     /**
-     * * Decode verification token and check if the token is a valid token
+     * * decode verification token and check if the token is a valid token
      * * jwt token related error send 401 unauthorized
      * * if the decoded token identity is not present in redis send 401 unauthorized
      * * Token is a valid token then fetch the token data from redis return data.
      * @package verifyVerificationToken(token, res)
-     *
      */
-    const { email, password, otp, type } = await verifyVerificationToken(
+    const { email, password, type, otp } = await verifyVerificationToken(
       token,
       res,
     );
     /**
-     * * If decoded token type is not verify, send 401 unauthorized
+     * * if decoded token type is not verify, send 401 unauthorized
      */
     if (type != TokenType.Verify) {
       return res.status(401).json({
@@ -244,7 +268,7 @@ verifySingUp = async (req, res, next) => {
       });
     }
     /**
-     * * If provided code is not equal to redis otp, send 400 bad request
+     * * if provided code is not equal to redis otp, send 400 bad request
      */
     if (otp != code) {
       return res.status(400).json({
@@ -254,7 +278,7 @@ verifySingUp = async (req, res, next) => {
       });
     }
     /**
-     * * Check if the user email exists, send 400 bad request
+     * * check if email exists, send 400 bad request
      */
     const existingUser = await User.emailExist(email);
     console.log('existingUser', existingUser);
@@ -319,7 +343,7 @@ verifySingUp = async (req, res, next) => {
      */
     const result = await user.save();
     /**
-     * * appending  access_token & refresh_token with user save response
+     * * generate verify-sign-up response body
      */
     result._doc = {
       ...result._doc,
@@ -327,7 +351,7 @@ verifySingUp = async (req, res, next) => {
       refreshToken,
     };
     /**
-     * * Send 201 created request
+     * * send 201 created response
      */
     res.status(201).json({
       success: true,
@@ -342,8 +366,213 @@ verifySingUp = async (req, res, next) => {
     });
   }
 };
-forgotPassword = async (req, res, next) => {};
-changePassword = async (req, res, next) => {};
+forgotPassword = async (req, res, next) => {
+  try {
+    /**
+     * * get {email} form request body
+     * * if email not provided send 400 bad request
+     */
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email not provided',
+        result: {},
+      });
+    }
+    /**
+     * * check if email doesn't exists, send 400 bad request
+     */
+    const user = await User.emailExist(email);
+    console.log('user', user);
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'This email is not registered, SignUp first',
+        result: {},
+      });
+    }
+    /**
+     * * generate OTP for change password
+     */
+    const OTP = generateOtp(8);
+    console.log('OTP', OTP);
+    /**
+     * * generate change password token payload that needs to be stored in redis
+     */
+    const changePasswordTokenPayload =
+      generateChangePasswordTokenPayloadForRedis(
+        email,
+        TokenType.ChangePassword,
+        OTP,
+      );
+    /**
+     * * generate change password token identity hash for redis key
+     */
+    const changePasswordTokenIdentity = generateIdentityHash(
+      JSON.stringify(changePasswordTokenPayload),
+    );
+    /**
+     * * generate change password token.
+     */
+    const changePasswordToken = await signChangePasswordToken(
+      changePasswordTokenIdentity,
+      changePasswordTokenPayload,
+    );
+    /**
+     * * generate forgot password response body
+     */
+    const result = {
+      token: changePasswordToken,
+      code: OTP,
+    };
+    /**
+     * * send 200 success response
+     */
+    res.status(200).json({
+      success: true,
+      message:
+        'please provided verification code for successful change-password',
+      result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Oops there is an Error',
+      result: error,
+    });
+  }
+};
+changePassword = async (req, res, next) => {
+  try {
+    /**
+     * * check if verification code and password is given in the body
+     * * if there is no verification code or password send 400 bad request
+     */
+    const { code, new_password } = req.body;
+    if (!code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification code was not provided',
+        result: {},
+      });
+    }
+    if (!new_password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password was not provided',
+        result: {},
+      });
+    }
+    /**
+     * * check if authorization header exists
+     * * if there is no authorization header send 403 forbidden
+     */
+    const authorization = getAuthorizationHeader(req);
+    if (!authorization) {
+      return res.status(403).json({
+        success: false,
+        message: 'Authorization header is not present',
+        result: {},
+      });
+    }
+    /**
+     * * check if Bearer and Token header exists
+     * * if the token format is not Bearer [token] format send 403 forbidden
+     */
+    const { bearer, token } = splitAuthorizationHeader(authorization);
+    if (!bearer) {
+      return res.status(403).json({
+        success: false,
+        message: 'Format for authorization: Bearer [token]',
+        result: {},
+      });
+    }
+    if (!token) {
+      return res.status(403).json({
+        success: false,
+        message: 'Verification token was not provided',
+        result: {},
+      });
+    }
+    /**
+     * * decode change password token and check if the token is a valid token
+     * * jwt token related error send 401 unauthorized
+     * * if the decoded token identity is not present in redis send 401 unauthorized
+     * * Token is a valid token then fetch the token data from redis return data.
+     * @package verifyChangePasswordToken(token, res)
+     */
+    const { email, type, otp } = await verifyChangePasswordToken(token, res);
+    /**
+     * * if decoded token type is not change password, send 401 unauthorized
+     */
+    if (type != TokenType.ChangePassword) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token',
+        result: {},
+      });
+    }
+    /**
+     * * if provided code is not equal to redis otp, send 400 bad request
+     */
+    if (otp != code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid code',
+        result: {},
+      });
+    }
+    /**
+     * * check if user email doesn't exists, send 400 bad request
+     */
+    const user = await User.emailExist(email);
+    console.log('user', user);
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'This email is not registered, SignUp first',
+        result: {},
+      });
+    }
+    /**
+     * * compare the new_password with the existing password
+     * * if the new_password and the old_password is same send 409 conflict
+     */
+    const comparePassword = await user.validPassword(new_password);
+    console.log('comparePassword', comparePassword);
+    if (comparePassword) {
+      return res.status(409).json({
+        success: false,
+        message:
+          'Provided password is among the old passwords, please try with a different password',
+        result: {},
+      });
+    }
+    /**
+     * * generate hash form the new_password
+     * * sand assign the newPasswordHash as the current password
+     * * then save the user with new password
+     */
+    const newPasswordHash = await User.generateHash(new_password);
+    user.password = newPasswordHash;
+    await user.save();
+    /**
+     * * send 200 success response
+     */
+    res.status(200).json({
+      success: true,
+      message: 'Successfully changed password',
+      result: {},
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Oops there is an Error',
+      result: error,
+    });
+  }
+};
 refresh = async (req, res, next) => {};
 revokeAccessToken = async (req, res, next) => {};
 revokeRefreshToken = async (req, res, next) => {};
