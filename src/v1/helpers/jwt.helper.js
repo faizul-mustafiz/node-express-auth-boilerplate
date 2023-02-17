@@ -83,7 +83,7 @@ signVerifyToken = async (identity, payload) => {
     identity: identity,
     jti: jwtId,
   };
-  const verifyToken = jwt.sign(jwtPayload, verifyTokenConfig.verifyTokenSecret);
+  const verifyToken = jwt.sign(jwtPayload, verifyTokenConfig.secret);
   console.log('verify-token', verifyToken);
   await setVerifyTokenIdentity(identity, Number(tokenExpire), payload);
   return verifyToken;
