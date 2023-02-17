@@ -20,8 +20,9 @@ const TokenType = require('../enums/token-type.enum');
 
 /**
  * * Different type of token signing methods
- * @param signAccessToken(identity, payload)
- * @param signRefreshToken(identity, payload)
+ * @param signAccessToken(payload)
+ * @param signRefreshToken(payload)
+ * * identity creation is handled inside these method and not passed as a parameter
  * @param signVerifyToken(identity, payload)
  * @param signResetPasswordToken(identity, payload)
  * @param signChangePasswordToken(identity, payload)
@@ -30,28 +31,77 @@ const TokenType = require('../enums/token-type.enum');
  * * payload parameter is the payload that needs to be stored in redis.
  * @param setIdentityWithHSet(identity, expiry, payload)
  */
-signAccessToken = async (identity, payload) => {
-  const jwtId = generateTokenId();
+signAccessToken = async (payload) => {
+  /**
+   * * generate access token id
+   */
+  const accessTokenId = generateTokenId();
+  /**
+   * * generate access token payload data that needs to be stored in redis
+   */
+  const accessTokenPayload = generateTokenPayloadForRedis(
+    payload,
+    TokenType.Access,
+    accessTokenId,
+  );
+  /**
+   * * generate access token identity hash for redis key
+   */
+  const accessTokenIdentity = generateIdentityHash(
+    JSON.stringify(accessTokenPayload),
+  );
+  /**
+   * * generate access token expiry
+   */
   const tokenExpire =
     Math.floor(new Date().getTime() / 1000) +
     Number(accessTokenConfig.expiryTime);
+  /**
+   * * generate access token payload
+   */
   const jwtPayload = {
     iat: Math.floor(new Date().getTime() / 1000),
     nbf: Math.floor(new Date().getTime() / 1000),
     exp: tokenExpire,
     type: TokenType.Access,
-    identity: identity,
-    jti: jwtId,
+    identity: accessTokenIdentity,
+    jti: accessTokenId,
   };
+  /**
+   * * sign access token with private key
+   */
   const accessToken = jwt.sign(jwtPayload, privateKey, {
     algorithm: 'ES512',
   });
-  console.log('access-token:', accessToken);
-  await setIdentityWithHSet(identity, Number(tokenExpire), payload);
+  /**
+   * * store access token data to redis
+   */
+  await setIdentityWithHSet(
+    accessTokenIdentity,
+    Number(tokenExpire),
+    accessTokenPayload,
+  );
   return accessToken;
 };
-signRefreshToken = async (identity, payload) => {
-  const jwtId = generateTokenId();
+signRefreshToken = async (payload) => {
+  /**
+   * * generate refresh token id
+   */
+  const refreshTokenId = generateTokenId();
+  /**
+   * * generate refresh token payload data that needs to be stored in redis
+   */
+  const refreshTokenPayload = generateTokenPayloadForRedis(
+    payload,
+    TokenType.Refresh,
+    refreshTokenId,
+  );
+  /**
+   * * generate refresh token identity hash for redis key
+   */
+  const refreshTokenIdentity = generateIdentityHash(
+    JSON.stringify(refreshTokenPayload),
+  );
   const tokenExpire =
     Math.floor(new Date().getTime() / 1000) +
     Number(refreshTokenConfig.expiryTime);
@@ -60,14 +110,17 @@ signRefreshToken = async (identity, payload) => {
     nbf: Math.floor(new Date().getTime() / 1000),
     exp: tokenExpire,
     type: TokenType.Refresh,
-    identity: identity,
-    jti: jwtId,
+    identity: refreshTokenIdentity,
+    jti: refreshTokenId,
   };
   const refreshToken = jwt.sign(jwtPayload, privateKey, {
     algorithm: 'ES512',
   });
-  console.log('refresh-token:', refreshToken);
-  await setIdentityWithHSet(identity, Number(tokenExpire), payload);
+  await setIdentityWithHSet(
+    refreshTokenIdentity,
+    Number(tokenExpire),
+    refreshTokenPayload,
+  );
   return refreshToken;
 };
 signVerifyToken = async (identity, payload) => {
@@ -123,7 +176,13 @@ signNewAccessAndRefreshToken = async (
     refresh_token: refreshToken,
   };
 };
-
+/**
+ * * Different type of token verifying methods
+ * @param verifyAccessToken(token, res)
+ * @param verifyRefreshToken(token, res)
+ * @param verifyVerificationToken(token, res)
+ * @param verifyChangePasswordToken(token, res)
+ */
 verifyAccessToken = async (token, res) => {
   try {
     return jwt.verify(
@@ -178,7 +237,7 @@ verifyAccessToken = async (token, res) => {
     });
   }
 };
-verifyRefreshToken = async (token) => {};
+verifyRefreshToken = async (token, res) => {};
 verifyVerificationToken = async (token, res) => {
   try {
     return jwt.verify(token, verifyTokenConfig.secret, async (err, decoded) => {

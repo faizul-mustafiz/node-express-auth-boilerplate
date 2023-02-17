@@ -138,45 +138,14 @@ signIn = async (req, res, next) => {
       });
     }
     /**
-     * * generate access token payload data that needs to be stored in redis
-     */
-    const accessTokenPayload = generateTokenPayloadForRedis(
-      user,
-      TokenType.Access,
-    );
-    /**
-     * * generate access token identity hash for redis key
-     */
-    const accessTokenIdentity = generateIdentityHash(
-      JSON.stringify(accessTokenPayload),
-    );
-    /**
      * * generate access token.
      */
-    const accessToken = await signAccessToken(
-      accessTokenIdentity,
-      accessTokenPayload,
-    );
-    /**
-     * * generate refresh token payload data that needs to be stored in redis
-     */
-    const refreshTokenPayload = generateTokenPayloadForRedis(
-      user,
-      TokenType.Refresh,
-    );
-    /**
-     * * generate refresh token identity hash for redis key
-     */
-    const refreshTokenIdentity = generateIdentityHash(
-      JSON.stringify(refreshTokenPayload),
-    );
+    const accessToken = await signAccessToken(user);
+
     /**
      * * generate refresh token.
      */
-    const refreshToken = await signRefreshToken(
-      refreshTokenIdentity,
-      refreshTokenPayload,
-    );
+    const refreshToken = await signRefreshToken(user);
     /**
      * * generate sing-in response body
      */
@@ -299,45 +268,13 @@ verifySingUp = async (req, res, next) => {
     });
     console.log('user', user);
     /**
-     * * generate access token payload data that needs to be stored in redis
-     */
-    const accessTokenPayload = generateTokenPayloadForRedis(
-      user,
-      TokenType.Access,
-    );
-    /**
-     * * generate access token identity hash for redis key
-     */
-    const accessTokenIdentity = generateIdentityHash(
-      JSON.stringify(accessTokenPayload),
-    );
-    /**
      * * generate access token.
      */
-    const accessToken = await signAccessToken(
-      accessTokenIdentity,
-      accessTokenPayload,
-    );
-    /**
-     * * generate refresh token payload data that needs to be stored in redis
-     */
-    const refreshTokenPayload = generateTokenPayloadForRedis(
-      user,
-      TokenType.Refresh,
-    );
-    /**
-     * * generate refresh token identity hash for redis key
-     */
-    const refreshTokenIdentity = generateIdentityHash(
-      JSON.stringify(refreshTokenPayload),
-    );
+    const accessToken = await signAccessToken(user);
     /**
      * * generate refresh token.
      */
-    const refreshToken = await signRefreshToken(
-      refreshTokenIdentity,
-      refreshTokenPayload,
-    );
+    const refreshToken = await signRefreshToken(user);
     /**
      * * save user to mongoDB
      */

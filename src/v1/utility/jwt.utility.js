@@ -1,6 +1,6 @@
 const _crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const uuid = require('uuid').v4();
+const uuid = require('uuid');
 const otpGenerator = require('otp-generator');
 
 /**
@@ -11,13 +11,14 @@ generateIdentityHash = (data) => {
   return _crypto.createHash('sha1').update(data).digest('hex');
 };
 generateTokenId = () => {
-  return uuid;
+  return uuid.v4();
 };
-generateTokenPayloadForRedis = (user, type) => {
+generateTokenPayloadForRedis = (user, type, tokenId) => {
   return {
     email: user.email,
     id: user.id,
     type: type,
+    tokenId: tokenId,
   };
 };
 generateVerifyTokenPayloadForRedis = (email, password, type, otp) => {
