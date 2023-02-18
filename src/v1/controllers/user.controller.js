@@ -20,9 +20,10 @@ getAllUser = async (req, res, next) => {
       result,
     });
   } catch (error) {
+    console.log('catch-error', error);
     return res
       .status(500)
-      .json({ success: false, message: 'Oops there is an Error', result: {} });
+      .json({ success: false, message: 'oops! there is an Error', result: {} });
   }
 };
 getOneUser = async (req, res, next) => {
@@ -50,9 +51,10 @@ getOneUser = async (req, res, next) => {
       result,
     });
   } catch (error) {
+    console.log('catch-error', error);
     return res
       .status(500)
-      .json({ success: false, message: 'Oops there is an Error', result: {} });
+      .json({ success: false, message: 'oops! there is an Error', result: {} });
   }
 };
 updateOneUser = async (req, res, next) => {
@@ -92,9 +94,10 @@ updateOneUser = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
+    console.log('catch-error', error);
     return res
       .status(500)
-      .json({ success: false, message: 'Oops there is an Error', result: {} });
+      .json({ success: false, message: 'oops! there is an Error', result: {} });
   }
 };
 deleteOneUser = async (req, res, next) => {
@@ -122,9 +125,10 @@ deleteOneUser = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
+    console.log('catch-error', error);
     return res
       .status(500)
-      .json({ success: false, message: 'Oops there is an Error', result: {} });
+      .json({ success: false, message: 'oops! there is an Error', result: {} });
   }
 };
 
