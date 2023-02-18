@@ -13,7 +13,6 @@ const {
   setVerifyTokenIdentity,
   setChangePasswordTokenIdentity,
   isIdentityExists,
-  getVerifyTokenIdentity,
   getChangePasswordTokenIdentity,
   isIdentityBlacklisted,
   isChangePasswordTokenIdentityExists,
@@ -167,7 +166,6 @@ signChangePasswordToken = async (identity, payload) => {
  * * Different type of token verifying methods
  * @param verifyAccessToken(token, res)
  * @param verifyRefreshToken(token, res)
- * @param verifyVerificationToken(token, res)
  * @param verifyChangePasswordToken(token, res)
  */
 verifyAccessToken = async (token, res) => {
@@ -296,50 +294,6 @@ verifyRefreshToken = async (token, res) => {
     });
   }
 };
-verifyVerificationToken = async (token, res) => {
-  try {
-    return jwt.verify(token, verifyTokenConfig.secret, async (err, decoded) => {
-      console.log('error', err);
-      console.log('decoded', decoded);
-      if (err) {
-        return res.status(401).json({
-          success: false,
-          message: 'Verification failed, invalid token',
-          result: err,
-        });
-      }
-      if (decoded && decoded.identity) {
-        const identityExists = isVerifyTokenIdentityExists(decoded.identity);
-        if (!identityExists) {
-          return res.status(401).json({
-            success: false,
-            message: 'Verification failed, invalid token',
-            result: {},
-          });
-        }
-        const verifyTokenRedisResponse = await getVerifyTokenIdentity(
-          decoded.identity,
-        );
-        if (!verifyTokenRedisResponse) {
-          return res.status(401).json({
-            success: false,
-            message: 'Verification failed, invalid token',
-            result: {},
-          });
-        } else {
-          return verifyTokenRedisResponse;
-        }
-      }
-    });
-  } catch (error) {
-    console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
-      message: 'oops! there is an Error',
-      result: error,
-    });
-  }
-};
 verifyChangePasswordToken = async (token, res) => {
   try {
     return jwt.verify(
@@ -396,6 +350,5 @@ module.exports = {
   signChangePasswordToken,
   verifyAccessToken,
   verifyRefreshToken,
-  verifyVerificationToken,
   verifyChangePasswordToken,
 };

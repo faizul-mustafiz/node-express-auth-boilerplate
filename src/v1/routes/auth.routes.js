@@ -3,13 +3,14 @@ const authRouter = express.Router();
 const { AuthController } = require('../controllers/index');
 const hasAuthorization = require('../middlewares/hasAuthorization.middleware');
 const hasOTP = require('../middlewares/hasOTP.middleware');
+const validateVerification = require('../middlewares/validateVerification.middleware');
 
 authRouter.post('/sign-up', AuthController.signUp);
 authRouter.post('/sign-in', AuthController.signIn);
 authRouter.post('/sign-out', hasAuthorization, AuthController.signOut);
 authRouter.post(
   '/verify',
-  [hasAuthorization, hasOTP],
+  [hasAuthorization, hasOTP, validateVerification],
   AuthController.verifySingUp,
 );
 authRouter.post('/forgot-password', AuthController.forgotPassword);

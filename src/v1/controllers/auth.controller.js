@@ -7,7 +7,6 @@ const {
   signChangePasswordToken,
   verifyAccessToken,
   verifyRefreshToken,
-  verifyVerificationToken,
   verifyChangePasswordToken,
 } = require('../helpers/jwt.helper');
 const {
@@ -180,24 +179,15 @@ signOut = async (req, res, next) => {
 verifySingUp = async (req, res, next) => {
   try {
     /**
-     * * get the passed token value form the res.locals
-     */
-    const token = res.locals.token;
-    /**
-     * * get the passed OTP code value form the res.locals
+     * * get passed OTP code value form the res.locals
      */
     const code = res.locals.code;
     /**
-     * * decode verification token and check if the token is a valid token
-     * * jwt token related error send 401 unauthorized
-     * * if the decoded token identity is not present in redis send 401 unauthorized
-     * * Token is a valid token then fetch the token data from redis return data.
-     * @package verifyVerificationToken(token, res)
+     * * get validateVerificationResponse value form res.locals
      */
-    const { email, password, type, otp } = await verifyVerificationToken(
-      token,
-      res,
-    );
+    const { email, password, type, otp } =
+      res.locals.validateVerificationResponse;
+
     if (email && password && type && otp) {
       /**
        * * if decoded token type is not verify, send 401 unauthorized
