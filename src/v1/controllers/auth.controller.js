@@ -184,17 +184,9 @@ verifySingUp = async (req, res, next) => {
      */
     const token = res.locals.token;
     /**
-     * * check if verification code is given in the body
-     * * if there is no verification code send 400 bad request
+     * * get the passed OTP code value form the res.locals
      */
-    const { code } = req.body;
-    if (!code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Verification code was not provided',
-        result: {},
-      });
-    }
+    const code = res.locals.code;
     /**
      * * decode verification token and check if the token is a valid token
      * * jwt token related error send 401 unauthorized
@@ -273,7 +265,7 @@ verifySingUp = async (req, res, next) => {
        */
       res.status(201).json({
         success: true,
-        message: 'Successfully use created',
+        message: 'Sign-Up successful',
         result,
       });
     }
@@ -286,6 +278,7 @@ verifySingUp = async (req, res, next) => {
     });
   }
 };
+verifySignIn = async (req, res, next) => {};
 forgotPassword = async (req, res, next) => {
   try {
     /**
@@ -371,17 +364,14 @@ changePassword = async (req, res, next) => {
      */
     const token = res.locals.token;
     /**
-     * * check if verification code and password is given in the body
+     * * get the passed OTP code value form the res.locals
+     */
+    const code = res.locals.code;
+    /**
+     * * check if password is given in the body
      * * if there is no verification code or password send 400 bad request
      */
-    const { code, new_password } = req.body;
-    if (!code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Verification code was not provided',
-        result: {},
-      });
-    }
+    const { new_password } = req.body;
     if (!new_password) {
       return res.status(400).json({
         success: false,
@@ -696,6 +686,7 @@ module.exports = {
   signIn,
   signOut,
   verifySingUp,
+  verifySignIn,
   forgotPassword,
   changePassword,
   refresh,
