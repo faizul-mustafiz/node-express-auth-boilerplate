@@ -309,7 +309,8 @@ verifyVerificationToken = async (token, res) => {
         });
       }
       if (decoded && decoded.identity) {
-        if (!isVerifyTokenIdentityExists(decoded.identity)) {
+        const identityExists = isVerifyTokenIdentityExists(decoded.identity);
+        if (!identityExists) {
           return res.status(401).json({
             success: false,
             message: 'Verification failed, invalid token',
@@ -355,7 +356,10 @@ verifyChangePasswordToken = async (token, res) => {
           });
         }
         if (decoded && decoded.identity) {
-          if (!isChangePasswordTokenIdentityExists(decoded.identity)) {
+          const identityExists = isChangePasswordTokenIdentityExists(
+            decoded.identity,
+          );
+          if (!identityExists) {
             return res.status(401).json({
               success: false,
               message: 'Invalid token',
@@ -385,10 +389,6 @@ verifyChangePasswordToken = async (token, res) => {
     });
   }
 };
-
-_revokeAccessToken = async (identity) => {};
-_revokeRefreshToken = async (identity) => {};
-
 module.exports = {
   signAccessToken,
   signRefreshToken,
@@ -398,6 +398,4 @@ module.exports = {
   verifyRefreshToken,
   verifyVerificationToken,
   verifyChangePasswordToken,
-  _revokeAccessToken,
-  _revokeRefreshToken,
 };
