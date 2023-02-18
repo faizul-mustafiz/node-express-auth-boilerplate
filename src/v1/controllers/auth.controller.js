@@ -12,11 +12,8 @@ const {
 } = require('../helpers/jwt.helper');
 const {
   generateIdentityHash,
-  generateTokenPayloadForRedis,
   generateVerifyTokenPayloadForRedis,
   generateOtp,
-  getAuthorizationHeader,
-  splitAuthorizationHeader,
   generateChangePasswordTokenPayloadForRedis,
 } = require('../utility/jwt.utility');
 
@@ -183,6 +180,10 @@ signOut = async (req, res, next) => {
 verifySingUp = async (req, res, next) => {
   try {
     /**
+     * * get the passed token value form the res.locals
+     */
+    const token = res.locals.token;
+    /**
      * * check if verification code is given in the body
      * * if there is no verification code send 400 bad request
      */
@@ -191,37 +192,6 @@ verifySingUp = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Verification code was not provided',
-        result: {},
-      });
-    }
-    /**
-     * * check if authorization header exists
-     * * if there is no authorization header send 403 forbidden
-     */
-    const authorization = getAuthorizationHeader(req);
-    if (!authorization) {
-      return res.status(403).json({
-        success: false,
-        message: 'Authorization header is not present',
-        result: {},
-      });
-    }
-    /**
-     * * check if Bearer and Token header exists
-     * * if the token format is not Bearer [token] format send 403 forbidden
-     */
-    const { bearer, token } = splitAuthorizationHeader(authorization);
-    if (!bearer) {
-      return res.status(403).json({
-        success: false,
-        message: 'Format for authorization: Bearer [token]',
-        result: {},
-      });
-    }
-    if (!token) {
-      return res.status(403).json({
-        success: false,
-        message: 'Verification token was not provided',
         result: {},
       });
     }
@@ -397,6 +367,10 @@ forgotPassword = async (req, res, next) => {
 changePassword = async (req, res, next) => {
   try {
     /**
+     * * get the passed token value form the res.locals
+     */
+    const token = res.locals.token;
+    /**
      * * check if verification code and password is given in the body
      * * if there is no verification code or password send 400 bad request
      */
@@ -412,37 +386,6 @@ changePassword = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Password was not provided',
-        result: {},
-      });
-    }
-    /**
-     * * check if authorization header exists
-     * * if there is no authorization header send 403 forbidden
-     */
-    const authorization = getAuthorizationHeader(req);
-    if (!authorization) {
-      return res.status(403).json({
-        success: false,
-        message: 'Authorization header is not present',
-        result: {},
-      });
-    }
-    /**
-     * * check if Bearer and Token header exists
-     * * if the token format is not Bearer [token] format send 403 forbidden
-     */
-    const { bearer, token } = splitAuthorizationHeader(authorization);
-    if (!bearer) {
-      return res.status(403).json({
-        success: false,
-        message: 'Format for authorization: Bearer [token]',
-        result: {},
-      });
-    }
-    if (!token) {
-      return res.status(403).json({
-        success: false,
-        message: 'Verification token was not provided',
         result: {},
       });
     }
@@ -530,36 +473,9 @@ changePassword = async (req, res, next) => {
 refresh = async (req, res, next) => {
   try {
     /**
-     * * check if authorization header exists
-     * * if there is no authorization header send 403 forbidden
+     * * get the passed token value form the res.locals
      */
-    const authorization = getAuthorizationHeader(req);
-    if (!authorization) {
-      return res.status(403).json({
-        success: false,
-        message: 'Authorization header is not present',
-        result: {},
-      });
-    }
-    /**
-     * * check if Bearer and Token header exists
-     * * if the token format is not Bearer [token] format send 403 forbidden
-     */
-    const { bearer, token } = splitAuthorizationHeader(authorization);
-    if (!bearer) {
-      return res.status(403).json({
-        success: false,
-        message: 'Format for authorization: Bearer [token]',
-        result: {},
-      });
-    }
-    if (!token) {
-      return res.status(403).json({
-        success: false,
-        message: 'Verification token was not provided',
-        result: {},
-      });
-    }
+    const token = res.locals.token;
     /**
      * * decode refresh token and check if the token is a valid token
      * * jwt token related error send 401 unauthorized
@@ -640,36 +556,9 @@ refresh = async (req, res, next) => {
 revokeAccessToken = async (req, res, next) => {
   try {
     /**
-     * * check if authorization header exists
-     * * if there is no authorization header send 403 forbidden
+     * * get the passed token value form the res.locals
      */
-    const authorization = getAuthorizationHeader(req);
-    if (!authorization) {
-      return res.status(403).json({
-        success: false,
-        message: 'Authorization header is not present',
-        result: {},
-      });
-    }
-    /**
-     * * check if Bearer and Token header exists
-     * * if the token format is not Bearer [token] format send 403 forbidden
-     */
-    const { bearer, token } = splitAuthorizationHeader(authorization);
-    if (!bearer) {
-      return res.status(403).json({
-        success: false,
-        message: 'Format for authorization: Bearer [token]',
-        result: {},
-      });
-    }
-    if (!token) {
-      return res.status(403).json({
-        success: false,
-        message: 'Verification token was not provided',
-        result: {},
-      });
-    }
+    const token = res.locals.token;
     /**
      * * decode access token and check if the token is a valid token
      * * jwt token related error send 401 unauthorized
@@ -735,36 +624,9 @@ revokeAccessToken = async (req, res, next) => {
 revokeRefreshToken = async (req, res, next) => {
   try {
     /**
-     * * check if authorization header exists
-     * * if there is no authorization header send 403 forbidden
+     * * get the passed token value form the res.locals
      */
-    const authorization = getAuthorizationHeader(req);
-    if (!authorization) {
-      return res.status(403).json({
-        success: false,
-        message: 'Authorization header is not present',
-        result: {},
-      });
-    }
-    /**
-     * * check if Bearer and Token header exists
-     * * if the token format is not Bearer [token] format send 403 forbidden
-     */
-    const { bearer, token } = splitAuthorizationHeader(authorization);
-    if (!bearer) {
-      return res.status(403).json({
-        success: false,
-        message: 'Format for authorization: Bearer [token]',
-        result: {},
-      });
-    }
-    if (!token) {
-      return res.status(403).json({
-        success: false,
-        message: 'Verification token was not provided',
-        result: {},
-      });
-    }
+    const token = res.locals.token;
     /**
      * * decode refresh token and check if the token is a valid token
      * * jwt token related error send 401 unauthorized
