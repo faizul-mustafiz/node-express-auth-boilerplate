@@ -3,7 +3,7 @@ const {
   splitAuthorizationHeader,
 } = require('../utility/jwt.utility');
 
-const authorized = (req, res, next) => {
+const hasAuthorization = (req, res, next) => {
   /**
    * * check if authorization header exists
    * * if there is no authorization header send 403 forbidden
@@ -36,11 +36,11 @@ const authorized = (req, res, next) => {
     });
   }
   /**
-   * * pass the token, need for verifying the token as res.locals
+   * * pass the token, need for verifying the token as res.locals.token
    * * res.locals are persistent throughout the request life cycle or simply to say until the request is resolved
    */
   res.locals.token = token;
   next();
 };
 
-module.exports = authorized;
+module.exports = hasAuthorization;
