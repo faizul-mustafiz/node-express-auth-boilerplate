@@ -177,7 +177,9 @@ signIn = async (req, res, next) => {
     });
   }
 };
-signOut = async (req, res, next) => {};
+signOut = async (req, res, next) => {
+  await revokeRefreshToken(req, res, next);
+};
 verifySingUp = async (req, res, next) => {
   try {
     /**
