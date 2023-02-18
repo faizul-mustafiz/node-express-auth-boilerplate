@@ -28,7 +28,6 @@ const TokenType = require('../enums/token-type.enum');
  * @param signVerifyToken(identity, payload)
  * @param signResetPasswordToken(identity, payload)
  * @param signChangePasswordToken(identity, payload)
- * @param signNewAccessAndRefreshToken(identity, payload)
  * * identity parameter is the key that needs to be stored as a key in redis
  * * payload parameter is the payload that needs to be stored in redis.
  * @param setIdentityWithHSet(identity, expiry, payload)
@@ -164,15 +163,6 @@ signChangePasswordToken = async (identity, payload) => {
   await setChangePasswordTokenIdentity(identity, Number(tokenExpire), payload);
   return changePasswordToken;
 };
-signNewAccessAndRefreshToken = async (payload) => {
-  const accessToken = await signAccessToken(payload);
-  const refreshToken = await signRefreshToken(payload);
-  console.table(accessToken, refreshToken);
-  return {
-    access_token: accessToken,
-    refresh_token: refreshToken,
-  };
-};
 /**
  * * Different type of token verifying methods
  * @param verifyAccessToken(token, res)
@@ -187,6 +177,8 @@ verifyAccessToken = async (token, res) => {
       publicKey,
       { algorithms: ['ES512'] },
       async (err, decoded) => {
+        console.log('err', err);
+        console.log('decoded', decoded);
         if (err) {
           return res.status(401).json({
             success: false,
@@ -224,7 +216,10 @@ verifyAccessToken = async (token, res) => {
               result: {},
             });
           } else {
-            return accessTokenRedisResponse;
+            return {
+              ...accessTokenRedisResponse,
+              ...decoded,
+            };
           }
         }
       },
@@ -233,7 +228,7 @@ verifyAccessToken = async (token, res) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
@@ -255,15 +250,18 @@ verifyRefreshToken = async (token, res) => {
           });
         }
         if (decoded && decoded.identity) {
-          if (!(await isIdentityExists(decoded.identity))) {
+          const identityExists = await isIdentityExists(decoded.identity);
+          if (!identityExists) {
             return res.status(401).json({
               success: false,
               message: 'Invalid token',
               result: {},
             });
           }
-
-          if (await isIdentityBlacklisted(decoded.identity)) {
+          const identityBlackListed = await isIdentityBlacklisted(
+            decoded.identity,
+          );
+          if (identityBlackListed) {
             return res.status(401).json({
               success: false,
               message: 'Invalid token',
@@ -293,7 +291,7 @@ verifyRefreshToken = async (token, res) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
@@ -336,7 +334,7 @@ verifyVerificationToken = async (token, res) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
@@ -382,7 +380,7 @@ verifyChangePasswordToken = async (token, res) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
@@ -396,7 +394,6 @@ module.exports = {
   signRefreshToken,
   signVerifyToken,
   signChangePasswordToken,
-  signNewAccessAndRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
   verifyVerificationToken,

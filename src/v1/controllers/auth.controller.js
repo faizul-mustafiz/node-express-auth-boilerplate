@@ -100,7 +100,7 @@ signUp = async (req, res, next) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
@@ -172,7 +172,7 @@ signIn = async (req, res, next) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
@@ -309,7 +309,7 @@ verifySingUp = async (req, res, next) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
@@ -387,7 +387,7 @@ forgotPassword = async (req, res, next) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
@@ -520,7 +520,7 @@ changePassword = async (req, res, next) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
@@ -563,7 +563,7 @@ refresh = async (req, res, next) => {
      * * jwt token related error send 401 unauthorized
      * * if the decoded token identity is not present in redis send 401 unauthorized
      * * Token is a valid token then fetch the token data from redis return data.
-     * @package verifyVerificationToken(token, res)
+     * @package verifyRefreshToken(token, res)
      */
     const { email, type, identity, exp } = await verifyRefreshToken(token, res);
     if (email && type && identity && exp) {
@@ -591,10 +591,16 @@ refresh = async (req, res, next) => {
       }
 
       /**
-       * * blacklist existing token and then generate new access token
+       * * blacklist existing token identity and then generate new access and refresh token pair
        */
-      await setIdentityToBlacklist(identity, exp);
-      await deleteIdentity(identity);
+      const backListTokenIdentityResponse = await setIdentityToBlacklist(
+        identity,
+        exp,
+      );
+      console.log(
+        'backListTokenIdentityResponse',
+        backListTokenIdentityResponse,
+      );
       /**
        * * generate access token.
        */
@@ -616,7 +622,7 @@ refresh = async (req, res, next) => {
        */
       return res.status(200).json({
         success: true,
-        message: 'New access and refresh token generation successful',
+        message: 'new access and refresh token generation successful',
         result: result,
       });
     }
@@ -624,13 +630,202 @@ refresh = async (req, res, next) => {
     console.log('catch-error', error);
     return res.status(500).json({
       success: false,
-      message: 'Oops there is an Error',
+      message: 'oops! there is an Error',
       result: error,
     });
   }
 };
-revokeAccessToken = async (req, res, next) => {};
-revokeRefreshToken = async (req, res, next) => {};
+revokeAccessToken = async (req, res, next) => {
+  try {
+    /**
+     * * check if authorization header exists
+     * * if there is no authorization header send 403 forbidden
+     */
+    const authorization = getAuthorizationHeader(req);
+    if (!authorization) {
+      return res.status(403).json({
+        success: false,
+        message: 'Authorization header is not present',
+        result: {},
+      });
+    }
+    /**
+     * * check if Bearer and Token header exists
+     * * if the token format is not Bearer [token] format send 403 forbidden
+     */
+    const { bearer, token } = splitAuthorizationHeader(authorization);
+    if (!bearer) {
+      return res.status(403).json({
+        success: false,
+        message: 'Format for authorization: Bearer [token]',
+        result: {},
+      });
+    }
+    if (!token) {
+      return res.status(403).json({
+        success: false,
+        message: 'Verification token was not provided',
+        result: {},
+      });
+    }
+    /**
+     * * decode access token and check if the token is a valid token
+     * * jwt token related error send 401 unauthorized
+     * * if the decoded token identity is not present in redis send 401 unauthorized
+     * * Token is a valid token then fetch the token data from redis return data.
+     * @package verifyAccessToken(token, res)
+     */
+    const { email, type, identity, exp } = await verifyAccessToken(token, res);
+    if (email && type && identity && exp) {
+      /**
+       * * if decoded token type is not refresh, send 401 unauthorized
+       */
+      if (type && type != TokenType.Access) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token',
+          result: {},
+        });
+      }
+      /**
+       * * check if user email doesn't exists, send 400 bad request
+       */
+      const user = await User.emailExist(email);
+      console.log('user', user);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'This email is not registered, SignUp first',
+          result: {},
+        });
+      }
+      /**
+       * * blacklist access token identity and then delete the access token identity
+       */
+      const backListTokenIdentityResponse = await setIdentityToBlacklist(
+        identity,
+        exp,
+      );
+      console.log(
+        'backListTokenIdentityResponse',
+        backListTokenIdentityResponse,
+      );
+      const deleteTokenIdentityResponse = await deleteIdentity(identity);
+      console.log('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
+      /**
+       * * Send 200 success response
+       */
+      return res.status(200).json({
+        success: true,
+        message: 'Token revoked successful',
+        result: {},
+      });
+    }
+  } catch (error) {
+    console.log('catch-error', error);
+    return res.status(500).json({
+      success: false,
+      message: 'oops! there is an Error',
+      result: error,
+    });
+  }
+};
+revokeRefreshToken = async (req, res, next) => {
+  try {
+    /**
+     * * check if authorization header exists
+     * * if there is no authorization header send 403 forbidden
+     */
+    const authorization = getAuthorizationHeader(req);
+    if (!authorization) {
+      return res.status(403).json({
+        success: false,
+        message: 'Authorization header is not present',
+        result: {},
+      });
+    }
+    /**
+     * * check if Bearer and Token header exists
+     * * if the token format is not Bearer [token] format send 403 forbidden
+     */
+    const { bearer, token } = splitAuthorizationHeader(authorization);
+    if (!bearer) {
+      return res.status(403).json({
+        success: false,
+        message: 'Format for authorization: Bearer [token]',
+        result: {},
+      });
+    }
+    if (!token) {
+      return res.status(403).json({
+        success: false,
+        message: 'Verification token was not provided',
+        result: {},
+      });
+    }
+    /**
+     * * decode refresh token and check if the token is a valid token
+     * * jwt token related error send 401 unauthorized
+     * * if the decoded token identity is not present in redis send 401 unauthorized
+     * * Token is a valid token then fetch the token data from redis return data.
+     * @package verifyRefreshToken(token, res)
+     */
+    const { email, type, identity, exp } = await verifyRefreshToken(token, res);
+    if (email && type && identity && exp) {
+      /**
+       * * if decoded token type is not refresh, send 401 unauthorized
+       */
+      if (type && type != TokenType.Refresh) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token',
+          result: {},
+        });
+      }
+      /**
+       * * check if user email doesn't exists, send 400 bad request
+       */
+      const user = await User.emailExist(email);
+      console.log('user', user);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'This email is not registered, SignUp first',
+          result: {},
+        });
+      }
+
+      /**
+       * * blacklist existing token identity and then delete the refresh token identity
+       */
+      const backListTokenIdentityResponse = await setIdentityToBlacklist(
+        identity,
+        exp,
+      );
+      console.log(
+        'backListTokenIdentityResponse',
+        backListTokenIdentityResponse,
+      );
+      const deleteTokenIdentityResponse = await deleteIdentity(identity);
+      console.log('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
+      /**
+       * * Send 200 success response
+       */
+      return res.status(200).json({
+        success: true,
+        message: 'Token revoked successful',
+        result: {},
+      });
+    }
+  } catch (error) {
+    console.log('catch-error', error);
+    return res.status(500).json({
+      success: false,
+      message: 'oops! there is an Error',
+      result: error,
+    });
+  }
+};
 
 module.exports = {
   signUp,
