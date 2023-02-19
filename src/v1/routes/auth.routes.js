@@ -3,6 +3,8 @@ const authRouter = express.Router();
 const { AuthController } = require('../controllers/index');
 const hasAuthorization = require('../middlewares/hasAuthorization.middleware');
 const hasOTP = require('../middlewares/hasOTP.middleware');
+const validateAccess = require('../middlewares/validateAccess.middleware');
+const validateRefresh = require('../middlewares/validateRefresh.middleware');
 const validateVerification = require('../middlewares/validateVerification.middleware');
 
 authRouter.post('/sign-up', AuthController.signUp);
@@ -19,15 +21,19 @@ authRouter.post(
   [hasAuthorization, hasOTP],
   AuthController.changePassword,
 );
-authRouter.post('/refresh', hasAuthorization, AuthController.refresh);
+authRouter.post(
+  '/refresh',
+  [hasAuthorization, validateRefresh],
+  AuthController.refresh,
+);
 authRouter.post(
   '/revoke-at',
-  hasAuthorization,
+  [hasAuthorization, validateAccess],
   AuthController.revokeAccessToken,
 );
 authRouter.post(
   '/revoke-rt',
-  hasAuthorization,
+  [hasAuthorization, validateRefresh],
   AuthController.revokeRefreshToken,
 );
 

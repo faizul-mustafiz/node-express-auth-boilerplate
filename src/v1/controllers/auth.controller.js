@@ -5,8 +5,6 @@ const {
   signRefreshToken,
   signVerifyToken,
   signChangePasswordToken,
-  verifyAccessToken,
-  verifyRefreshToken,
   verifyChangePasswordToken,
 } = require('../helpers/jwt.helper');
 const {
@@ -453,17 +451,9 @@ changePassword = async (req, res, next) => {
 refresh = async (req, res, next) => {
   try {
     /**
-     * * get the passed token value form the res.locals
+     * * get validateRefreshResponse value form res.locals
      */
-    const token = res.locals.token;
-    /**
-     * * decode refresh token and check if the token is a valid token
-     * * jwt token related error send 401 unauthorized
-     * * if the decoded token identity is not present in redis send 401 unauthorized
-     * * Token is a valid token then fetch the token data from redis return data.
-     * @package verifyRefreshToken(token, res)
-     */
-    const { email, type, identity, exp } = await verifyRefreshToken(token, res);
+    const { email, type, identity, exp } = res.locals.validateRefreshResponse;
     if (email && type && identity && exp) {
       /**
        * * if decoded token type is not refresh, send 401 unauthorized
@@ -536,17 +526,9 @@ refresh = async (req, res, next) => {
 revokeAccessToken = async (req, res, next) => {
   try {
     /**
-     * * get the passed token value form the res.locals
+     * * get validateAccessResponse value form res.locals
      */
-    const token = res.locals.token;
-    /**
-     * * decode access token and check if the token is a valid token
-     * * jwt token related error send 401 unauthorized
-     * * if the decoded token identity is not present in redis send 401 unauthorized
-     * * Token is a valid token then fetch the token data from redis return data.
-     * @package verifyAccessToken(token, res)
-     */
-    const { email, type, identity, exp } = await verifyAccessToken(token, res);
+    const { email, type, identity, exp } = res.locals.validateAccessResponse;
     if (email && type && identity && exp) {
       /**
        * * if decoded token type is not refresh, send 401 unauthorized
@@ -604,17 +586,9 @@ revokeAccessToken = async (req, res, next) => {
 revokeRefreshToken = async (req, res, next) => {
   try {
     /**
-     * * get the passed token value form the res.locals
+     * * get validateRefreshResponse value form res.locals
      */
-    const token = res.locals.token;
-    /**
-     * * decode refresh token and check if the token is a valid token
-     * * jwt token related error send 401 unauthorized
-     * * if the decoded token identity is not present in redis send 401 unauthorized
-     * * Token is a valid token then fetch the token data from redis return data.
-     * @package verifyRefreshToken(token, res)
-     */
-    const { email, type, identity, exp } = await verifyRefreshToken(token, res);
+    const { email, type, identity, exp } = res.locals.validateRefreshResponse;
     if (email && type && identity && exp) {
       /**
        * * if decoded token type is not refresh, send 401 unauthorized

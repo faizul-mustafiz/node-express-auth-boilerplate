@@ -4,7 +4,6 @@ const {
   refreshTokenConfig,
   verifyTokenConfig,
   changePasswordTokenConfig,
-  publicKey,
   privateKey,
 } = require('../configs/jwt.config');
 const { generateTokenId } = require('../utility/jwt.utility');
@@ -12,9 +11,7 @@ const {
   setIdentityWithHSet,
   setVerifyTokenIdentity,
   setChangePasswordTokenIdentity,
-  isIdentityExists,
   getChangePasswordTokenIdentity,
-  isIdentityBlacklisted,
   isChangePasswordTokenIdentityExists,
 } = require('../helpers/redis.helper');
 const TokenType = require('../enums/token-type.enum');
@@ -164,136 +161,8 @@ signChangePasswordToken = async (identity, payload) => {
 };
 /**
  * * Different type of token verifying methods
- * @param verifyAccessToken(token, res)
- * @param verifyRefreshToken(token, res)
  * @param verifyChangePasswordToken(token, res)
  */
-verifyAccessToken = async (token, res) => {
-  try {
-    return jwt.verify(
-      token,
-      publicKey,
-      { algorithms: ['ES512'] },
-      async (err, decoded) => {
-        console.log('err', err);
-        console.log('decoded', decoded);
-        if (err) {
-          return res.status(401).json({
-            success: false,
-            message: 'Invalid token',
-            result: err,
-          });
-        }
-        if (decoded && decoded.identity) {
-          const identityExists = await isIdentityExists(decoded.identity);
-          if (!identityExists) {
-            return res.status(401).json({
-              success: false,
-              message: 'Invalid token',
-              result: {},
-            });
-          }
-          const identityBlackListed = await isIdentityBlacklisted(
-            decoded.identity,
-          );
-          if (identityBlackListed) {
-            return res.status(401).json({
-              success: false,
-              message: 'Invalid token',
-              result: {},
-            });
-          }
-          const accessTokenRedisResponse = await getHSetIdentityPayload(
-            decoded.identity,
-          );
-          console.log('accessTokenRedisResponse', accessTokenRedisResponse);
-          if (!accessTokenRedisResponse) {
-            return res.status(401).json({
-              success: false,
-              message: 'Invalid token',
-              result: {},
-            });
-          } else {
-            return {
-              ...accessTokenRedisResponse,
-              ...decoded,
-            };
-          }
-        }
-      },
-    );
-  } catch (error) {
-    console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
-      message: 'oops! there is an Error',
-      result: error,
-    });
-  }
-};
-verifyRefreshToken = async (token, res) => {
-  try {
-    return jwt.verify(
-      token,
-      publicKey,
-      { algorithms: ['ES512'] },
-      async (err, decoded) => {
-        console.log('err', err);
-        console.log('decoded', decoded);
-        if (err) {
-          return res.status(401).json({
-            success: false,
-            message: 'Invalid token',
-            result: err,
-          });
-        }
-        if (decoded && decoded.identity) {
-          const identityExists = await isIdentityExists(decoded.identity);
-          if (!identityExists) {
-            return res.status(401).json({
-              success: false,
-              message: 'Invalid token',
-              result: {},
-            });
-          }
-          const identityBlackListed = await isIdentityBlacklisted(
-            decoded.identity,
-          );
-          if (identityBlackListed) {
-            return res.status(401).json({
-              success: false,
-              message: 'Invalid token',
-              result: {},
-            });
-          }
-          const refreshTokenRedisResponse = await getHSetIdentityPayload(
-            decoded.identity,
-          );
-          console.log('refreshTokenRedisResponse', refreshTokenRedisResponse);
-          if (!refreshTokenRedisResponse) {
-            return res.status(401).json({
-              success: false,
-              message: 'Invalid token',
-              result: {},
-            });
-          } else {
-            return {
-              ...refreshTokenRedisResponse,
-              ...decoded,
-            };
-          }
-        }
-      },
-    );
-  } catch (error) {
-    console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
-      message: 'oops! there is an Error',
-      result: error,
-    });
-  }
-};
 verifyChangePasswordToken = async (token, res) => {
   try {
     return jwt.verify(
@@ -348,7 +217,5 @@ module.exports = {
   signRefreshToken,
   signVerifyToken,
   signChangePasswordToken,
-  verifyAccessToken,
-  verifyRefreshToken,
   verifyChangePasswordToken,
 };
