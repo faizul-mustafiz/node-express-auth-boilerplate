@@ -9,7 +9,11 @@ const validateVerification = require('../middlewares/validateVerification.middle
 
 authRouter.post('/sign-up', AuthController.signUp);
 authRouter.post('/sign-in', AuthController.signIn);
-authRouter.post('/sign-out', hasAuthorization, AuthController.signOut);
+authRouter.post(
+  '/sign-out',
+  [hasAuthorization, validateRefresh],
+  AuthController.signOut,
+);
 authRouter.post(
   '/verify',
   [hasAuthorization, hasOTP, validateVerification],

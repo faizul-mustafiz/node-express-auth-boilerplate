@@ -172,7 +172,65 @@ signIn = async (req, res, next) => {
   }
 };
 signOut = async (req, res, next) => {
-  await revokeRefreshToken(req, res, next);
+  try {
+    /**
+     * * get validateRefreshResponse value form res.locals
+     */
+    const { email, type, identity, exp } = res.locals.validateRefreshResponse;
+    if (email && type && identity && exp) {
+      /**
+       * * if decoded token type is not refresh, send 401 unauthorized
+       */
+      if (type && type != TokenType.Refresh) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token',
+          result: {},
+        });
+      }
+      /**
+       * * check if user email doesn't exists, send 400 bad request
+       */
+      const user = await User.emailExist(email);
+      console.log('user', user);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'This email is not registered, SignUp first',
+          result: {},
+        });
+      }
+
+      /**
+       * * blacklist existing token identity and then delete the refresh token identity
+       */
+      const backListTokenIdentityResponse = await setIdentityToBlacklist(
+        identity,
+        exp,
+      );
+      console.log(
+        'backListTokenIdentityResponse',
+        backListTokenIdentityResponse,
+      );
+      const deleteTokenIdentityResponse = await deleteIdentity(identity);
+      console.log('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
+      /**
+       * * Send 200 success response
+       */
+      return res.status(200).json({
+        success: true,
+        message: 'Sign-Out successful',
+        result: {},
+      });
+    }
+  } catch (error) {
+    console.log('catch-error', error);
+    return res.status(500).json({
+      success: false,
+      message: 'oops! there is an Error',
+      result: error,
+    });
+  }
 };
 verifySingUp = async (req, res, next) => {
   try {
