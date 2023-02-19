@@ -6,9 +6,10 @@ const hasOTP = require('../middlewares/hasOTP.middleware');
 const validateAccess = require('../middlewares/validateAccess.middleware');
 const validateRefresh = require('../middlewares/validateRefresh.middleware');
 const validateVerification = require('../middlewares/validateVerification.middleware');
+const authValidator = require('../validators/auth.validator');
 
-authRouter.post('/sign-up', AuthController.signUp);
-authRouter.post('/sign-in', AuthController.signIn);
+authRouter.post('/sign-up', authValidator, AuthController.signUp);
+authRouter.post('/sign-in', authValidator, AuthController.signIn);
 authRouter.post(
   '/sign-out',
   [hasAuthorization, validateRefresh],

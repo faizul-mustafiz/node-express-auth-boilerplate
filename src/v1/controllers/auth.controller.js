@@ -23,16 +23,8 @@ signUp = async (req, res, next) => {
   try {
     /**
      * * get {email, password } form request body
-     * * if any of these not provided send 400 bad request
      */
     let { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Any of these fields {email, password} not provided',
-        result: {},
-      });
-    }
     /**
      * * generate password hash form the provided password
      * @param User.generateHash(password)
@@ -103,16 +95,8 @@ signIn = async (req, res, next) => {
   try {
     /**
      * * get {email, password } form request body
-     * * if any of these not provided send 400 bad request
      */
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Any of these fields {email, password} not provided',
-        result: {},
-      });
-    }
     /**
      * * check if user email doesn't exists, send 400 bad request
      */
