@@ -9,7 +9,6 @@ const {
 } = require('../helpers/jwt.helper');
 const {
   generateIdentityHash,
-  generateVerifyTokenPayloadForRedis,
   generateOtp,
   generateChangePasswordTokenPayloadForRedis,
 } = require('../utility/jwt.utility');
@@ -19,6 +18,8 @@ const {
   setIdentityToBlacklist,
   deleteIdentity,
 } = require('../helpers/redis.helper');
+const AuthActionType = require('../enums/auth-action-type.enum');
+const apiRouteGeneratorLocal = require('../utility/app.utility');
 signUp = async (req, res, next) => {
   try {
     /**
@@ -46,32 +47,19 @@ signUp = async (req, res, next) => {
      */
     const OTP = generateOtp(8);
     /**
-     * * generate verify token payload that needs to be stored in redis
-     */
-    const verifyTokenPayload = generateVerifyTokenPayloadForRedis(
-      email,
-      password,
-      TokenType.Verify,
-      OTP,
-    );
-    /**
-     * * generate verify token identity hash for redis key
-     */
-    const verifyTokenIdentity = generateIdentityHash(
-      JSON.stringify(verifyTokenPayload),
-    );
-    /**
      * * generate verify token
      */
     const verifyToken = await signVerifyToken(
-      verifyTokenIdentity,
-      verifyTokenPayload,
+      { email, password },
+      AuthActionType.signUp,
+      OTP,
     );
     /**
      * * generate verify token response
      */
     const result = {
-      verify_token: verifyToken,
+      url: apiRouteGeneratorLocal('/auth/verify'),
+      token: verifyToken,
       code: OTP,
     };
     /**
@@ -79,7 +67,8 @@ signUp = async (req, res, next) => {
      */
     res.status(200).json({
       success: true,
-      message: 'Please provided verification code for successful sign-up',
+      message:
+        'Please continue to provided url with token and code for successful sign-up',
       result,
     });
   } catch (error) {
@@ -123,28 +112,33 @@ signIn = async (req, res, next) => {
       });
     }
     /**
-     * * generate access token.
+     * * generate OTP for verify sign-up
      */
-    const accessToken = await signAccessToken(user);
-
+    const OTP = generateOtp(8);
     /**
-     * * generate refresh token.
+     * * generate verify token
      */
-    const refreshToken = await signRefreshToken(user);
+    const verifyToken = await signVerifyToken(
+      { email, password },
+      AuthActionType.signIn,
+      OTP,
+    );
     /**
-     * * generate sing-in response body
+     * * generate verify token response
      */
     const result = {
-      accessToken,
-      refreshToken,
+      url: apiRouteGeneratorLocal('/auth/verify'),
+      token: verifyToken,
+      code: OTP,
     };
     /**
-     * * Send 200 success response
+     * * send 200 success response
      */
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      message: 'Login successful',
-      result: result,
+      message:
+        'Please continue to provided url with token and code for successful sign-in',
+      result,
     });
   } catch (error) {
     console.log('catch-error', error);
@@ -216,7 +210,121 @@ signOut = async (req, res, next) => {
     });
   }
 };
-verifySingUp = async (req, res, next) => {
+continueSingUp = async (req, res, next) => {
+  try {
+    /**
+     * * get validateVerificationResponse value form res.locals
+     */
+    const { email, password } = res.locals.validateVerificationResponse;
+    /**
+     * * check if email exists, send 400 bad request
+     */
+    const existingUser = await User.emailExist(email);
+    console.log('existingUser', existingUser);
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'An account with this email already exists',
+        result: {},
+      });
+    }
+    /**
+     * * creating new User model object and generating password salt.
+     */
+    const user = new User({
+      email: email,
+      password: password,
+      isVerified: true,
+    });
+    console.log('user', user);
+    /**
+     * * generate access token.
+     */
+    const accessToken = await signAccessToken(user);
+    /**
+     * * generate refresh token.
+     */
+    const refreshToken = await signRefreshToken(user);
+    /**
+     * * save user to mongoDB
+     */
+    const result = await user.save();
+    /**
+     * * generate verify-sign-up response body
+     */
+    result._doc = {
+      ...result._doc,
+      accessToken,
+      refreshToken,
+    };
+    /**
+     * * send 201 created response
+     */
+    res.status(201).json({
+      success: true,
+      message: 'Sign-Up successful',
+      result,
+    });
+  } catch (error) {
+    console.log('catch-error', error);
+    return res.status(500).json({
+      success: false,
+      message: 'oops! there is an Error',
+      result: error,
+    });
+  }
+};
+continueSignIn = async (req, res, next) => {
+  try {
+    /**
+     * * get validateVerificationResponse value form res.locals
+     */
+    const { email } = res.locals.validateVerificationResponse;
+    /**
+     * * check if user email doesn't exists, send 400 bad request
+     */
+    const user = await User.emailExist(email);
+    console.log('user', user);
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'This email is not registered, SignUp first',
+        result: {},
+      });
+    }
+    /**
+     * * generate access token.
+     */
+    const accessToken = await signAccessToken(user);
+    /**
+     * * generate refresh token.
+     */
+    const refreshToken = await signRefreshToken(user);
+    /**
+     * * generate sing-in response body
+     */
+    const result = {
+      accessToken,
+      refreshToken,
+    };
+    /**
+     * * Send 200 success response
+     */
+    return res.status(200).json({
+      success: true,
+      message: 'Sign-In successful',
+      result: result,
+    });
+  } catch (error) {
+    console.log('catch-error', error);
+    return res.status(500).json({
+      success: false,
+      message: 'oops! there is an Error',
+      result: error,
+    });
+  }
+};
+verifyAuth = async (req, res, next) => {
   try {
     /**
      * * get passed OTP code value form the res.locals
@@ -225,79 +333,37 @@ verifySingUp = async (req, res, next) => {
     /**
      * * get validateVerificationResponse value form res.locals
      */
-    const { email, password, type, otp } =
+    const { actionType, otp, tokenType } =
       res.locals.validateVerificationResponse;
-
-    if (email && password && type && otp) {
-      /**
-       * * if decoded token type is not verify, send 401 unauthorized
-       */
-      if (type != TokenType.Verify) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid token',
-          result: {},
-        });
-      }
-      /**
-       * * if provided code is not equal to redis otp, send 400 bad request
-       */
-      if (otp != code) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid code',
-          result: {},
-        });
-      }
-      /**
-       * * check if email exists, send 400 bad request
-       */
-      const existingUser = await User.emailExist(email);
-      console.log('existingUser', existingUser);
-      if (existingUser) {
-        return res.status(400).json({
-          success: false,
-          message: 'An account with this email already exists',
-          result: {},
-        });
-      }
-      /**
-       * * creating new User model object and generating password salt.
-       */
-      const user = new User({
-        email: email,
-        password: password,
-        isVerified: true,
+    /**
+     * * if decoded token type is not verify, send 401 unauthorized
+     */
+    if (tokenType && tokenType != TokenType.Verify) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token',
+        result: {},
       });
-      console.log('user', user);
-      /**
-       * * generate access token.
-       */
-      const accessToken = await signAccessToken(user);
-      /**
-       * * generate refresh token.
-       */
-      const refreshToken = await signRefreshToken(user);
-      /**
-       * * save user to mongoDB
-       */
-      const result = await user.save();
-      /**
-       * * generate verify-sign-up response body
-       */
-      result._doc = {
-        ...result._doc,
-        accessToken,
-        refreshToken,
-      };
-      /**
-       * * send 201 created response
-       */
-      res.status(201).json({
-        success: true,
-        message: 'Sign-Up successful',
-        result,
+    }
+    /**
+     * * if provided code is not equal to redis otp, send 400 bad request
+     */
+    if (otp && otp != code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid code',
+        result: {},
       });
+    }
+    /**
+     * * now check  AuthActionType of the verification token redis response
+     * * if sign-up then continueSingUp(req, res, next)
+     * * if sign-in then continueSignIn(req, res, next)
+     */
+    if (actionType && actionType == AuthActionType.signUp) {
+      await continueSingUp(req, res, next);
+    } else if (actionType && actionType == AuthActionType.signIn) {
+      await continueSignIn(req, res, next);
     }
   } catch (error) {
     console.log('catch-error', error);
@@ -308,7 +374,6 @@ verifySingUp = async (req, res, next) => {
     });
   }
 };
-verifySignIn = async (req, res, next) => {};
 forgotPassword = async (req, res, next) => {
   try {
     /**
@@ -691,8 +756,7 @@ module.exports = {
   signUp,
   signIn,
   signOut,
-  verifySingUp,
-  verifySignIn,
+  verifyAuth,
   forgotPassword,
   changePassword,
   refresh,

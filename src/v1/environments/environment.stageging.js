@@ -1,9 +1,10 @@
 require('dotenv').config();
 module.exports = {
   //app environment variables
-  BASE_API_ROUTE: process.env.BASE_API_ROUTE,
-  API_PORT: process.env.API_PORT,
+  API_PROTOCOL: process.env.API_PROTOCOL,
   API_HOST: process.env.API_HOST,
+  API_PORT: process.env.API_PORT,
+  BASE_API_ROUTE: process.env.BASE_API_ROUTE,
 
   // redis environments variables
   REDIS_URL: process.env.REDIS_URL,

@@ -18,7 +18,7 @@ authRouter.post(
 authRouter.post(
   '/verify',
   [hasAuthorization, hasOTP, validateVerification],
-  AuthController.verifySingUp,
+  AuthController.verifyAuth,
 );
 authRouter.post('/forgot-password', AuthController.forgotPassword);
 authRouter.post(

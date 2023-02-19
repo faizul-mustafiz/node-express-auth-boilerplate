@@ -120,22 +120,51 @@ signRefreshToken = async (payload) => {
   );
   return refreshToken;
 };
-signVerifyToken = async (identity, payload) => {
-  const jwtId = generateTokenId();
+signVerifyToken = async (payload, actionType, otp) => {
+  /**
+   * * generate verify token id
+   */
+  const verifyTokenId = generateTokenId();
+  /**
+   * * generate verify token payload that needs to be stored in redis
+   */
+  const verifyTokenPayload = generateVerifyTokenPayloadForRedis(
+    payload,
+    actionType,
+    otp,
+  );
+  console.log('verifyTokenPayload', verifyTokenPayload);
+  /**
+   * * generate verify token identity hash for redis key
+   */
+  const verifyTokenIdentity = generateIdentityHash(
+    JSON.stringify(verifyTokenPayload),
+  );
+  console.log('verifyTokenIdentity', verifyTokenIdentity);
+  /**
+   * * generate verify token expiry
+   */
   const tokenExpire =
     Math.floor(new Date().getTime() / 1000) +
     Number(verifyTokenConfig.expiryTime);
+  /**
+   * * generate verify token payload
+   */
   const jwtPayload = {
     iat: Math.floor(new Date().getTime() / 1000),
     nbf: Math.floor(new Date().getTime() / 1000),
     exp: tokenExpire,
     type: TokenType.Verify,
-    identity: identity,
-    jti: jwtId,
+    identity: verifyTokenIdentity,
+    jti: verifyTokenId,
   };
   const verifyToken = jwt.sign(jwtPayload, verifyTokenConfig.secret);
   console.log('verify-token', verifyToken);
-  await setVerifyTokenIdentity(identity, Number(tokenExpire), payload);
+  await setVerifyTokenIdentity(
+    verifyTokenIdentity,
+    Number(tokenExpire),
+    verifyTokenPayload,
+  );
   return verifyToken;
 };
 signChangePasswordToken = async (identity, payload) => {

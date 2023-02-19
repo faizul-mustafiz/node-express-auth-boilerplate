@@ -2,6 +2,8 @@ const _crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const uuid = require('uuid');
 const otpGenerator = require('otp-generator');
+const TokenType = require('../enums/token-type.enum');
+const AuthActionType = require('../enums/auth-action-type.enum');
 
 /**
  * * The data must be of type string or an instance of Buffer, TypedArray, or DataView.
@@ -21,13 +23,21 @@ generateTokenPayloadForRedis = (user, type, tokenId) => {
     tokenId: tokenId,
   };
 };
-generateVerifyTokenPayloadForRedis = (email, password, type, otp) => {
-  return {
-    email: email,
-    password: password,
-    type: type,
-    otp: otp,
-  };
+generateVerifyTokenPayloadForRedis = (payload, actionType, otp) => {
+  return actionType == AuthActionType.signUp
+    ? {
+        email: payload.email,
+        password: payload.password,
+        actionType: actionType,
+        otp: otp,
+        tokenType: TokenType.Verify,
+      }
+    : {
+        email: payload.email,
+        actionType: actionType,
+        otp: otp,
+        tokenType: TokenType.Verify,
+      };
 };
 generateChangePasswordTokenPayloadForRedis = (email, type, otp) => {
   return {
