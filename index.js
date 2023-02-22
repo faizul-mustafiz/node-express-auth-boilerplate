@@ -1,8 +1,9 @@
 const app = require('./src/v1/app');
 const { port, host } = require('./src/v1/configs/app.config');
+const logger = require('./src/v1/loggers/logger');
 
 const server = app.listen(port, host, () => {
-  console.log('Express is running on →');
+  logger.debug('Express is running on →');
   console.table({
     host: host,
     port: port,
@@ -10,7 +11,7 @@ const server = app.listen(port, host, () => {
 });
 
 process.on('uncaughtException', function (err) {
-  console.log(err);
+  logger.debug(err);
 });
 [
   `exit`,
@@ -21,7 +22,7 @@ process.on('uncaughtException', function (err) {
   `SIGTERM`,
 ].forEach((event) => {
   process.on(event, () => {
-    console.log('Process event type: ', event);
+    logger.debug('Process event type: ', event);
     server.close();
     process.exit();
   });

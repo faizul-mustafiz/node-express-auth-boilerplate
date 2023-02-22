@@ -1,78 +1,80 @@
 require('dotenv');
+const {
+  NonAuthoritative,
+  Success,
+  InternalServerError,
+  NotFound,
+} = require('../handlers/responses/http-response');
 const User = require('../models/user.model');
+const logger = require('../loggers/logger');
 
 getAllUser = async (req, res, next) => {
   try {
     const result = await User.find();
     const count = await User.count();
-    console.log('getAllUser-result', result);
-    console.log('getAllUser-count', count);
+    logger.debug('getAllUser-result', result);
+    logger.info('getAllUser-count', count);
     if (count === 0) {
-      return res.status(203).json({
-        success: false,
+      return NonAuthoritative(res, {
         message: 'User collection is Empty',
         result: [],
       });
     }
-    return res.status(200).json({
-      success: true,
+    return Success(res, {
       message: 'Successfully found all user documents',
       result,
     });
   } catch (error) {
-    console.log('catch-error', error);
-    return res
-      .status(500)
-      .json({ success: false, message: 'oops! there is an Error', result: {} });
+    logger.error('get-all-user-error', error);
+    return InternalServerError(res, {
+      message: 'oops! there is an Error',
+      result: {},
+    });
   }
 };
 getOneUser = async (req, res, next) => {
-  console.log('getOneUser', req.params);
+  logger.debug('getOneUser', req.params);
   const { userId } = req.params;
   if (!userId) {
-    return res.status(400).json({
-      success: false,
-      message: 'BAD REQUEST',
+    return NotFound(res, {
+      message: 'Invalid path not found',
       result: {},
     });
   }
   try {
     const result = await User.findOne({ _id: userId });
     if (!result) {
-      res.status(404).json({
-        success: false,
+      return NotFound(res, {
         message: 'NOT FOUND',
         result: {},
       });
     }
-    res.status(200).json({
-      success: true,
+    return Success(res, {
       message: 'Successfully found user document',
       result,
     });
   } catch (error) {
-    console.log('catch-error', error);
-    return res
-      .status(500)
-      .json({ success: false, message: 'oops! there is an Error', result: {} });
+    logger.error('get-one-user-error', error);
+    return InternalServerError(res, {
+      message: 'oops! there is an Error',
+      result: {},
+    });
   }
 };
 updateOneUser = async (req, res, next) => {
   const { userId } = req.params;
   if (!userId) {
-    return res.status(400).json({
-      success: false,
-      message: 'BAD REQUEST',
+    return NotFound(res, {
+      message: 'Invalid path not found',
       result: {},
     });
   }
   try {
     const { email } = req.body;
     const existingUser = await User.emailExist(email);
-    console.log('existingUser', existingUser);
+    logger.debug('existingUser', existingUser);
     if (existingUser._id != userId) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message:
           'An account with this email already exists, which you are trying to update',
         result: {},
@@ -83,52 +85,50 @@ updateOneUser = async (req, res, next) => {
       password: req.body.password,
     };
     changes.password = await User.generateHash(changes.password);
-    console.log('changes', changes);
+    logger.debug('changes', changes);
     const updatedUser = Object.assign(existingUser, changes);
-    console.log('updatedUser', updatedUser);
+    logger.debug('updatedUser', updatedUser);
     const result = await existingUser.save();
-    console.log('result', result);
-    return res.status(200).json({
-      success: true,
+    logger.debug('result', result);
+    return Success(res, {
       message: 'Successfully updated user',
       result: result,
     });
   } catch (error) {
-    console.log('catch-error', error);
-    return res
-      .status(500)
-      .json({ success: false, message: 'oops! there is an Error', result: {} });
+    logger.error('update-one-user-error', error);
+    return InternalServerError(res, {
+      message: 'oops! there is an Error',
+      result: {},
+    });
   }
 };
 deleteOneUser = async (req, res, next) => {
   const { userId } = req.params;
   if (!userId) {
-    return res.status(400).json({
-      success: false,
-      message: 'BAD REQUEST',
+    return NotFound(res, {
+      message: 'Invalid path not found',
       result: {},
     });
   }
   try {
     const existingUser = await User.findOne({ _id: userId });
     if (!existingUser) {
-      res.status(404).json({
-        success: false,
+      return NotFound(res, {
         message: 'NOT FOUND',
         result: {},
       });
     }
     const result = await User.findOneAndDelete({ _id: userId });
-    res.status(200).json({
-      success: true,
+    return Success(res, {
       message: 'Successfully deleted user',
       result: result,
     });
   } catch (error) {
-    console.log('catch-error', error);
-    return res
-      .status(500)
-      .json({ success: false, message: 'oops! there is an Error', result: {} });
+    logger.error('delete-one-user-error', error);
+    return InternalServerError(res, {
+      message: 'oops! there is an Error',
+      result: {},
+    });
   }
 };
 

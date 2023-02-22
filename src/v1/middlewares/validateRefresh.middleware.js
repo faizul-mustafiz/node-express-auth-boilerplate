@@ -8,6 +8,7 @@ const {
   isIdentityBlacklisted,
   getHSetIdentityPayload,
 } = require('../helpers/redis.helper');
+const logger = require('../loggers/logger');
 
 const validateRefresh = async (req, res, next) => {
   try {
@@ -28,8 +29,8 @@ const validateRefresh = async (req, res, next) => {
       publicKey,
       { algorithms: ['ES512'] },
       async (err, decoded) => {
-        console.log('err', err);
-        console.log('decoded', decoded);
+        logger.debug('err', err);
+        logger.debug('decoded', decoded);
         if (err) {
           return Unauthorized(res, {
             message: 'Invalid token',
@@ -56,7 +57,7 @@ const validateRefresh = async (req, res, next) => {
           const refreshTokenRedisResponse = await getHSetIdentityPayload(
             decoded.identity,
           );
-          console.log('refreshTokenRedisResponse', refreshTokenRedisResponse);
+          logger.debug('refreshTokenRedisResponse', refreshTokenRedisResponse);
           if (!refreshTokenRedisResponse) {
             return Unauthorized(res, {
               message: 'Invalid token',
@@ -75,7 +76,7 @@ const validateRefresh = async (req, res, next) => {
       },
     );
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('validate-refresh-error', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,

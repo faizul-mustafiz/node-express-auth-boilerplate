@@ -1,5 +1,6 @@
 const redisClient = require('../plugins/redis.plugin');
 const { jsonToArray } = require('../helpers/conversion.helper');
+const logger = require('../loggers/logger');
 
 /**
  * * generic reusable methods for tokens
@@ -7,10 +8,10 @@ const { jsonToArray } = require('../helpers/conversion.helper');
 isIdentityExists = async (identity) => {
   try {
     let result = await redisClient.exists(identity);
-    console.log('isIdentityExists-result', result);
+    logger.debug('isIdentityExists-result', result);
     return result;
   } catch (error) {
-    console.log('isIdentityExists-error', error);
+    logger.error('isIdentityExists-error', error);
   }
 };
 setIdentityWithHSet = async (identity, expiry, payload) => {
@@ -18,38 +19,38 @@ setIdentityWithHSet = async (identity, expiry, payload) => {
     const payloadArray = jsonToArray(payload);
     let result = await redisClient.hSet(identity, payloadArray);
     result = await redisClient.expireAt(identity, expiry);
-    console.log('setIdentityWithHSet-result', result);
+    logger.debug('setIdentityWithHSet-result', result);
     return result;
   } catch (error) {
-    console.log('setIdentityWithHSet-error', error);
+    logger.error('setIdentityWithHSet-error', error);
   }
 };
 setIdentity = async (identity, expiry, payload) => {
   try {
     let result = await redisClient.set(identity, payload);
     result = await redisClient.expireAt(identity, expiry);
-    console.log('saveTokenIdentity-result', result);
+    logger.debug('saveTokenIdentity-result', result);
     return result;
   } catch (error) {
-    console.log('saveTokenIdentity-error', error);
+    logger.error('saveTokenIdentity-error', error);
   }
 };
 getHSetIdentityPayload = async (identity) => {
   try {
     let result = await redisClient.hGetAll(identity);
-    console.log('getTokenPayload-result', result);
+    logger.debug('getTokenPayload-result', result);
     return result;
   } catch (error) {
-    console.log('getTokenPayload-error', error);
+    logger.error('getTokenPayload-error', error);
   }
 };
 deleteIdentity = async (identity) => {
   try {
     let result = await redisClient.del(identity);
-    console.log('deleteTokenPayload-result', result);
+    logger.debug('deleteTokenPayload-result', result);
     return result;
   } catch (error) {
-    console.log('deleteTokenPayload-error', error);
+    logger.error('deleteTokenPayload-error', error);
   }
 };
 
@@ -59,28 +60,28 @@ deleteIdentity = async (identity) => {
 isIdentityBlacklisted = async (identity) => {
   try {
     let result = await redisClient.exists(`bl:${identity}`);
-    console.log('isIdentityBlacklisted-result', result);
+    logger.debug('isIdentityBlacklisted-result', result);
     return result;
   } catch (error) {
-    console.log('isIdentityBlacklisted-error', error);
+    logger.error('isIdentityBlacklisted-error', error);
   }
 };
 setIdentityToBlacklist = async (identity, expiry) => {
   try {
     const result = await setIdentity(`bl:${identity}`, expiry, '');
-    console.log('setIdentityToBlacklist-result', result);
+    logger.debug('setIdentityToBlacklist-result', result);
     return result;
   } catch (error) {
-    console.log('setIdentityToBlacklist-error', error);
+    logger.error('setIdentityToBlacklist-error', error);
   }
 };
 deleteBlacklistedIdentity = async (identity) => {
   try {
     let result = await deleteIdentity(`bl:${identity}`);
-    console.log('deleteBlacklistedIdentity-result', result);
+    logger.debug('deleteBlacklistedIdentity-result', result);
     return result;
   } catch (error) {
-    console.log('deleteBlacklistedIdentity-error', error);
+    logger.error('deleteBlacklistedIdentity-error', error);
   }
 };
 
@@ -90,37 +91,37 @@ deleteBlacklistedIdentity = async (identity) => {
 isVerifyTokenIdentityExists = async (identity) => {
   try {
     const result = await isIdentityExists(`v:${identity}`);
-    console.log('isVerifyTokenIdentityExists-result', result);
+    logger.debug('isVerifyTokenIdentityExists-result', result);
     return result;
   } catch (error) {
-    console.log('isVerifyTokenIdentityExists-error', error);
+    logger.error('isVerifyTokenIdentityExists-error', error);
   }
 };
 setVerifyTokenIdentity = async (identity, expiry, payload) => {
   try {
     const result = await setIdentityWithHSet(`v:${identity}`, expiry, payload);
-    console.log('setVerifyTokenIdentity-result', result);
+    logger.debug('setVerifyTokenIdentity-result', result);
     return result;
   } catch (error) {
-    console.log('setVerifyTokenIdentity-error', error);
+    logger.error('setVerifyTokenIdentity-error', error);
   }
 };
 getVerifyTokenIdentity = async (identity) => {
   try {
     let result = await getHSetIdentityPayload(`v:${identity}`);
-    console.log('getTokenPayload-result', result);
+    logger.debug('getTokenPayload-result', result);
     return result;
   } catch (error) {
-    console.log('getVerifyTokenIdentity-error', error);
+    logger.error('getVerifyTokenIdentity-error', error);
   }
 };
 deleteVerifyTokenIdentity = async (identity) => {
   try {
     const result = await deleteIdentity(`v:${identity}`);
-    console.log('deleteVerifyTokenIdentity-result', result);
+    logger.debug('deleteVerifyTokenIdentity-result', result);
     return result;
   } catch (error) {
-    console.log('deleteVerifyTokenIdentity-error', error);
+    logger.error('deleteVerifyTokenIdentity-error', error);
   }
 };
 
@@ -130,37 +131,37 @@ deleteVerifyTokenIdentity = async (identity) => {
 isChangePasswordTokenIdentityExists = async (identity) => {
   try {
     const result = await isIdentityExists(`cp:${identity}`);
-    console.log('isChangePasswordTokenIdentityExists-result', result);
+    logger.debug('isChangePasswordTokenIdentityExists-result', result);
     return result;
   } catch (error) {
-    console.log('isChangePasswordTokenIdentityExists-error', error);
+    logger.error('isChangePasswordTokenIdentityExists-error', error);
   }
 };
 setChangePasswordTokenIdentity = async (identity, expiry, payload) => {
   try {
     const result = await setIdentityWithHSet(`cp:${identity}`, expiry, payload);
-    console.log('saveChangePasswordTokenIdentity-result', result);
+    logger.debug('saveChangePasswordTokenIdentity-result', result);
     return result;
   } catch (error) {
-    console.log('saveChangePasswordTokenIdentity-error', error);
+    logger.error('saveChangePasswordTokenIdentity-error', error);
   }
 };
 getChangePasswordTokenIdentity = async (identity) => {
   try {
     let result = await getHSetIdentityPayload(`cp:${identity}`);
-    console.log('getChangePasswordTokenIdentity-result', result);
+    logger.debug('getChangePasswordTokenIdentity-result', result);
     return result;
   } catch (error) {
-    console.log('getChangePasswordTokenIdentity-error', error);
+    logger.error('getChangePasswordTokenIdentity-error', error);
   }
 };
 deleteChangePasswordTokenIdentity = async (identity) => {
   try {
     const result = await deleteIdentity(`cp:${identity}`);
-    console.log('deleteChangePasswordTokenIdentity-result', result);
+    logger.debug('deleteChangePasswordTokenIdentity-result', result);
     return result;
   } catch (error) {
-    console.log('deleteChangePasswordTokenIdentity-error', error);
+    logger.error('deleteChangePasswordTokenIdentity-error', error);
   }
 };
 

@@ -15,6 +15,7 @@ const {
   isChangePasswordTokenIdentityExists,
 } = require('../helpers/redis.helper');
 const TokenType = require('../enums/token-type.enum');
+const logger = require('../loggers/logger');
 
 /**
  * * Different type of token signing methods
@@ -133,14 +134,14 @@ signVerifyToken = async (payload, actionType, otp) => {
     actionType,
     otp,
   );
-  console.log('verifyTokenPayload', verifyTokenPayload);
+  logger.debug('verifyTokenPayload', verifyTokenPayload);
   /**
    * * generate verify token identity hash for redis key
    */
   const verifyTokenIdentity = generateIdentityHash(
     JSON.stringify(verifyTokenPayload),
   );
-  console.log('verifyTokenIdentity', verifyTokenIdentity);
+  logger.debug('verifyTokenIdentity', verifyTokenIdentity);
   /**
    * * generate verify token expiry
    */
@@ -159,7 +160,7 @@ signVerifyToken = async (payload, actionType, otp) => {
     jti: verifyTokenId,
   };
   const verifyToken = jwt.sign(jwtPayload, verifyTokenConfig.secret);
-  console.log('verify-token', verifyToken);
+  logger.debug('verify-token', verifyToken);
   await setVerifyTokenIdentity(
     verifyTokenIdentity,
     Number(tokenExpire),
@@ -184,7 +185,7 @@ signChangePasswordToken = async (identity, payload) => {
     jwtPayload,
     changePasswordTokenConfig.secret,
   );
-  console.log('change-password-token', changePasswordToken);
+  logger.debug('change-password-token', changePasswordToken);
   await setChangePasswordTokenIdentity(identity, Number(tokenExpire), payload);
   return changePasswordToken;
 };
@@ -198,8 +199,8 @@ verifyChangePasswordToken = async (token, res) => {
       token,
       changePasswordTokenConfig.secret,
       async (err, decoded) => {
-        console.log('error', err);
-        console.log('decoded', decoded);
+        logger.error('change-password-token-decode-error', err);
+        logger.debug('decoded', decoded);
         if (err) {
           return res.status(401).json({
             success: false,
@@ -233,7 +234,7 @@ verifyChangePasswordToken = async (token, res) => {
       },
     );
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('verify-change-password-token-error', error);
     return res.status(500).json({
       success: false,
       message: 'oops! there is an Error',

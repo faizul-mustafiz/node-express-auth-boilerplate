@@ -12,6 +12,14 @@ const Created = (res, { message, result }) => {
     result,
   });
 };
+const NonAuthoritative = (res, { message, result }) => {
+  return res.status(203).json({
+    success: true,
+    message,
+    result,
+  });
+};
+
 const BadRequest = (res, { message, result }) => {
   return res.status(400).json({
     success: false,
@@ -107,6 +115,7 @@ const ServiceUnavailable = (res, { message, result }) => {
 module.exports = {
   Success,
   Created,
+  NonAuthoritative,
   BadRequest,
   Unauthorized,
   Forbidden,

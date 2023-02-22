@@ -1,23 +1,24 @@
 require('dotenv').config();
 const { config, options } = require('../configs/mongo.config');
 const mongoose = require('mongoose');
+const logger = require('../loggers/logger');
 
 mongoose.set('strictQuery', true);
 
 mongoConnectCallback = () => {
-  console.log('mongo-connect-callback:', 'mongoDB is connected');
+  logger.info('mongo-connect-callback: mongoDB is connected');
 };
 mongoErrorCallback = (error) => {
-  console.log('mongo-error-callback-error', error);
+  logger.error('mongo-error-callback-error', error);
   disconnectFromMongoAgent('error-callback');
 };
 mongoDisconnectCallback = () => {
-  console.log('mongo-disconnect-callback:', 'mongoDB is disconnected');
+  logger.info('mongo-disconnect-callback: mongoDB is disconnected');
 };
 
 disconnectFromMongoAgent = (stack = 'disconnect-call') => {
   mongoose.connection.close();
-  console.log('Disconnected form mongo agent;', 'stack:', stack);
+  logger.info('Disconnected form mongo agent;stack:', stack);
   process.exit();
 };
 

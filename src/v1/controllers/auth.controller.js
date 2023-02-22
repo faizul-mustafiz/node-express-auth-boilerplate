@@ -28,6 +28,7 @@ const {
   Conflict,
   InternalServerError,
 } = require('../handlers/responses/http-response');
+const logger = require('../loggers/logger');
 signUp = async (req, res, next) => {
   try {
     /**
@@ -80,7 +81,7 @@ signUp = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('sign-up-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -97,7 +98,7 @@ signIn = async (req, res, next) => {
      * * check if user email doesn't exists, send 400 bad request
      */
     const user = await User.emailExist(email);
-    console.log('user', user);
+    logger.debug('user', user);
     if (!user) {
       return BadRequest(res, {
         message: 'This email is not registered, SignUp first',
@@ -109,7 +110,7 @@ signIn = async (req, res, next) => {
      * * if password doesn't match send 400 bad request
      */
     const comparePassword = await user.validPassword(password);
-    console.log('comparePassword', comparePassword);
+    logger.debug('comparePassword', comparePassword);
     if (!comparePassword) {
       return BadRequest(res, {
         message: 'Incorrect password',
@@ -145,7 +146,7 @@ signIn = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('sign-in-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -172,7 +173,7 @@ signOut = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      console.log('user', user);
+      logger.debug('user', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -187,12 +188,12 @@ signOut = async (req, res, next) => {
         identity,
         exp,
       );
-      console.log(
+      logger.debug(
         'backListTokenIdentityResponse',
         backListTokenIdentityResponse,
       );
       const deleteTokenIdentityResponse = await deleteIdentity(identity);
-      console.log('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
+      logger.debug('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
       /**
        * * Send 200 success response
        */
@@ -202,7 +203,7 @@ signOut = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('sign-out-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -219,7 +220,7 @@ continueSingUp = async (req, res, next) => {
      * * check if email exists, send 400 bad request
      */
     const existingUser = await User.emailExist(email);
-    console.log('existingUser', existingUser);
+    logger.debug('existingUser', existingUser);
     if (existingUser) {
       return BadRequest(res, {
         message: 'An account with this email already exists',
@@ -234,7 +235,7 @@ continueSingUp = async (req, res, next) => {
       password: password,
       isVerified: true,
     });
-    console.log('user', user);
+    logger.debug('user', user);
     /**
      * * generate access token.
      */
@@ -263,7 +264,7 @@ continueSingUp = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('continue-sign-up-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -280,7 +281,7 @@ continueSignIn = async (req, res, next) => {
      * * check if user email doesn't exists, send 400 bad request
      */
     const user = await User.emailExist(email);
-    console.log('user', user);
+    logger.debug('user', user);
     if (!user) {
       return BadRequest(res, {
         message: 'This email is not registered, SignUp first',
@@ -310,7 +311,7 @@ continueSignIn = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('continue-sign-in-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -357,7 +358,7 @@ verifyAuth = async (req, res, next) => {
       await continueSignIn(req, res, next);
     }
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('verify-auth-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -381,7 +382,7 @@ forgotPassword = async (req, res, next) => {
      * * check if email doesn't exists, send 400 bad request
      */
     const user = await User.emailExist(email);
-    console.log('user', user);
+    logger.debug('user', user);
     if (!user) {
       return BadRequest(res, {
         message: 'This email is not registered, SignUp first',
@@ -392,7 +393,7 @@ forgotPassword = async (req, res, next) => {
      * * generate OTP for change password
      */
     const OTP = generateOtp(8);
-    console.log('OTP', OTP);
+    logger.debug('OTP', OTP);
     /**
      * * generate change password token payload that needs to be stored in redis
      */
@@ -431,7 +432,7 @@ forgotPassword = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('forgot-password-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -490,7 +491,7 @@ changePassword = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      console.log('user', user);
+      logger.debug('user', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -502,7 +503,7 @@ changePassword = async (req, res, next) => {
        * * if the new_password and the old_password is same send 409 conflict
        */
       const comparePassword = await user.validPassword(new_password);
-      console.log('comparePassword', comparePassword);
+      logger.debug('comparePassword', comparePassword);
       if (comparePassword) {
         return Conflict(res, {
           message:
@@ -527,7 +528,7 @@ changePassword = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('change-password-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -554,7 +555,7 @@ refresh = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      console.log('user', user);
+      logger.debug('user', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -569,7 +570,7 @@ refresh = async (req, res, next) => {
         identity,
         exp,
       );
-      console.log(
+      logger.debug(
         'backListTokenIdentityResponse',
         backListTokenIdentityResponse,
       );
@@ -598,7 +599,7 @@ refresh = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('refresh-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -625,7 +626,7 @@ revokeAccessToken = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      console.log('user', user);
+      logger.debug('user', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -639,12 +640,12 @@ revokeAccessToken = async (req, res, next) => {
         identity,
         exp,
       );
-      console.log(
+      logger.debug(
         'backListTokenIdentityResponse',
         backListTokenIdentityResponse,
       );
       const deleteTokenIdentityResponse = await deleteIdentity(identity);
-      console.log('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
+      logger.debug('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
       /**
        * * Send 200 success response
        */
@@ -654,7 +655,7 @@ revokeAccessToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('revoke-access-token-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -681,7 +682,7 @@ revokeRefreshToken = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      console.log('user', user);
+      logger.debug('user', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -696,12 +697,12 @@ revokeRefreshToken = async (req, res, next) => {
         identity,
         exp,
       );
-      console.log(
+      logger.debug(
         'backListTokenIdentityResponse',
         backListTokenIdentityResponse,
       );
       const deleteTokenIdentityResponse = await deleteIdentity(identity);
-      console.log('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
+      logger.debug('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
       /**
        * * Send 200 success response
        */
@@ -711,7 +712,7 @@ revokeRefreshToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('revoke-refresh-token-error-handler', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,

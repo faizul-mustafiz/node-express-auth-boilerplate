@@ -8,6 +8,7 @@ const {
   isVerifyTokenIdentityExists,
   getVerifyTokenIdentity,
 } = require('../helpers/redis.helper');
+const logger = require('../loggers/logger');
 
 const validateVerification = async (req, res, next) => {
   try {
@@ -24,8 +25,8 @@ const validateVerification = async (req, res, next) => {
      * * res.locals are persistent throughout the request life cycle or simply to say until the request is resolved
      */
     jwt.verify(token, verifyTokenConfig.secret, async (err, decoded) => {
-      console.log('error', err);
-      console.log('decoded', decoded);
+      logger.debug('error', err);
+      logger.debug('decoded', decoded);
       if (err) {
         return Unauthorized(res, {
           message: 'Verification failed, invalid token',
@@ -55,7 +56,7 @@ const validateVerification = async (req, res, next) => {
       }
     });
   } catch (error) {
-    console.log('catch-error', error);
+    logger.error('validate-verification-error', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,

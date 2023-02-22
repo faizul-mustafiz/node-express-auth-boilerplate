@@ -1,3 +1,5 @@
+const { BadRequest } = require('../handlers/responses/http-response');
+const logger = require('../loggers/logger');
 const authSchema = require('./schema/auth.schema');
 const authValidator = async (req, res, next) => {
   /**
@@ -6,12 +8,11 @@ const authValidator = async (req, res, next) => {
    */
   try {
     const result = await authSchema.validateAsync(req.body);
-    console.log('auth-schema-validation-result', result);
+    logger.debug('auth-schema-validation-result', result);
     next();
   } catch (error) {
-    console.log('error', error);
-    return res.status(400).json({
-      success: false,
+    logger.error('auth-validator-error', error);
+    return BadRequest(res, {
       message:
         'Any of these fields {email, password} not provided or incorrect',
       result: {},
