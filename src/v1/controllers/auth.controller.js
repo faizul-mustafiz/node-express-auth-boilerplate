@@ -20,6 +20,14 @@ const {
 } = require('../helpers/redis.helper');
 const AuthActionType = require('../enums/auth-action-type.enum');
 const apiRouteGeneratorLocal = require('../utility/app.utility');
+const {
+  Success,
+  Created,
+  BadRequest,
+  Unauthorized,
+  Conflict,
+  InternalServerError,
+} = require('../handlers/responses/http-response');
 signUp = async (req, res, next) => {
   try {
     /**
@@ -36,8 +44,7 @@ signUp = async (req, res, next) => {
      */
     const existingUser = await User.emailExist(email);
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message: 'An account with this email already exists',
         result: {},
       });
@@ -64,17 +71,17 @@ signUp = async (req, res, next) => {
     };
     /**
      * * send 200 success response
+     * @param Success(res, { message, result})
+     * @returns res.status(200).json({success, message, result})
      */
-    res.status(200).json({
-      success: true,
+    return Success(res, {
       message:
         'Please continue to provided url with token and code for successful sign-up',
       result,
     });
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -92,8 +99,7 @@ signIn = async (req, res, next) => {
     const user = await User.emailExist(email);
     console.log('user', user);
     if (!user) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message: 'This email is not registered, SignUp first',
         result: {},
       });
@@ -105,8 +111,7 @@ signIn = async (req, res, next) => {
     const comparePassword = await user.validPassword(password);
     console.log('comparePassword', comparePassword);
     if (!comparePassword) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message: 'Incorrect password',
         result: {},
       });
@@ -134,16 +139,14 @@ signIn = async (req, res, next) => {
     /**
      * * send 200 success response
      */
-    res.status(200).json({
-      success: true,
+    return Success(res, {
       message:
         'Please continue to provided url with token and code for successful sign-in',
       result,
     });
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -160,8 +163,7 @@ signOut = async (req, res, next) => {
        * * if decoded token type is not refresh, send 401 unauthorized
        */
       if (type && type != TokenType.Refresh) {
-        return res.status(401).json({
-          success: false,
+        return Unauthorized(res, {
           message: 'Invalid token',
           result: {},
         });
@@ -172,8 +174,7 @@ signOut = async (req, res, next) => {
       const user = await User.emailExist(email);
       console.log('user', user);
       if (!user) {
-        return res.status(400).json({
-          success: false,
+        return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
           result: {},
         });
@@ -195,16 +196,14 @@ signOut = async (req, res, next) => {
       /**
        * * Send 200 success response
        */
-      return res.status(200).json({
-        success: true,
+      return Success(res, {
         message: 'Sign-Out successful',
         result: {},
       });
     }
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -222,8 +221,7 @@ continueSingUp = async (req, res, next) => {
     const existingUser = await User.emailExist(email);
     console.log('existingUser', existingUser);
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message: 'An account with this email already exists',
         result: {},
       });
@@ -260,15 +258,13 @@ continueSingUp = async (req, res, next) => {
     /**
      * * send 201 created response
      */
-    res.status(201).json({
-      success: true,
+    return Created(res, {
       message: 'Sign-Up successful',
       result,
     });
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -286,8 +282,7 @@ continueSignIn = async (req, res, next) => {
     const user = await User.emailExist(email);
     console.log('user', user);
     if (!user) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message: 'This email is not registered, SignUp first',
         result: {},
       });
@@ -310,15 +305,13 @@ continueSignIn = async (req, res, next) => {
     /**
      * * Send 200 success response
      */
-    return res.status(200).json({
-      success: true,
+    return Success(res, {
       message: 'Sign-In successful',
       result: result,
     });
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -339,8 +332,7 @@ verifyAuth = async (req, res, next) => {
      * * if decoded token type is not verify, send 401 unauthorized
      */
     if (tokenType && tokenType != TokenType.Verify) {
-      return res.status(401).json({
-        success: false,
+      return Unauthorized(res, {
         message: 'Invalid token',
         result: {},
       });
@@ -349,8 +341,7 @@ verifyAuth = async (req, res, next) => {
      * * if provided code is not equal to redis otp, send 400 bad request
      */
     if (otp && otp != code) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message: 'Invalid code',
         result: {},
       });
@@ -367,8 +358,7 @@ verifyAuth = async (req, res, next) => {
     }
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -382,8 +372,7 @@ forgotPassword = async (req, res, next) => {
      */
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message: 'Email not provided',
         result: {},
       });
@@ -394,8 +383,7 @@ forgotPassword = async (req, res, next) => {
     const user = await User.emailExist(email);
     console.log('user', user);
     if (!user) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message: 'This email is not registered, SignUp first',
         result: {},
       });
@@ -437,16 +425,14 @@ forgotPassword = async (req, res, next) => {
     /**
      * * send 200 success response
      */
-    res.status(200).json({
-      success: true,
+    return Success(res, {
       message:
         'please provided verification code for successful change-password',
       result,
     });
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -468,8 +454,7 @@ changePassword = async (req, res, next) => {
      */
     const { new_password } = req.body;
     if (!new_password) {
-      return res.status(400).json({
-        success: false,
+      return BadRequest(res, {
         message: 'Password was not provided',
         result: {},
       });
@@ -487,8 +472,7 @@ changePassword = async (req, res, next) => {
        * * if decoded token type is not change password, send 401 unauthorized
        */
       if (type != TokenType.ChangePassword) {
-        return res.status(401).json({
-          success: false,
+        return Unauthorized(res, {
           message: 'Invalid token',
           result: {},
         });
@@ -497,8 +481,7 @@ changePassword = async (req, res, next) => {
        * * if provided code is not equal to redis otp, send 400 bad request
        */
       if (otp != code) {
-        return res.status(400).json({
-          success: false,
+        return BadRequest(res, {
           message: 'Invalid code',
           result: {},
         });
@@ -509,8 +492,7 @@ changePassword = async (req, res, next) => {
       const user = await User.emailExist(email);
       console.log('user', user);
       if (!user) {
-        return res.status(400).json({
-          success: false,
+        return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
           result: {},
         });
@@ -522,8 +504,7 @@ changePassword = async (req, res, next) => {
       const comparePassword = await user.validPassword(new_password);
       console.log('comparePassword', comparePassword);
       if (comparePassword) {
-        return res.status(409).json({
-          success: false,
+        return Conflict(res, {
           message:
             'Provided password is among the old passwords, please try with a different password',
           result: {},
@@ -540,16 +521,14 @@ changePassword = async (req, res, next) => {
       /**
        * * send 200 success response
        */
-      res.status(200).json({
-        success: true,
+      return Success(res, {
         message: 'Successfully changed password',
         result: {},
       });
     }
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -566,8 +545,7 @@ refresh = async (req, res, next) => {
        * * if decoded token type is not refresh, send 401 unauthorized
        */
       if (type && type != TokenType.Refresh) {
-        return res.status(401).json({
-          success: false,
+        return Unauthorized(res, {
           message: 'Invalid token',
           result: {},
         });
@@ -578,8 +556,7 @@ refresh = async (req, res, next) => {
       const user = await User.emailExist(email);
       console.log('user', user);
       if (!user) {
-        return res.status(400).json({
-          success: false,
+        return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
           result: {},
         });
@@ -615,16 +592,14 @@ refresh = async (req, res, next) => {
       /**
        * * Send 200 success response
        */
-      return res.status(200).json({
-        success: true,
+      return Success(res, {
         message: 'new access and refresh token generation successful',
         result: result,
       });
     }
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -641,8 +616,7 @@ revokeAccessToken = async (req, res, next) => {
        * * if decoded token type is not refresh, send 401 unauthorized
        */
       if (type && type != TokenType.Access) {
-        return res.status(401).json({
-          success: false,
+        return Unauthorized(res, {
           message: 'Invalid token',
           result: {},
         });
@@ -653,8 +627,7 @@ revokeAccessToken = async (req, res, next) => {
       const user = await User.emailExist(email);
       console.log('user', user);
       if (!user) {
-        return res.status(400).json({
-          success: false,
+        return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
           result: {},
         });
@@ -675,16 +648,14 @@ revokeAccessToken = async (req, res, next) => {
       /**
        * * Send 200 success response
        */
-      return res.status(200).json({
-        success: true,
+      return Success(res, {
         message: 'Token revoked successful',
         result: {},
       });
     }
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
@@ -701,8 +672,7 @@ revokeRefreshToken = async (req, res, next) => {
        * * if decoded token type is not refresh, send 401 unauthorized
        */
       if (type && type != TokenType.Refresh) {
-        return res.status(401).json({
-          success: false,
+        return Unauthorized(res, {
           message: 'Invalid token',
           result: {},
         });
@@ -713,8 +683,7 @@ revokeRefreshToken = async (req, res, next) => {
       const user = await User.emailExist(email);
       console.log('user', user);
       if (!user) {
-        return res.status(400).json({
-          success: false,
+        return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
           result: {},
         });
@@ -736,16 +705,14 @@ revokeRefreshToken = async (req, res, next) => {
       /**
        * * Send 200 success response
        */
-      return res.status(200).json({
-        success: true,
+      return Success(res, {
         message: 'Token revoked successful',
         result: {},
       });
     }
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });

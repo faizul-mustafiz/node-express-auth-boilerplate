@@ -1,3 +1,5 @@
+const { BadRequest } = require('../handlers/responses/http-response');
+
 const hasOTP = (req, res, next) => {
   /**
    * * check if verification code is given in the body
@@ -5,8 +7,7 @@ const hasOTP = (req, res, next) => {
    */
   const { code } = req.body;
   if (!code) {
-    return res.status(400).json({
-      success: false,
+    return BadRequest(res, {
       message: 'Verification code was not provided',
       result: {},
     });

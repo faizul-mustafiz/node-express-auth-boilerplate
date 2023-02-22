@@ -1,3 +1,4 @@
+const { Forbidden } = require('../handlers/responses/http-response');
 const {
   getAuthorizationHeader,
   splitAuthorizationHeader,
@@ -10,8 +11,7 @@ const hasAuthorization = (req, res, next) => {
    */
   const authorization = getAuthorizationHeader(req);
   if (!authorization) {
-    return res.status(403).json({
-      success: false,
+    return Forbidden(res, {
       message: 'Authorization header is not present',
       result: {},
     });
@@ -22,15 +22,13 @@ const hasAuthorization = (req, res, next) => {
    */
   const { bearer, token } = splitAuthorizationHeader(authorization);
   if (!bearer) {
-    return res.status(403).json({
-      success: false,
+    return Forbidden(res, {
       message: 'Format for authorization: Bearer [token]',
       result: {},
     });
   }
   if (!token) {
-    return res.status(403).json({
-      success: false,
+    return Forbidden(res, {
       message: 'Verification token was not provided',
       result: {},
     });

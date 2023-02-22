@@ -1,5 +1,8 @@
-const jwt = require('jsonwebtoken');
 const { publicKey } = require('../configs/jwt.config');
+const {
+  Unauthorized,
+  InternalServerError,
+} = require('../handlers/responses/http-response');
 const {
   isIdentityExists,
   isIdentityBlacklisted,
@@ -28,8 +31,7 @@ const validateRefresh = async (req, res, next) => {
         console.log('err', err);
         console.log('decoded', decoded);
         if (err) {
-          return res.status(401).json({
-            success: false,
+          return Unauthorized(res, {
             message: 'Invalid token',
             result: err,
           });
@@ -37,8 +39,7 @@ const validateRefresh = async (req, res, next) => {
         if (decoded && decoded.identity) {
           const identityExists = await isIdentityExists(decoded.identity);
           if (!identityExists) {
-            return res.status(401).json({
-              success: false,
+            return Unauthorized(res, {
               message: 'Invalid token',
               result: {},
             });
@@ -47,8 +48,7 @@ const validateRefresh = async (req, res, next) => {
             decoded.identity,
           );
           if (identityBlackListed) {
-            return res.status(401).json({
-              success: false,
+            return Unauthorized(res, {
               message: 'Invalid token',
               result: {},
             });
@@ -58,8 +58,7 @@ const validateRefresh = async (req, res, next) => {
           );
           console.log('refreshTokenRedisResponse', refreshTokenRedisResponse);
           if (!refreshTokenRedisResponse) {
-            return res.status(401).json({
-              success: false,
+            return Unauthorized(res, {
               message: 'Invalid token',
               result: {},
             });
@@ -77,8 +76,7 @@ const validateRefresh = async (req, res, next) => {
     );
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });

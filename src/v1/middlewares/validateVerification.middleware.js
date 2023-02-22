@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken');
 const { verifyTokenConfig } = require('../configs/jwt.config');
 const {
+  Unauthorized,
+  InternalServerError,
+} = require('../handlers/responses/http-response');
+const {
   isVerifyTokenIdentityExists,
   getVerifyTokenIdentity,
 } = require('../helpers/redis.helper');
@@ -23,8 +27,7 @@ const validateVerification = async (req, res, next) => {
       console.log('error', err);
       console.log('decoded', decoded);
       if (err) {
-        return res.status(401).json({
-          success: false,
+        return Unauthorized(res, {
           message: 'Verification failed, invalid token',
           result: err,
         });
@@ -32,8 +35,7 @@ const validateVerification = async (req, res, next) => {
       if (decoded && decoded.identity) {
         const identityExists = isVerifyTokenIdentityExists(decoded.identity);
         if (!identityExists) {
-          return res.status(401).json({
-            success: false,
+          return Unauthorized(res, {
             message: 'Verification failed, invalid token',
             result: {},
           });
@@ -42,8 +44,7 @@ const validateVerification = async (req, res, next) => {
           decoded.identity,
         );
         if (!verifyTokenRedisResponse) {
-          return res.status(401).json({
-            success: false,
+          return Unauthorized(res, {
             message: 'Verification failed, invalid token',
             result: {},
           });
@@ -55,8 +56,7 @@ const validateVerification = async (req, res, next) => {
     });
   } catch (error) {
     console.log('catch-error', error);
-    return res.status(500).json({
-      success: false,
+    return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
     });
