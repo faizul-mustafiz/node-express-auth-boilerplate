@@ -1,7 +1,7 @@
 const winston = require('winston');
 const { combine, timestamp, printf, splat } = winston.format;
-const customFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp}: ${level}: ${message}`;
+const customFormat = printf(({ level, message, timestamp, stack }) => {
+  return `${timestamp}|${level}|message:${message}|stack-trace:${stack}`;
 });
 const path = require('path');
 const appLogFilePath = path.join(__dirname, '../logs', 'app.log');
