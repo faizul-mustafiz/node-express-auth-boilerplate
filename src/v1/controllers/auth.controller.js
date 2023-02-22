@@ -98,7 +98,7 @@ signIn = async (req, res, next) => {
      * * check if user email doesn't exists, send 400 bad request
      */
     const user = await User.emailExist(email);
-    logger.debug('user', user);
+    logger.debug('user: %s', user);
     if (!user) {
       return BadRequest(res, {
         message: 'This email is not registered, SignUp first',
@@ -110,7 +110,7 @@ signIn = async (req, res, next) => {
      * * if password doesn't match send 400 bad request
      */
     const comparePassword = await user.validPassword(password);
-    logger.debug('comparePassword', comparePassword);
+    logger.debug('comparePassword: %s', comparePassword);
     if (!comparePassword) {
       return BadRequest(res, {
         message: 'Incorrect password',
@@ -173,7 +173,7 @@ signOut = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      logger.debug('user', user);
+      logger.debug('user: %s', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -189,11 +189,14 @@ signOut = async (req, res, next) => {
         exp,
       );
       logger.debug(
-        'backListTokenIdentityResponse',
+        'backListTokenIdentityResponse: %s',
         backListTokenIdentityResponse,
       );
       const deleteTokenIdentityResponse = await deleteIdentity(identity);
-      logger.debug('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
+      logger.debug(
+        'deleteTokenIdentityResponse: %s',
+        deleteTokenIdentityResponse,
+      );
       /**
        * * Send 200 success response
        */
@@ -220,7 +223,7 @@ continueSingUp = async (req, res, next) => {
      * * check if email exists, send 400 bad request
      */
     const existingUser = await User.emailExist(email);
-    logger.debug('existingUser', existingUser);
+    logger.debug('existingUser: %s', existingUser);
     if (existingUser) {
       return BadRequest(res, {
         message: 'An account with this email already exists',
@@ -235,7 +238,7 @@ continueSingUp = async (req, res, next) => {
       password: password,
       isVerified: true,
     });
-    logger.debug('user', user);
+    logger.debug('user: %s', user);
     /**
      * * generate access token.
      */
@@ -281,7 +284,7 @@ continueSignIn = async (req, res, next) => {
      * * check if user email doesn't exists, send 400 bad request
      */
     const user = await User.emailExist(email);
-    logger.debug('user', user);
+    logger.debug('user: %s', user);
     if (!user) {
       return BadRequest(res, {
         message: 'This email is not registered, SignUp first',
@@ -382,7 +385,7 @@ forgotPassword = async (req, res, next) => {
      * * check if email doesn't exists, send 400 bad request
      */
     const user = await User.emailExist(email);
-    logger.debug('user', user);
+    logger.debug('user: %s', user);
     if (!user) {
       return BadRequest(res, {
         message: 'This email is not registered, SignUp first',
@@ -393,7 +396,7 @@ forgotPassword = async (req, res, next) => {
      * * generate OTP for change password
      */
     const OTP = generateOtp(8);
-    logger.debug('OTP', OTP);
+    logger.debug('OTP: %s', OTP);
     /**
      * * generate change password token payload that needs to be stored in redis
      */
@@ -491,7 +494,7 @@ changePassword = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      logger.debug('user', user);
+      logger.debug('user: %s', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -503,7 +506,7 @@ changePassword = async (req, res, next) => {
        * * if the new_password and the old_password is same send 409 conflict
        */
       const comparePassword = await user.validPassword(new_password);
-      logger.debug('comparePassword', comparePassword);
+      logger.debug('comparePassword: %s', comparePassword);
       if (comparePassword) {
         return Conflict(res, {
           message:
@@ -555,7 +558,7 @@ refresh = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      logger.debug('user', user);
+      logger.debug('user: %s', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -571,7 +574,7 @@ refresh = async (req, res, next) => {
         exp,
       );
       logger.debug(
-        'backListTokenIdentityResponse',
+        'backListTokenIdentityResponse: %s',
         backListTokenIdentityResponse,
       );
       /**
@@ -626,7 +629,7 @@ revokeAccessToken = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      logger.debug('user', user);
+      logger.debug('user: %s', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -641,11 +644,14 @@ revokeAccessToken = async (req, res, next) => {
         exp,
       );
       logger.debug(
-        'backListTokenIdentityResponse',
+        'backListTokenIdentityResponse: %s',
         backListTokenIdentityResponse,
       );
       const deleteTokenIdentityResponse = await deleteIdentity(identity);
-      logger.debug('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
+      logger.debug(
+        'deleteTokenIdentityResponse: %s',
+        deleteTokenIdentityResponse,
+      );
       /**
        * * Send 200 success response
        */
@@ -682,7 +688,7 @@ revokeRefreshToken = async (req, res, next) => {
        * * check if user email doesn't exists, send 400 bad request
        */
       const user = await User.emailExist(email);
-      logger.debug('user', user);
+      logger.debug('user: %s', user);
       if (!user) {
         return BadRequest(res, {
           message: 'This email is not registered, SignUp first',
@@ -698,11 +704,14 @@ revokeRefreshToken = async (req, res, next) => {
         exp,
       );
       logger.debug(
-        'backListTokenIdentityResponse',
+        'backListTokenIdentityResponse: %s',
         backListTokenIdentityResponse,
       );
       const deleteTokenIdentityResponse = await deleteIdentity(identity);
-      logger.debug('deleteTokenIdentityResponse', deleteTokenIdentityResponse);
+      logger.debug(
+        'deleteTokenIdentityResponse: %s',
+        deleteTokenIdentityResponse,
+      );
       /**
        * * Send 200 success response
        */

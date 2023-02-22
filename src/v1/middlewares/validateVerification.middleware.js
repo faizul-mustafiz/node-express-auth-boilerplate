@@ -25,8 +25,8 @@ const validateVerification = async (req, res, next) => {
      * * res.locals are persistent throughout the request life cycle or simply to say until the request is resolved
      */
     jwt.verify(token, verifyTokenConfig.secret, async (err, decoded) => {
-      logger.debug('error', err);
-      logger.debug('decoded', decoded);
+      logger.error('verify-token-decode-error', err);
+      logger.debug('decoded: %s', decoded);
       if (err) {
         return Unauthorized(res, {
           message: 'Verification failed, invalid token',

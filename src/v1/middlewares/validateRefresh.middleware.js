@@ -29,8 +29,8 @@ const validateRefresh = async (req, res, next) => {
       publicKey,
       { algorithms: ['ES512'] },
       async (err, decoded) => {
-        logger.debug('err', err);
-        logger.debug('decoded', decoded);
+        logger.error('refresh-token-decode-error', err);
+        logger.debug('decoded: %s', decoded);
         if (err) {
           return Unauthorized(res, {
             message: 'Invalid token',
@@ -57,7 +57,10 @@ const validateRefresh = async (req, res, next) => {
           const refreshTokenRedisResponse = await getHSetIdentityPayload(
             decoded.identity,
           );
-          logger.debug('refreshTokenRedisResponse', refreshTokenRedisResponse);
+          logger.debug(
+            'refreshTokenRedisResponse: %s',
+            refreshTokenRedisResponse,
+          );
           if (!refreshTokenRedisResponse) {
             return Unauthorized(res, {
               message: 'Invalid token',

@@ -12,8 +12,8 @@ getAllUser = async (req, res, next) => {
   try {
     const result = await User.find();
     const count = await User.count();
-    logger.debug('getAllUser-result', result);
-    logger.info('getAllUser-count', count);
+    logger.debug('getAllUser-result: %s', result);
+    logger.info('getAllUser-count: %s', count);
     if (count === 0) {
       return NonAuthoritative(res, {
         message: 'User collection is Empty',
@@ -33,7 +33,7 @@ getAllUser = async (req, res, next) => {
   }
 };
 getOneUser = async (req, res, next) => {
-  logger.debug('getOneUser', req.params);
+  logger.debug('getOneUser: %s', req.params);
   const { userId } = req.params;
   if (!userId) {
     return NotFound(res, {
@@ -72,7 +72,7 @@ updateOneUser = async (req, res, next) => {
   try {
     const { email } = req.body;
     const existingUser = await User.emailExist(email);
-    logger.debug('existingUser', existingUser);
+    logger.debug('existingUser: %s', existingUser);
     if (existingUser._id != userId) {
       return BadRequest(res, {
         message:
@@ -85,11 +85,11 @@ updateOneUser = async (req, res, next) => {
       password: req.body.password,
     };
     changes.password = await User.generateHash(changes.password);
-    logger.debug('changes', changes);
+    logger.debug('changes: %s', changes);
     const updatedUser = Object.assign(existingUser, changes);
-    logger.debug('updatedUser', updatedUser);
+    logger.debug('updatedUser: %s', updatedUser);
     const result = await existingUser.save();
-    logger.debug('result', result);
+    logger.debug('result: %s', result);
     return Success(res, {
       message: 'Successfully updated user',
       result: result,

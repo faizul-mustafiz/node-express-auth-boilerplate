@@ -8,7 +8,7 @@ const authValidator = async (req, res, next) => {
    */
   try {
     const result = await authSchema.validateAsync(req.body);
-    logger.debug('auth-schema-validation-result', result);
+    logger.debug('auth-schema-validation-result: %s', result);
     next();
   } catch (error) {
     logger.error('auth-validator-error', error);

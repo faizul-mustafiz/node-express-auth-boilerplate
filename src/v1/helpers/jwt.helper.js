@@ -134,14 +134,14 @@ signVerifyToken = async (payload, actionType, otp) => {
     actionType,
     otp,
   );
-  logger.debug('verifyTokenPayload', verifyTokenPayload);
+  logger.debug('verifyTokenPayload: %s', verifyTokenPayload);
   /**
    * * generate verify token identity hash for redis key
    */
   const verifyTokenIdentity = generateIdentityHash(
     JSON.stringify(verifyTokenPayload),
   );
-  logger.debug('verifyTokenIdentity', verifyTokenIdentity);
+  logger.debug('verifyTokenIdentity: %s', verifyTokenIdentity);
   /**
    * * generate verify token expiry
    */
@@ -160,7 +160,7 @@ signVerifyToken = async (payload, actionType, otp) => {
     jti: verifyTokenId,
   };
   const verifyToken = jwt.sign(jwtPayload, verifyTokenConfig.secret);
-  logger.debug('verify-token', verifyToken);
+  logger.debug('verify-token: %s', verifyToken);
   await setVerifyTokenIdentity(
     verifyTokenIdentity,
     Number(tokenExpire),
@@ -185,7 +185,7 @@ signChangePasswordToken = async (identity, payload) => {
     jwtPayload,
     changePasswordTokenConfig.secret,
   );
-  logger.debug('change-password-token', changePasswordToken);
+  logger.debug('change-password-token: %s', changePasswordToken);
   await setChangePasswordTokenIdentity(identity, Number(tokenExpire), payload);
   return changePasswordToken;
 };
@@ -200,7 +200,7 @@ verifyChangePasswordToken = async (token, res) => {
       changePasswordTokenConfig.secret,
       async (err, decoded) => {
         logger.error('change-password-token-decode-error', err);
-        logger.debug('decoded', decoded);
+        logger.debug('decoded: %s', decoded);
         if (err) {
           return res.status(401).json({
             success: false,

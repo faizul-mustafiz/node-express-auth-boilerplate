@@ -29,8 +29,8 @@ const validateAccess = async (req, res, next) => {
       publicKey,
       { algorithms: ['ES512'] },
       async (err, decoded) => {
-        logger.debug('err', err);
-        logger.debug('decoded', decoded);
+        logger.error('access-token-decode-error', err);
+        logger.debug('decoded: %s', decoded);
         if (err) {
           return Unauthorized(res, {
             message: 'Invalid token',
@@ -57,7 +57,10 @@ const validateAccess = async (req, res, next) => {
           const accessTokenRedisResponse = await getHSetIdentityPayload(
             decoded.identity,
           );
-          logger.debug('accessTokenRedisResponse', accessTokenRedisResponse);
+          logger.debug(
+            'accessTokenRedisResponse: %s',
+            accessTokenRedisResponse,
+          );
           if (!accessTokenRedisResponse) {
             return Unauthorized({
               message: 'Invalid token',

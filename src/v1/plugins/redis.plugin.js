@@ -9,7 +9,8 @@ const redisClient = createClient({
 
 redisConnectCallback = () => {
   logger.info(
-    'redis-connect-callback-response: Connection to redis successful',
+    'redis-connect-callback-response: %s',
+    'Connection to redis successful',
   );
 };
 

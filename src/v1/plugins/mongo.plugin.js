@@ -6,19 +6,19 @@ const logger = require('../loggers/logger');
 mongoose.set('strictQuery', true);
 
 mongoConnectCallback = () => {
-  logger.info('mongo-connect-callback: mongoDB is connected');
+  logger.info('mongo-connect-callback: %s', 'mongoDB is connected');
 };
 mongoErrorCallback = (error) => {
   logger.error('mongo-error-callback-error', error);
   disconnectFromMongoAgent('error-callback');
 };
 mongoDisconnectCallback = () => {
-  logger.info('mongo-disconnect-callback: mongoDB is disconnected');
+  logger.info('mongo-disconnect-callback: %s', 'mongoDB is disconnected');
 };
 
 disconnectFromMongoAgent = (stack = 'disconnect-call') => {
   mongoose.connection.close();
-  logger.info('Disconnected form mongo agent;stack:', stack);
+  logger.info('Disconnected form mongo agent-stack: %s', stack);
   process.exit();
 };
 
