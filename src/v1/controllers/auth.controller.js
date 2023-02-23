@@ -20,15 +20,26 @@ const {
 } = require('../helpers/redis.helper');
 const AuthActionType = require('../enums/authActionType.enum');
 const apiRouteGeneratorLocal = require('../utility/app.utility');
-const {
-  Success,
-  Created,
-  BadRequest,
-  Unauthorized,
-  Conflict,
-  InternalServerError,
-} = require('../handlers/responses/httpResponse');
+const { Success, Created } = require('../handlers/responses/httpResponse');
 const logger = require('../loggers/logger');
+const BadRequestError = require('../handlers/errors/BadRequestError');
+const UnauthorizedError = require('../handlers/errors/UnauthorizedError');
+const ConflictError = require('../handlers/errors/ConflictError');
+
+const origin = {
+  signUp: 'signUp-base-error:',
+  signIn: 'signIn-base-error:',
+  signOut: 'signOut-base-error:',
+  continueSingUp: 'continueSingUp-base-error:',
+  continueSignIn: 'continueSignIn-base-error:',
+  verifyAuth: 'verifyAuth-base-error:',
+  forgotPassword: 'forgotPassword-base-error:',
+  changePassword: 'changePassword-base-error:',
+  refresh: 'refresh-base-error:',
+  revokeAccessToken: 'refresh-base-error:',
+  revokeRefreshToken: 'refresh-base-error:',
+};
+
 signUp = async (req, res, next) => {
   try {
     /**
@@ -41,14 +52,15 @@ signUp = async (req, res, next) => {
      */
     password = await User.generateHash(password);
     /**
-     * * check if email exists, send 400 bad request
+     * * check if email exists, send 400 BadRequestError
+     * @param BadRequestError(origin, message)
      */
     const existingUser = await User.emailExist(email);
     if (existingUser) {
-      return BadRequest(res, {
-        message: 'An account with this email already exists',
-        result: {},
-      });
+      throw new BadRequestError(
+        'signUp-user-exists:',
+        'An account with this email already exists',
+      );
     }
     /**
      * * generate OTP for verify sign-up
@@ -81,11 +93,8 @@ signUp = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('sign-up-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.signUp;
+    next(error);
   }
 };
 signIn = async (req, res, next) => {
@@ -95,27 +104,26 @@ signIn = async (req, res, next) => {
      */
     const { email, password } = req.body;
     /**
-     * * check if user email doesn't exists, send 400 bad request
+     * * check if user email doesn't exists, send 400 BadRequestError
+     * @param BadRequestError(origin, message)
      */
     const user = await User.emailExist(email);
     logger.debug('user: %s', user);
     if (!user) {
-      return BadRequest(res, {
-        message: 'This email is not registered, SignUp first',
-        result: {},
-      });
+      throw new BadRequestError(
+        'signIn-user-not-registered',
+        'This email is not registered, SignUp first',
+      );
     }
     /**
      * * compare the request password and db password
-     * * if password doesn't match send 400 bad request
+     * * if password doesn't match send 400 BadRequestError
+     * @param BadRequestError(origin, message)
      */
     const comparePassword = await user.validPassword(password);
     logger.debug('comparePassword: %s', comparePassword);
     if (!comparePassword) {
-      return BadRequest(res, {
-        message: 'Incorrect password',
-        result: {},
-      });
+      throw new BadRequestError('signIn-wrong-password', 'Incorrect password');
     }
     /**
      * * generate OTP for verify sign-up
@@ -146,11 +154,8 @@ signIn = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('sign-in-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.signIn;
+    next(error);
   }
 };
 signOut = async (req, res, next) => {
@@ -161,26 +166,27 @@ signOut = async (req, res, next) => {
     const { email, type, identity, exp } = res.locals.validateRefreshResponse;
     if (email && type && identity && exp) {
       /**
-       * * if decoded token type is not refresh, send 401 unauthorized
+       * * if decoded token type is not refresh, send 401 UnauthorizedError
+       * @param UnauthorizedError(origin, message)
        */
       if (type && type != TokenType.Refresh) {
-        return Unauthorized(res, {
-          message: 'Invalid token',
-          result: {},
-        });
+        throw new UnauthorizedError(
+          'signOut-token-type-not-refresh',
+          'Invalid token',
+        );
       }
       /**
-       * * check if user email doesn't exists, send 400 bad request
+       * * check if user email doesn't exists, send 400 BadRequestError
+       * @param BadRequestError(origin, message)
        */
       const user = await User.emailExist(email);
       logger.debug('user: %s', user);
       if (!user) {
-        return BadRequest(res, {
-          message: 'This email is not registered, SignUp first',
-          result: {},
-        });
+        throw new BadRequestError(
+          'signOut-user-not-registered',
+          'This email is not registered, SignUp first',
+        );
       }
-
       /**
        * * blacklist existing token identity and then delete the refresh token identity
        */
@@ -206,11 +212,8 @@ signOut = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('sign-out-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.signOut;
+    next(error);
   }
 };
 continueSingUp = async (req, res, next) => {
@@ -220,15 +223,16 @@ continueSingUp = async (req, res, next) => {
      */
     const { email, password } = res.locals.validateVerificationResponse;
     /**
-     * * check if email exists, send 400 bad request
+     * * check if email exists, send 400 bad BadRequestError
+     * @param BadRequestError(origin, message)
      */
     const existingUser = await User.emailExist(email);
     logger.debug('existingUser: %s', existingUser);
     if (existingUser) {
-      return BadRequest(res, {
-        message: 'An account with this email already exists',
-        result: {},
-      });
+      throw new BadRequestError(
+        'continueSignUp-user-exists:',
+        'An account with this email already exists',
+      );
     }
     /**
      * * creating new User model object and generating password salt.
@@ -267,11 +271,8 @@ continueSingUp = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('continue-sign-up-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.continueSingUp;
+    next(error);
   }
 };
 continueSignIn = async (req, res, next) => {
@@ -281,15 +282,16 @@ continueSignIn = async (req, res, next) => {
      */
     const { email } = res.locals.validateVerificationResponse;
     /**
-     * * check if user email doesn't exists, send 400 bad request
+     * * check if user email doesn't exists, send 400 BadRequestError
+     * @param BadRequestError(origin, message)
      */
     const user = await User.emailExist(email);
     logger.debug('user: %s', user);
     if (!user) {
-      return BadRequest(res, {
-        message: 'This email is not registered, SignUp first',
-        result: {},
-      });
+      throw new BadRequestError(
+        'continueSignIn-user-not-registered',
+        'This email is not registered, SignUp first',
+      );
     }
     /**
      * * generate access token.
@@ -314,11 +316,8 @@ continueSignIn = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    logger.error('continue-sign-in-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.continueSignIn;
+    next(error);
   }
 };
 verifyAuth = async (req, res, next) => {
@@ -333,22 +332,21 @@ verifyAuth = async (req, res, next) => {
     const { actionType, otp, tokenType } =
       res.locals.validateVerificationResponse;
     /**
-     * * if decoded token type is not verify, send 401 unauthorized
+     * * if decoded token type is not verify, send 401 UnauthorizedError
+     * @param UnauthorizedError(origin, message)
      */
     if (tokenType && tokenType != TokenType.Verify) {
-      return Unauthorized(res, {
-        message: 'Invalid token',
-        result: {},
-      });
+      throw new UnauthorizedError(
+        'verifyAuth-token-type-not-verify',
+        'Invalid token',
+      );
     }
     /**
-     * * if provided code is not equal to redis otp, send 400 bad request
+     * * if provided code is not equal to redis otp, send 400 BadRequestError
+     * @param BadRequestError(origin, message)
      */
     if (otp && otp != code) {
-      return BadRequest(res, {
-        message: 'Invalid code',
-        result: {},
-      });
+      throw new BadRequestError('verifyAuth-wrong-otp', 'Invalid code');
     }
     /**
      * * now check  AuthActionType of the verification token redis response
@@ -361,36 +359,35 @@ verifyAuth = async (req, res, next) => {
       await continueSignIn(req, res, next);
     }
   } catch (error) {
-    logger.error('verify-auth-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.verifyAuth;
+    next(error);
   }
 };
 forgotPassword = async (req, res, next) => {
   try {
     /**
      * * get {email} form request body
-     * * if email not provided send 400 bad request
+     * * if email not provided send 400 bad BadRequestError
+     * @param BadRequestError(origin, message)
      */
     const { email } = req.body;
     if (!email) {
-      return BadRequest(res, {
-        message: 'Email not provided',
-        result: {},
-      });
+      throw new BadRequestError(
+        'forgotPassword-email-not-provided',
+        'Email not provided',
+      );
     }
     /**
-     * * check if email doesn't exists, send 400 bad request
+     * * check if email doesn't exists, send 400 BadRequestError
+     * @param BadRequestError(origin, message)
      */
     const user = await User.emailExist(email);
     logger.debug('user: %s', user);
     if (!user) {
-      return BadRequest(res, {
-        message: 'This email is not registered, SignUp first',
-        result: {},
-      });
+      throw new BadRequestError(
+        'forgotPassword-user-not-registered',
+        'This email is not registered, SignUp first',
+      );
     }
     /**
      * * generate OTP for change password
@@ -435,11 +432,8 @@ forgotPassword = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('forgot-password-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.forgotPassword;
+    next(error);
   }
 };
 changePassword = async (req, res, next) => {
@@ -454,14 +448,15 @@ changePassword = async (req, res, next) => {
     const code = res.locals.code;
     /**
      * * check if password is given in the body
-     * * if there is no verification code or password send 400 bad request
+     * * if there is no verification code or password send 400 BadRequestError
+     * @param BadRequestError(origin, message)
      */
     const { new_password } = req.body;
     if (!new_password) {
-      return BadRequest(res, {
-        message: 'Password was not provided',
-        result: {},
-      });
+      throw new BadRequestError(
+        'changePassword-new-password-not-provided',
+        'Password was not provided',
+      );
     }
     /**
      * * decode change password token and check if the token is a valid token
@@ -473,46 +468,46 @@ changePassword = async (req, res, next) => {
     const { email, type, otp } = await verifyChangePasswordToken(token, res);
     if (email && type && otp) {
       /**
-       * * if decoded token type is not change password, send 401 unauthorized
+       * * if decoded token type is not change password, send 401 UnauthorizedError
+       * @param UnauthorizedError(origin, message)
        */
       if (type != TokenType.ChangePassword) {
-        return Unauthorized(res, {
-          message: 'Invalid token',
-          result: {},
-        });
+        throw new UnauthorizedError(
+          'changePassword-token-type-not-change',
+          'Invalid token',
+        );
       }
       /**
-       * * if provided code is not equal to redis otp, send 400 bad request
+       * * if provided code is not equal to redis otp, send 400 BadRequestError
+       * @param BadRequestError(origin, message)
        */
       if (otp != code) {
-        return BadRequest(res, {
-          message: 'Invalid code',
-          result: {},
-        });
+        throw new BadRequestError('changePassword-wrong-otp', 'Invalid code');
       }
       /**
-       * * check if user email doesn't exists, send 400 bad request
+       * * check if user email doesn't exists, send 400 BadRequestError
+       * @param BadRequestError(origin, message)
        */
       const user = await User.emailExist(email);
       logger.debug('user: %s', user);
       if (!user) {
-        return BadRequest(res, {
-          message: 'This email is not registered, SignUp first',
-          result: {},
-        });
+        throw new BadRequestError(
+          'changePassword-user-not-registered',
+          'This email is not registered, SignUp first',
+        );
       }
       /**
        * * compare the new_password with the existing password
-       * * if the new_password and the old_password is same send 409 conflict
+       * * if the new_password and the old_password is same send 409 ConflictError
+       * @param ConflictError(origin, message)
        */
       const comparePassword = await user.validPassword(new_password);
       logger.debug('comparePassword: %s', comparePassword);
       if (comparePassword) {
-        return Conflict(res, {
-          message:
-            'Provided password is among the old passwords, please try with a different password',
-          result: {},
-        });
+        throw new ConflictError(
+          'changePassword-provided-password-old-password',
+          'Provided password is among the old passwords, please try with a different password',
+        );
       }
       /**
        * * generate hash form the new_password
@@ -531,11 +526,8 @@ changePassword = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('change-password-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.changePassword;
+    next(error);
   }
 };
 refresh = async (req, res, next) => {
@@ -546,24 +538,26 @@ refresh = async (req, res, next) => {
     const { email, type, identity, exp } = res.locals.validateRefreshResponse;
     if (email && type && identity && exp) {
       /**
-       * * if decoded token type is not refresh, send 401 unauthorized
+       * * if decoded token type is not refresh, send 401 UnauthorizedError
+       * @param UnauthorizedError(origin, message)
        */
       if (type && type != TokenType.Refresh) {
-        return Unauthorized(res, {
-          message: 'Invalid token',
-          result: {},
-        });
+        throw new UnauthorizedError(
+          'refresh-token-type-not-refresh',
+          'Invalid token',
+        );
       }
       /**
-       * * check if user email doesn't exists, send 400 bad request
+       * * check if user email doesn't exists, send 400 BadRequestError
+       * @param BadRequestError(origin, message)
        */
       const user = await User.emailExist(email);
       logger.debug('user: %s', user);
       if (!user) {
-        return BadRequest(res, {
-          message: 'This email is not registered, SignUp first',
-          result: {},
-        });
+        throw new BadRequestError(
+          'refresh-user-not-registered',
+          'This email is not registered, SignUp first',
+        );
       }
 
       /**
@@ -602,11 +596,8 @@ refresh = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('refresh-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.refresh;
+    next(error);
   }
 };
 revokeAccessToken = async (req, res, next) => {
@@ -617,24 +608,26 @@ revokeAccessToken = async (req, res, next) => {
     const { email, type, identity, exp } = res.locals.validateAccessResponse;
     if (email && type && identity && exp) {
       /**
-       * * if decoded token type is not refresh, send 401 unauthorized
+       * * if decoded token type is not refresh, send 401 UnauthorizedError
+       * @param UnauthorizedError(origin, message)
        */
       if (type && type != TokenType.Access) {
-        return Unauthorized(res, {
-          message: 'Invalid token',
-          result: {},
-        });
+        throw new UnauthorizedError(
+          'revokeAccessToken-token-type-not-access',
+          'Invalid token',
+        );
       }
       /**
-       * * check if user email doesn't exists, send 400 bad request
+       * * check if user email doesn't exists, send 400 BadRequestError
+       * @param BadRequestError(origin, message)
        */
       const user = await User.emailExist(email);
       logger.debug('user: %s', user);
       if (!user) {
-        return BadRequest(res, {
-          message: 'This email is not registered, SignUp first',
-          result: {},
-        });
+        throw new BadRequestError(
+          'revokeAccessToken-user-not-registered',
+          'This email is not registered, SignUp first',
+        );
       }
       /**
        * * blacklist access token identity and then delete the access token identity
@@ -661,11 +654,8 @@ revokeAccessToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('revoke-access-token-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.revokeAccessToken;
+    next(error);
   }
 };
 revokeRefreshToken = async (req, res, next) => {
@@ -676,24 +666,26 @@ revokeRefreshToken = async (req, res, next) => {
     const { email, type, identity, exp } = res.locals.validateRefreshResponse;
     if (email && type && identity && exp) {
       /**
-       * * if decoded token type is not refresh, send 401 unauthorized
+       * * if decoded token type is not refresh, send 401 UnauthorizedError
+       * @param UnauthorizedError(origin, message)
        */
       if (type && type != TokenType.Refresh) {
-        return Unauthorized(res, {
-          message: 'Invalid token',
-          result: {},
-        });
+        throw new UnauthorizedError(
+          'revokeRefreshToken-token-type-not-refresh',
+          'Invalid token',
+        );
       }
       /**
-       * * check if user email doesn't exists, send 400 bad request
+       * * check if user email doesn't exists, send 400 BadRequestError
+       * @param BadRequestError(origin, message)
        */
       const user = await User.emailExist(email);
       logger.debug('user: %s', user);
       if (!user) {
-        return BadRequest(res, {
-          message: 'This email is not registered, SignUp first',
-          result: {},
-        });
+        throw new BadRequestError(
+          'revokeRefreshToken-user-not-registered',
+          'This email is not registered, SignUp first',
+        );
       }
 
       /**
@@ -721,11 +713,8 @@ revokeRefreshToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('revoke-refresh-token-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : origin.revokeRefreshToken;
+    next(error);
   }
 };
 
