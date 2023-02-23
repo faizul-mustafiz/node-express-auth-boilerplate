@@ -436,6 +436,10 @@ forgotPassword = async (req, res, next) => {
     next(error);
   }
 };
+/**
+ * To-Do
+ * Add check for password validation at least 6 character long for new password
+ */
 changePassword = async (req, res, next) => {
   try {
     /**
