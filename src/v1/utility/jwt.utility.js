@@ -1,9 +1,8 @@
 const _crypto = require('crypto');
-const bcrypt = require('bcryptjs');
 const uuid = require('uuid');
 const otpGenerator = require('otp-generator');
-const TokenType = require('../enums/token-type.enum');
-const AuthActionType = require('../enums/auth-action-type.enum');
+const TokenType = require('../enums/tokenType.enum');
+const AuthActionType = require('../enums/authActionType.enum');
 
 /**
  * * The data must be of type string or an instance of Buffer, TypedArray, or DataView.

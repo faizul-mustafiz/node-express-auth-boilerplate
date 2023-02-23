@@ -13,12 +13,12 @@ const {
   generateChangePasswordTokenPayloadForRedis,
 } = require('../utility/jwt.utility');
 
-const TokenType = require('../enums/token-type.enum');
+const TokenType = require('../enums/tokenType.enum');
 const {
   setIdentityToBlacklist,
   deleteIdentity,
 } = require('../helpers/redis.helper');
-const AuthActionType = require('../enums/auth-action-type.enum');
+const AuthActionType = require('../enums/authActionType.enum');
 const apiRouteGeneratorLocal = require('../utility/app.utility');
 const {
   Success,
@@ -27,7 +27,7 @@ const {
   Unauthorized,
   Conflict,
   InternalServerError,
-} = require('../handlers/responses/http-response');
+} = require('../handlers/responses/httpResponse');
 const logger = require('../loggers/logger');
 signUp = async (req, res, next) => {
   try {

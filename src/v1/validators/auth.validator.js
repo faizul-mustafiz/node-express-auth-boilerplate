@@ -1,4 +1,4 @@
-const { BadRequest } = require('../handlers/responses/http-response');
+const { BadRequest } = require('../handlers/responses/httpResponse');
 const logger = require('../loggers/logger');
 const authSchema = require('./schema/auth.schema');
 const authValidator = async (req, res, next) => {

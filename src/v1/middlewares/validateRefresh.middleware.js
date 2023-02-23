@@ -2,7 +2,7 @@ const { publicKey } = require('../configs/jwt.config');
 const {
   Unauthorized,
   InternalServerError,
-} = require('../handlers/responses/http-response');
+} = require('../handlers/responses/httpResponse');
 const {
   isIdentityExists,
   isIdentityBlacklisted,

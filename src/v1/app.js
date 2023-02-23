@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { AuthRoutes, UserRoutes } = require('./routes');
 const { baseRoute } = require('./configs/app.config');
-const httpLogger = require('../v1/loggers/http-logger');
+const httpLogger = require('../v1/loggers/httpLogger');
 
 const app = express();
 

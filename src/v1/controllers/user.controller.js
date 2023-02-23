@@ -4,7 +4,7 @@ const {
   Success,
   InternalServerError,
   NotFound,
-} = require('../handlers/responses/http-response');
+} = require('../handlers/responses/httpResponse');
 const User = require('../models/user.model');
 const logger = require('../loggers/logger');
 

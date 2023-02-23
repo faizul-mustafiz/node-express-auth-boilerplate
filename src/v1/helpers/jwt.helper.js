@@ -14,7 +14,7 @@ const {
   getChangePasswordTokenIdentity,
   isChangePasswordTokenIdentityExists,
 } = require('../helpers/redis.helper');
-const TokenType = require('../enums/token-type.enum');
+const TokenType = require('../enums/tokenType.enum');
 const logger = require('../loggers/logger');
 
 /**
