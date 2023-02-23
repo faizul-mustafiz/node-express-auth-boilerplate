@@ -1,11 +1,26 @@
+/**
+ * * require the winston logger module
+ */
 const winston = require('winston');
-const { combine, timestamp, printf, splat } = winston.format;
+/**
+ * * import necessary formats from winston.format
+ */
+const { combine, timestamp, printf, splat, json } = winston.format;
+/**
+ * *customFormat if you want to print your logs in custom way
+ */
 const customFormat = printf(({ level, message, timestamp, stack }) => {
   return `${timestamp}|${level}|message:${message}|stack-trace:${stack}`;
 });
+/**
+ * * paths for different log for winston transporter
+ */
 const path = require('path');
 const appLogFilePath = path.join(__dirname, '../logs', 'app.log');
 const errorLogFilePath = path.join(__dirname, '../logs', 'error.log');
+/**
+ * * transporter options for app, error and console transporters
+ */
 const transporterOptions = {
   app: {
     level: 'info',
@@ -15,6 +30,7 @@ const transporterOptions = {
     maxsize: 5242880, // 5MB
     maxFiles: 5,
     colorize: false,
+    // format: customFormat,
   },
   error: {
     level: 'info',
@@ -24,6 +40,7 @@ const transporterOptions = {
     maxsize: 5242880, // 5MB
     maxFiles: 5,
     colorize: false,
+    // format: customFormat,
   },
   console: {
     level: 'debug',
@@ -33,9 +50,14 @@ const transporterOptions = {
   },
 };
 
+/**
+ * * base logger using winston.createLogger
+ * * you can also build different loggers with different transporters
+ * * testLogger = winston.createLogger({level: winston.config.npm.levels, transports:[your custom transporter here]})
+ */
 const logger = winston.createLogger({
   level: winston.config.npm.levels,
-  format: combine(timestamp(), splat(), customFormat),
+  format: combine(timestamp(), splat(), json()),
   transports: [
     new winston.transports.File(transporterOptions.app),
     new winston.transports.File(transporterOptions.error),
