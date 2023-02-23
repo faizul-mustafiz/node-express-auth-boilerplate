@@ -17,8 +17,6 @@ const logger = require('./logger');
 const httpLogger = morgan(format, {
   stream: {
     write: (message) => {
-      console.log('message', message);
-      console.log('json-parse-message', JSON.parse(message));
       const { method, url, status, resContentLength, responseTime } =
         JSON.parse(message);
       logger.info('HTTP-Request-Log', {
