@@ -29,7 +29,7 @@ const validateRefresh = async (req, res, next) => {
       publicKey,
       { algorithms: ['ES512'] },
       async (err, decoded) => {
-        logger.error('refresh-token-decode-error', err);
+        logger.error('refresh-token-decode-error:', err);
         logger.debug('decoded: %s', decoded);
         if (err) {
           return Unauthorized(res, {
@@ -79,7 +79,7 @@ const validateRefresh = async (req, res, next) => {
       },
     );
   } catch (error) {
-    logger.error('validate-refresh-error', error);
+    logger.error('validate-refresh-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,

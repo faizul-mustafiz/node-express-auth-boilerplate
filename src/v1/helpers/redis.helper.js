@@ -11,7 +11,7 @@ isIdentityExists = async (identity) => {
     logger.debug('isIdentityExists-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('isIdentityExists-error', error);
+    logger.error('isIdentityExists-error:', error);
   }
 };
 setIdentityWithHSet = async (identity, expiry, payload) => {
@@ -22,7 +22,7 @@ setIdentityWithHSet = async (identity, expiry, payload) => {
     logger.debug('setIdentityWithHSet-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('setIdentityWithHSet-error', error);
+    logger.error('setIdentityWithHSet-error:', error);
   }
 };
 setIdentity = async (identity, expiry, payload) => {
@@ -32,7 +32,7 @@ setIdentity = async (identity, expiry, payload) => {
     logger.debug('saveTokenIdentity-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('saveTokenIdentity-error', error);
+    logger.error('saveTokenIdentity-error:', error);
   }
 };
 getHSetIdentityPayload = async (identity) => {
@@ -41,7 +41,7 @@ getHSetIdentityPayload = async (identity) => {
     logger.debug('getTokenPayload-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('getTokenPayload-error', error);
+    logger.error('getTokenPayload-error:', error);
   }
 };
 deleteIdentity = async (identity) => {
@@ -50,7 +50,7 @@ deleteIdentity = async (identity) => {
     logger.debug('deleteTokenPayload-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('deleteTokenPayload-error', error);
+    logger.error('deleteTokenPayload-error:', error);
   }
 };
 
@@ -63,7 +63,7 @@ isIdentityBlacklisted = async (identity) => {
     logger.debug('isIdentityBlacklisted-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('isIdentityBlacklisted-error', error);
+    logger.error('isIdentityBlacklisted-error:', error);
   }
 };
 setIdentityToBlacklist = async (identity, expiry) => {
@@ -72,7 +72,7 @@ setIdentityToBlacklist = async (identity, expiry) => {
     logger.debug('setIdentityToBlacklist-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('setIdentityToBlacklist-error', error);
+    logger.error('setIdentityToBlacklist-error:', error);
   }
 };
 deleteBlacklistedIdentity = async (identity) => {
@@ -81,7 +81,7 @@ deleteBlacklistedIdentity = async (identity) => {
     logger.debug('deleteBlacklistedIdentity-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('deleteBlacklistedIdentity-error', error);
+    logger.error('deleteBlacklistedIdentity-error:', error);
   }
 };
 
@@ -94,7 +94,7 @@ isVerifyTokenIdentityExists = async (identity) => {
     logger.debug('isVerifyTokenIdentityExists-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('isVerifyTokenIdentityExists-error', error);
+    logger.error('isVerifyTokenIdentityExists-error:', error);
   }
 };
 setVerifyTokenIdentity = async (identity, expiry, payload) => {
@@ -103,7 +103,7 @@ setVerifyTokenIdentity = async (identity, expiry, payload) => {
     logger.debug('setVerifyTokenIdentity-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('setVerifyTokenIdentity-error', error);
+    logger.error('setVerifyTokenIdentity-error:', error);
   }
 };
 getVerifyTokenIdentity = async (identity) => {
@@ -112,7 +112,7 @@ getVerifyTokenIdentity = async (identity) => {
     logger.debug('getTokenPayload-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('getVerifyTokenIdentity-error', error);
+    logger.error('getVerifyTokenIdentity-error:', error);
   }
 };
 deleteVerifyTokenIdentity = async (identity) => {
@@ -121,7 +121,7 @@ deleteVerifyTokenIdentity = async (identity) => {
     logger.debug('deleteVerifyTokenIdentity-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('deleteVerifyTokenIdentity-error', error);
+    logger.error('deleteVerifyTokenIdentity-error:', error);
   }
 };
 
@@ -134,7 +134,7 @@ isChangePasswordTokenIdentityExists = async (identity) => {
     logger.debug('isChangePasswordTokenIdentityExists-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('isChangePasswordTokenIdentityExists-error', error);
+    logger.error('isChangePasswordTokenIdentityExists-error:', error);
   }
 };
 setChangePasswordTokenIdentity = async (identity, expiry, payload) => {
@@ -143,7 +143,7 @@ setChangePasswordTokenIdentity = async (identity, expiry, payload) => {
     logger.debug('saveChangePasswordTokenIdentity-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('saveChangePasswordTokenIdentity-error', error);
+    logger.error('saveChangePasswordTokenIdentity-error:', error);
   }
 };
 getChangePasswordTokenIdentity = async (identity) => {
@@ -152,7 +152,7 @@ getChangePasswordTokenIdentity = async (identity) => {
     logger.debug('getChangePasswordTokenIdentity-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('getChangePasswordTokenIdentity-error', error);
+    logger.error('getChangePasswordTokenIdentity-error:', error);
   }
 };
 deleteChangePasswordTokenIdentity = async (identity) => {
@@ -161,7 +161,7 @@ deleteChangePasswordTokenIdentity = async (identity) => {
     logger.debug('deleteChangePasswordTokenIdentity-result: %s', result);
     return result;
   } catch (error) {
-    logger.error('deleteChangePasswordTokenIdentity-error', error);
+    logger.error('deleteChangePasswordTokenIdentity-error:', error);
   }
 };
 

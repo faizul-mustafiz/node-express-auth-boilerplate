@@ -199,7 +199,7 @@ verifyChangePasswordToken = async (token, res) => {
       token,
       changePasswordTokenConfig.secret,
       async (err, decoded) => {
-        logger.error('change-password-token-decode-error', err);
+        logger.error('change-password-token-decode-error:', err);
         logger.debug('decoded: %s', decoded);
         if (err) {
           return res.status(401).json({
@@ -234,7 +234,7 @@ verifyChangePasswordToken = async (token, res) => {
       },
     );
   } catch (error) {
-    logger.error('verify-change-password-token-error', error);
+    logger.error('verify-change-password-token-error:', error);
     return res.status(500).json({
       success: false,
       message: 'oops! there is an Error',

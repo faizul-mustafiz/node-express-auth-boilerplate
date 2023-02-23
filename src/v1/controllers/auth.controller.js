@@ -81,7 +81,7 @@ signUp = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('sign-up-error-handler', error);
+    logger.error('sign-up-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -146,7 +146,7 @@ signIn = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('sign-in-error-handler', error);
+    logger.error('sign-in-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -206,7 +206,7 @@ signOut = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('sign-out-error-handler', error);
+    logger.error('sign-out-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -267,7 +267,7 @@ continueSingUp = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('continue-sign-up-error-handler', error);
+    logger.error('continue-sign-up-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -314,7 +314,7 @@ continueSignIn = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    logger.error('continue-sign-in-error-handler', error);
+    logger.error('continue-sign-in-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -361,7 +361,7 @@ verifyAuth = async (req, res, next) => {
       await continueSignIn(req, res, next);
     }
   } catch (error) {
-    logger.error('verify-auth-error-handler', error);
+    logger.error('verify-auth-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -435,7 +435,7 @@ forgotPassword = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('forgot-password-error-handler', error);
+    logger.error('forgot-password-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -531,7 +531,7 @@ changePassword = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('change-password-error-handler', error);
+    logger.error('change-password-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -602,7 +602,7 @@ refresh = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('refresh-error-handler', error);
+    logger.error('refresh-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -661,7 +661,7 @@ revokeAccessToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('revoke-access-token-error-handler', error);
+    logger.error('revoke-access-token-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
@@ -721,7 +721,7 @@ revokeRefreshToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    logger.error('revoke-refresh-token-error-handler', error);
+    logger.error('revoke-refresh-token-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,

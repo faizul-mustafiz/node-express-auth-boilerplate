@@ -11,7 +11,7 @@ const server = app.listen(port, host, () => {
 });
 
 process.on('uncaughtException', function (err) {
-  logger.error('uncaughtException-error', err);
+  logger.error('uncaughtException-error:', err);
 });
 [
   `exit`,
@@ -22,7 +22,7 @@ process.on('uncaughtException', function (err) {
   `SIGTERM`,
 ].forEach((event) => {
   process.on(event, () => {
-    logger.info('Process event type: %s', event);
+    logger.debug('Process event type: %s', event);
     server.close();
     process.exit();
   });

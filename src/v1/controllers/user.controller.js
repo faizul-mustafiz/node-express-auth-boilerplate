@@ -25,7 +25,7 @@ getAllUser = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('get-all-user-error', error);
+    logger.error('get-all-user-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: {},
@@ -54,7 +54,7 @@ getOneUser = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    logger.error('get-one-user-error', error);
+    logger.error('get-one-user-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: {},
@@ -95,7 +95,7 @@ updateOneUser = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    logger.error('update-one-user-error', error);
+    logger.error('update-one-user-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: {},
@@ -124,7 +124,7 @@ deleteOneUser = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    logger.error('delete-one-user-error', error);
+    logger.error('delete-one-user-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: {},

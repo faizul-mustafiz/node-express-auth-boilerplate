@@ -8,14 +8,14 @@ const redisClient = createClient({
 });
 
 redisConnectCallback = () => {
-  logger.info(
+  logger.debug(
     'redis-connect-callback-response: %s',
     'Connection to redis successful',
   );
 };
 
 redisErrorCallback = (error) => {
-  logger.error('redis-error-callback-error', error);
+  logger.error('redis-error-callback-error:', error);
   redisClient.disconnect();
   process.exit();
 };

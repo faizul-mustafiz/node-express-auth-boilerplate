@@ -29,7 +29,7 @@ const validateAccess = async (req, res, next) => {
       publicKey,
       { algorithms: ['ES512'] },
       async (err, decoded) => {
-        logger.error('access-token-decode-error', err);
+        logger.error('access-token-decode-error:', err);
         logger.debug('decoded: %s', decoded);
         if (err) {
           return Unauthorized(res, {
@@ -79,7 +79,7 @@ const validateAccess = async (req, res, next) => {
       },
     );
   } catch (error) {
-    logger.error('validate-access-error', error);
+    logger.error('validate-access-error:', error);
     return InternalServerError(res, {
       message: 'oops! there is an Error',
       result: error,
