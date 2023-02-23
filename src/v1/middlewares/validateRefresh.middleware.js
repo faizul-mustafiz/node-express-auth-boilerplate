@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const { publicKey } = require('../configs/jwt.config');
 const {
   Unauthorized,
