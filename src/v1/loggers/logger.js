@@ -33,7 +33,7 @@ const transporterOptions = {
     // format: customFormat,
   },
   error: {
-    level: 'info',
+    level: 'error',
     filename: errorLogFilePath,
     handleExceptions: true,
     json: true,
