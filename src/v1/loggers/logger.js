@@ -12,7 +12,7 @@ const transporterOptions = {
     filename: appLogFilePath,
     handleExceptions: true,
     json: true,
-    maxsize: 204800, // 100MB
+    maxsize: 5242880, // 5MB
     maxFiles: 5,
     colorize: false,
   },
@@ -21,7 +21,7 @@ const transporterOptions = {
     filename: errorLogFilePath,
     handleExceptions: true,
     json: true,
-    maxsize: 204800, // 100MB
+    maxsize: 5242880, // 5MB
     maxFiles: 5,
     colorize: false,
   },
