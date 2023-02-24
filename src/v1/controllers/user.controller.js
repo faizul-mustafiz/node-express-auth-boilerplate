@@ -1,12 +1,16 @@
 require('dotenv');
-const {
-  NonAuthoritative,
-  Success,
-  InternalServerError,
-  NotFound,
-} = require('../handlers/responses/httpResponse');
+const { Success } = require('../responses/httpResponse');
 const User = require('../models/user.model');
 const logger = require('../loggers/logger');
+const origin = {
+  getAllUser: 'getAllUser-base-error:',
+  getOneUser: 'getOneUser-base-error:',
+  updateOneUser: 'updateOneUser-base-error:',
+  deleteOneUser: 'deleteOneUser-base-error:',
+};
+const NonAuthoritativeError = require('../errors/NonAuthoritativeError');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
 
 getAllUser = async (req, res, next) => {
   try {
@@ -14,71 +18,84 @@ getAllUser = async (req, res, next) => {
     const count = await User.count();
     logger.debug('getAllUser-result: %s', result);
     logger.info('getAllUser-count: %s', count);
+    /**
+     * * if there is no user in the user collection send 203 NonAuthoritativeError
+     * @param NonAuthoritativeError(origin, message)
+     */
     if (count === 0) {
-      return NonAuthoritative(res, {
-        message: 'User collection is Empty',
-        result: [],
-      });
+      throw new NonAuthoritativeError(
+        'getAllUser-count-zero',
+        'User collection is Empty',
+      );
     }
     return Success(res, {
       message: 'Successfully found all user documents',
       result,
     });
   } catch (error) {
-    logger.error('get-all-user-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: {},
-    });
+    error.origin = error.origin ? error.origin : origin.getAllUser;
+    next(error);
   }
 };
 getOneUser = async (req, res, next) => {
-  logger.debug('getOneUser: %s', req.params);
-  const { userId } = req.params;
-  if (!userId) {
-    return NotFound(res, {
-      message: 'Invalid path not found',
-      result: {},
-    });
-  }
   try {
+    logger.debug('getOneUser: %s', req.params);
+    /**
+     * * if there is no userId in request param send 404 NotFoundError
+     * @param NotFoundError(origin, message)
+     */
+    const { userId } = req.params;
+    if (!userId) {
+      throw new NotFoundError(
+        'getOneUser-no-userId-param',
+        'Invalid path not found',
+      );
+    }
+    /**
+     * * if there is no data for provided userId in request param send 404 NotFoundError
+     * @param NotFoundError(origin, message)
+     */
     const result = await User.findOne({ _id: userId });
     if (!result) {
-      return NotFound(res, {
-        message: 'NOT FOUND',
-        result: {},
-      });
+      throw new NotFoundError(
+        'getOneUser-no-user-with-provided-id',
+        'No document found by this request',
+      );
     }
     return Success(res, {
       message: 'Successfully found user document',
       result,
     });
   } catch (error) {
-    logger.error('get-one-user-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: {},
-    });
+    error.origin = error.origin ? error.origin : origin.getOneUser;
+    next(error);
   }
 };
 updateOneUser = async (req, res, next) => {
-  const { userId } = req.params;
-  if (!userId) {
-    return NotFound(res, {
-      message: 'Invalid path not found',
-      result: {},
-    });
-  }
   try {
+    /**
+     * * if there is no userId in request param send 404 NotFoundError
+     * @param NotFoundError(origin, message)
+     */
+    const { userId } = req.params;
+    if (!userId) {
+      throw new NotFoundError(
+        'getOneUser-no-userId-param',
+        'Invalid path not found',
+      );
+    }
     const { email } = req.body;
     const existingUser = await User.emailExist(email);
     logger.debug('existingUser: %s', existingUser);
+    /**
+     * * if the updated email matches to an existing user email send 400 BadRequestError
+     * @param BadRequestError(origin, message)
+     */
     if (existingUser._id != userId) {
-      return BadRequest(res, {
-        message:
-          'An account with this email already exists, which you are trying to update',
-        result: {},
-      });
+      throw new BadRequestError(
+        'update-email-is-of-an-existing-user',
+        'There is already an account present with the email provided for update. Please login or try forgot password',
+      );
     }
     let changes = {
       email: req.body.email,
@@ -95,28 +112,33 @@ updateOneUser = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    logger.error('update-one-user-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: {},
-    });
+    error.origin = error.origin ? error.origin : origin.updateOneUser;
+    next(error);
   }
 };
 deleteOneUser = async (req, res, next) => {
-  const { userId } = req.params;
-  if (!userId) {
-    return NotFound(res, {
-      message: 'Invalid path not found',
-      result: {},
-    });
-  }
   try {
+    /**
+     * * if there is no userId in request param send 404 NotFoundError
+     * @param NotFoundError(origin, message)
+     */
+    const { userId } = req.params;
+    if (!userId) {
+      throw new NotFoundError(
+        'deleteOneUser-no-userId-param',
+        'Invalid path not found',
+      );
+    }
+    /**
+     * * if there is no data for provided userId in request param send 404 NotFoundError
+     * @param NotFoundError(origin, message)
+     */
     const existingUser = await User.findOne({ _id: userId });
     if (!existingUser) {
-      return NotFound(res, {
-        message: 'NOT FOUND',
-        result: {},
-      });
+      throw new NotFoundError(
+        'deleteOneUser-no-user-with-provided-id',
+        'No document found by this request',
+      );
     }
     const result = await User.findOneAndDelete({ _id: userId });
     return Success(res, {
@@ -124,14 +146,10 @@ deleteOneUser = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    logger.error('delete-one-user-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: {},
-    });
+    error.origin = error.origin ? error.origin : origin.deleteOneUser;
+    next(error);
   }
 };
-
 module.exports = {
   getAllUser,
   getOneUser,
