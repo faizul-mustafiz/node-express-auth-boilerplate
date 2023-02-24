@@ -4,6 +4,7 @@ const { AuthController } = require('../controllers/index');
 const hasAuthorization = require('../middlewares/hasAuthorization.middleware');
 const hasOTP = require('../middlewares/hasOTP.middleware');
 const validateAccess = require('../middlewares/validateAccess.middleware');
+const validateChangePassword = require('../middlewares/validateChangePassword.middleware');
 const validateRefresh = require('../middlewares/validateRefresh.middleware');
 const validateVerification = require('../middlewares/validateVerification.middleware');
 const authValidator = require('../validators/auth.validator');
@@ -23,7 +24,7 @@ authRouter.post(
 authRouter.post('/forgot-password', AuthController.forgotPassword);
 authRouter.post(
   '/change-password',
-  [hasAuthorization, hasOTP],
+  [hasAuthorization, hasOTP, validateChangePassword],
   AuthController.changePassword,
 );
 authRouter.post(

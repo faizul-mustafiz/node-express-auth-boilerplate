@@ -443,14 +443,6 @@ forgotPassword = async (req, res, next) => {
 changePassword = async (req, res, next) => {
   try {
     /**
-     * * get the passed token value form the res.locals
-     */
-    const token = res.locals.token;
-    /**
-     * * get the passed OTP code value form the res.locals
-     */
-    const code = res.locals.code;
-    /**
      * * check if password is given in the body
      * * if there is no verification code or password send 400 BadRequestError
      * @param BadRequestError(origin, message)
@@ -463,72 +455,70 @@ changePassword = async (req, res, next) => {
       );
     }
     /**
-     * * decode change password token and check if the token is a valid token
-     * * jwt token related error send 401 unauthorized
-     * * if the decoded token identity is not present in redis send 401 unauthorized
-     * * Token is a valid token then fetch the token data from redis return data.
-     * @package verifyChangePasswordToken(token, res)
+     * * get passed OTP code value form the res.locals
      */
-    const { email, type, otp } = await verifyChangePasswordToken(token, res);
-    if (email && type && otp) {
-      /**
-       * * if decoded token type is not change password, send 401 UnauthorizedError
-       * @param UnauthorizedError(origin, message)
-       */
-      if (type != TokenType.ChangePassword) {
-        throw new UnauthorizedError(
-          'changePassword-token-type-not-change',
-          'Invalid token',
-        );
-      }
-      /**
-       * * if provided code is not equal to redis otp, send 400 BadRequestError
-       * @param BadRequestError(origin, message)
-       */
-      if (otp != code) {
-        throw new BadRequestError('changePassword-wrong-otp', 'Invalid code');
-      }
-      /**
-       * * check if user email doesn't exists, send 400 BadRequestError
-       * @param BadRequestError(origin, message)
-       */
-      const user = await User.emailExist(email);
-      logger.debug('user: %s', user);
-      if (!user) {
-        throw new BadRequestError(
-          'changePassword-user-not-registered',
-          'This email is not registered, SignUp first',
-        );
-      }
-      /**
-       * * compare the new_password with the existing password
-       * * if the new_password and the old_password is same send 409 ConflictError
-       * @param ConflictError(origin, message)
-       */
-      const comparePassword = await user.validPassword(new_password);
-      logger.debug('comparePassword: %s', comparePassword);
-      if (comparePassword) {
-        throw new ConflictError(
-          'changePassword-provided-password-old-password',
-          'Provided password is among the old passwords, please try with a different password',
-        );
-      }
-      /**
-       * * generate hash form the new_password
-       * * sand assign the newPasswordHash as the current password
-       * * then save the user with new password
-       */
-      const newPasswordHash = await User.generateHash(new_password);
-      user.password = newPasswordHash;
-      await user.save();
-      /**
-       * * send 200 success response
-       */
-      return Success(res, {
-        message: 'Successfully changed password',
-        result: {},
-      });
+    const code = res.locals.code;
+    /**
+     * * get validateChangePasswordResponse value form res.locals
+     */
+    const { email, type, otp } = res.locals.validateChangePasswordResponse;
+    /**
+     * * if decoded token type is not change password, send 401 UnauthorizedError
+     * @param UnauthorizedError(origin, message)
+     */
+    if (type != TokenType.ChangePassword) {
+      throw new UnauthorizedError(
+        'changePassword-token-type-not-change',
+        'Invalid token',
+      );
     }
+    /**
+     * * if provided code is not equal to redis otp, send 400 BadRequestError
+     * @param BadRequestError(origin, message)
+     */
+    if (otp != code) {
+      throw new BadRequestError('changePassword-wrong-otp', 'Invalid code');
+    }
+    /**
+     * * check if user email doesn't exists, send 400 BadRequestError
+     * @param BadRequestError(origin, message)
+     */
+    const user = await User.emailExist(email);
+    logger.debug('user: %s', user);
+    if (!user) {
+      throw new BadRequestError(
+        'changePassword-user-not-registered',
+        'This email is not registered, SignUp first',
+      );
+    }
+    /**
+     * * compare the new_password with the existing password
+     * * if the new_password and the old_password is same send 409 ConflictError
+     * @param ConflictError(origin, message)
+     */
+    const comparePassword = await user.validPassword(new_password);
+    logger.debug('comparePassword: %s', comparePassword);
+    if (comparePassword) {
+      throw new ConflictError(
+        'changePassword-provided-password-old-password',
+        'Provided password is among the old passwords, please try with a different password',
+      );
+    }
+    /**
+     * * generate hash form the new_password
+     * * sand assign the newPasswordHash as the current password
+     * * then save the user with new password
+     */
+    const newPasswordHash = await User.generateHash(new_password);
+    user.password = newPasswordHash;
+    await user.save();
+    /**
+     * * send 200 success response
+     */
+    return Success(res, {
+      message: 'Successfully changed password',
+      result: {},
+    });
   } catch (error) {
     error.origin = error.origin ? error.origin : origin.changePassword;
     next(error);
