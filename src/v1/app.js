@@ -9,6 +9,7 @@ const { baseRoute } = require('./configs/app.config');
 const httpLogger = require('./loggers/httpLogger');
 const ErrorLogger = require('./middlewares/errorLogger.middleware');
 const ErrorHandler = require('./middlewares/errorHandler.middleware');
+const invalidPath = require('./middlewares/invalidPath.middleware');
 
 const app = express();
 app.use(httpLogger);
@@ -18,23 +19,32 @@ app.use(
     extended: true,
   }),
 );
-app.use(bodyParser.json({ limit: '20mb' }));
-app.use(bodyParser.urlencoded({ limit: '20mb', extended: true }));
+app.use(bodyParser.json({ limit: '1mb' }));
+app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 app.use(cors());
 app.get(`${baseRoute}/health`, (req, res) => {
   res.status(200).json({ message: 'Basic Health Check.' });
 });
+/**
+ * * Connect to redis client
+ */
+const redisPlugin = require('./plugins/redis.plugin');
+/**
+ * * Connect to mongoDB client
+ */
+const mongoPlugin = require('./plugins/mongo.plugin');
+/**
+ * * Route injection to the app module
+ */
 app.use(`${baseRoute}/auth`, AuthRoutes);
 app.use(`${baseRoute}/users`, UserRoutes);
-
 /**
- * * All error handler middleware
+ * * Error logger middleware
+ * * Error handler middleware
+ * * Invalid Path middleware
  */
 app.use(ErrorLogger);
 app.use(ErrorHandler);
-//redis connection
-const redisPlugin = require('./plugins/redis.plugin');
-//mongo-db connection
-const mongoPlugin = require('./plugins/mongo.plugin');
+app.use(invalidPath);
 
 module.exports = app;
