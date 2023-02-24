@@ -2,15 +2,17 @@ const express = require('express');
 const authRouter = express.Router();
 const { AuthController } = require('../controllers/index');
 const hasAuthorization = require('../middlewares/hasAuthorization.middleware');
-const hasOTP = require('../middlewares/hasOTP.middleware');
 const validateAccess = require('../middlewares/validateAccess.middleware');
 const validateChangePassword = require('../middlewares/validateChangePassword.middleware');
 const validateRefresh = require('../middlewares/validateRefresh.middleware');
 const validateVerification = require('../middlewares/validateVerification.middleware');
-const authValidator = require('../middlewares/authValidator.middleware');
+const validateVerifyRequestBody = require('../middlewares/validateVerifyRequestBody.middleware');
+const validateAuthRequestBody = require('../middlewares/validateAuthRequestBody.middleware');
+const validateForgotPasswordRequestBody = require('../middlewares/validateForgotPasswordRequestBody.middleware');
+const validateChangePasswordRequestBody = require('../middlewares/validateChangePasswordRequestBody.middleware');
 
-authRouter.post('/sign-up', authValidator, AuthController.signUp);
-authRouter.post('/sign-in', authValidator, AuthController.signIn);
+authRouter.post('/sign-up', validateAuthRequestBody, AuthController.signUp);
+authRouter.post('/sign-in', validateAuthRequestBody, AuthController.signIn);
 authRouter.post(
   '/sign-out',
   [hasAuthorization, validateRefresh],
@@ -18,13 +20,17 @@ authRouter.post(
 );
 authRouter.post(
   '/verify',
-  [hasAuthorization, hasOTP, validateVerification],
+  [hasAuthorization, validateVerifyRequestBody, validateVerification],
   AuthController.verifyAuth,
 );
-authRouter.post('/forgot-password', AuthController.forgotPassword);
+authRouter.post(
+  '/forgot-password',
+  validateForgotPasswordRequestBody,
+  AuthController.forgotPassword,
+);
 authRouter.post(
   '/change-password',
-  [hasAuthorization, hasOTP, validateChangePassword],
+  [hasAuthorization, validateChangePasswordRequestBody, validateChangePassword],
   AuthController.changePassword,
 );
 authRouter.post(
