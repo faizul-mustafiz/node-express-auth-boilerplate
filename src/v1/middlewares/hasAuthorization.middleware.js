@@ -1,4 +1,4 @@
-const { Forbidden } = require('../handlers/responses/httpResponse');
+const { Forbidden } = require('../responses/httpResponse');
 const {
   getAuthorizationHeader,
   splitAuthorizationHeader,

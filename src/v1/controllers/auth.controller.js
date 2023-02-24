@@ -20,11 +20,11 @@ const {
 } = require('../helpers/redis.helper');
 const AuthActionType = require('../enums/authActionType.enum');
 const apiRouteGeneratorLocal = require('../utility/app.utility');
-const { Success, Created } = require('../handlers/responses/httpResponse');
+const { Success, Created } = require('../responses/httpResponse');
 const logger = require('../loggers/logger');
-const BadRequestError = require('../handlers/errors/BadRequestError');
-const UnauthorizedError = require('../handlers/errors/UnauthorizedError');
-const ConflictError = require('../handlers/errors/ConflictError');
+const BadRequestError = require('../errors/BadRequestError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
+const ConflictError = require('../errors/ConflictError');
 
 const origin = {
   signUp: 'signUp-base-error:',

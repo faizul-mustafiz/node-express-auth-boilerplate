@@ -1,4 +1,4 @@
-const { BadRequest } = require('../handlers/responses/httpResponse');
+const { BadRequest } = require('../responses/httpResponse');
 
 const hasOTP = (req, res, next) => {
   /**
