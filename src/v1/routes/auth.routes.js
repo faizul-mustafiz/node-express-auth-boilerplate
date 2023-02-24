@@ -7,7 +7,7 @@ const validateAccess = require('../middlewares/validateAccess.middleware');
 const validateChangePassword = require('../middlewares/validateChangePassword.middleware');
 const validateRefresh = require('../middlewares/validateRefresh.middleware');
 const validateVerification = require('../middlewares/validateVerification.middleware');
-const authValidator = require('../validators/auth.validator');
+const authValidator = require('../middlewares/authValidator.middleware');
 
 authRouter.post('/sign-up', authValidator, AuthController.signUp);
 authRouter.post('/sign-in', authValidator, AuthController.signIn);
