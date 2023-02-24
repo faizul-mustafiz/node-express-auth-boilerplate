@@ -1,9 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { publicKey } = require('../configs/jwt.config');
-const {
-  Unauthorized,
-  InternalServerError,
-} = require('../responses/httpResponse');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 const {
   isIdentityExists,
   isIdentityBlacklisted,
@@ -30,30 +27,41 @@ const validateRefresh = async (req, res, next) => {
       publicKey,
       { algorithms: ['ES512'] },
       async (err, decoded) => {
-        logger.error('refresh-token-decode-error:', err);
         logger.debug('decoded: %s', decoded);
+        /**
+         * * if there is an issue on decoding provided refresh token send 401 UnauthorizedError
+         * @param UnauthorizedError(origin, message)
+         */
         if (err) {
-          return Unauthorized(res, {
-            message: 'Invalid token',
-            result: err,
-          });
+          throw new UnauthorizedError(
+            'validateRefresh-token-decode-error',
+            'Invalid token',
+          );
         }
         if (decoded && decoded.identity) {
           const identityExists = await isIdentityExists(decoded.identity);
+          /**
+           * * if token identity doesn't exists in redis send 401 UnauthorizedError
+           * @param UnauthorizedError(origin, message)
+           */
           if (!identityExists) {
-            return Unauthorized(res, {
-              message: 'Invalid token',
-              result: {},
-            });
+            throw new UnauthorizedError(
+              'validateRefresh-token-identity-does-not-exists-in-redis',
+              'Invalid token',
+            );
           }
           const identityBlackListed = await isIdentityBlacklisted(
             decoded.identity,
           );
+          /**
+           * * if token identity is blacklisted send 401 UnauthorizedError
+           * @param UnauthorizedError(origin, message)
+           */
           if (identityBlackListed) {
-            return Unauthorized(res, {
-              message: 'Invalid token',
-              result: {},
-            });
+            throw new UnauthorizedError(
+              'validateRefresh-token-identity-is-blacklisted',
+              'Invalid token',
+            );
           }
           const refreshTokenRedisResponse = await getHSetIdentityPayload(
             decoded.identity,
@@ -62,11 +70,15 @@ const validateRefresh = async (req, res, next) => {
             'refreshTokenRedisResponse: %s',
             refreshTokenRedisResponse,
           );
+          /**
+           * * if there is no data against the token identity send 401 UnauthorizedError
+           * @param UnauthorizedError(origin, message)
+           */
           if (!refreshTokenRedisResponse) {
-            return Unauthorized(res, {
-              message: 'Invalid token',
-              result: {},
-            });
+            throw new UnauthorizedError(
+              'validateRefresh-token-identity-data-does-not-exists-in-redis',
+              'Invalid token',
+            );
           } else {
             const mergedRedisResponseAndDecodedData = {
               ...refreshTokenRedisResponse,
@@ -80,11 +92,8 @@ const validateRefresh = async (req, res, next) => {
       },
     );
   } catch (error) {
-    logger.error('validate-refresh-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : 'validateRefresh-base-error:';
+    next(error);
   }
 };
 module.exports = validateRefresh;

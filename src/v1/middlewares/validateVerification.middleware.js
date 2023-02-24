@@ -1,9 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { verifyTokenConfig } = require('../configs/jwt.config');
-const {
-  Unauthorized,
-  InternalServerError,
-} = require('../responses/httpResponse');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 const {
   isVerifyTokenIdentityExists,
   getVerifyTokenIdentity,
@@ -25,30 +22,42 @@ const validateVerification = async (req, res, next) => {
      * * res.locals are persistent throughout the request life cycle or simply to say until the request is resolved
      */
     jwt.verify(token, verifyTokenConfig.secret, async (err, decoded) => {
-      logger.error('verify-token-decode-error:', err);
       logger.debug('decoded: %s', decoded);
       if (err) {
-        return Unauthorized(res, {
-          message: 'Verification failed, invalid token',
-          result: err,
-        });
+        /**
+         * * if there is an issue on decoding provided verify token send 401 UnauthorizedError
+         * @param UnauthorizedError(origin, message)
+         */
+        throw new UnauthorizedError(
+          'validateVerification-token-decode-error',
+          'Invalid token',
+        );
       }
       if (decoded && decoded.identity) {
         const identityExists = isVerifyTokenIdentityExists(decoded.identity);
+        /**
+         * * if token identity doesn't exists in redis send 401 UnauthorizedError
+         * @param UnauthorizedError(origin, message)
+         */
         if (!identityExists) {
-          return Unauthorized(res, {
-            message: 'Verification failed, invalid token',
-            result: {},
-          });
+          throw new UnauthorizedError(
+            'validateVerification-token-identity-does-not-exists-in-redis',
+            'Invalid token',
+          );
         }
         const verifyTokenRedisResponse = await getVerifyTokenIdentity(
           decoded.identity,
         );
+        logger.debug('verifyTokenRedisResponse: %s', verifyTokenRedisResponse);
+        /**
+         * * if there is no data against the token identity send 401 UnauthorizedError
+         * @param UnauthorizedError(origin, message)
+         */
         if (!verifyTokenRedisResponse) {
-          return Unauthorized(res, {
-            message: 'Verification failed, invalid token',
-            result: {},
-          });
+          throw new UnauthorizedError(
+            'validateVerification-token-identity-data-does-not-exists-in-redis',
+            'Invalid token',
+          );
         } else {
           res.locals.validateVerificationResponse = verifyTokenRedisResponse;
           next();
@@ -56,11 +65,10 @@ const validateVerification = async (req, res, next) => {
       }
     });
   } catch (error) {
-    logger.error('validate-verification-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin
+      ? error.origin
+      : 'validateVerification-base-error:';
+    next(error);
   }
 };
 module.exports = validateVerification;

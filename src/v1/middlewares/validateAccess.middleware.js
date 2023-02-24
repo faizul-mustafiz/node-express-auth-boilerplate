@@ -1,15 +1,13 @@
 const jwt = require('jsonwebtoken');
 const { publicKey } = require('../configs/jwt.config');
 const {
-  Unauthorized,
-  InternalServerError,
-} = require('../responses/httpResponse');
-const {
   isIdentityExists,
   isIdentityBlacklisted,
   getHSetIdentityPayload,
 } = require('../helpers/redis.helper');
 const logger = require('../loggers/logger');
+const UnauthorizedError = require('../errors/UnauthorizedError');
+
 const validateAccess = async (req, res, next) => {
   try {
     /**
@@ -29,30 +27,41 @@ const validateAccess = async (req, res, next) => {
       publicKey,
       { algorithms: ['ES512'] },
       async (err, decoded) => {
-        logger.error('access-token-decode-error:', err);
         logger.debug('decoded: %s', decoded);
+        /**
+         * * if there is an issue on decoding provided access token send 401 UnauthorizedError
+         * @param UnauthorizedError(origin, message)
+         */
         if (err) {
-          return Unauthorized(res, {
-            message: 'Invalid token',
-            result: err,
-          });
+          throw new UnauthorizedError(
+            'validateAccess-token-decode-error',
+            'Invalid token',
+          );
         }
         if (decoded && decoded.identity) {
           const identityExists = await isIdentityExists(decoded.identity);
+          /**
+           * * if token identity doesn't exists in redis send 401 UnauthorizedError
+           * @param UnauthorizedError(origin, message)
+           */
           if (!identityExists) {
-            return Unauthorized(res, {
-              message: 'Invalid token',
-              result: {},
-            });
+            throw new UnauthorizedError(
+              'validateAccess-token-identity-does-not-exists-in-redis',
+              'Invalid token',
+            );
           }
           const identityBlackListed = await isIdentityBlacklisted(
             decoded.identity,
           );
+          /**
+           * * if token identity is blacklisted send 401 UnauthorizedError
+           * @param UnauthorizedError(origin, message)
+           */
           if (identityBlackListed) {
-            return Unauthorized(res, {
-              message: 'Invalid token',
-              result: {},
-            });
+            throw new UnauthorizedError(
+              'validateAccess-token-identity-is-blacklisted',
+              'Invalid token',
+            );
           }
           const accessTokenRedisResponse = await getHSetIdentityPayload(
             decoded.identity,
@@ -61,11 +70,15 @@ const validateAccess = async (req, res, next) => {
             'accessTokenRedisResponse: %s',
             accessTokenRedisResponse,
           );
+          /**
+           * * if there is no data against the token identity send 401 UnauthorizedError
+           * @param UnauthorizedError(origin, message)
+           */
           if (!accessTokenRedisResponse) {
-            return Unauthorized({
-              message: 'Invalid token',
-              result: {},
-            });
+            throw new UnauthorizedError(
+              'validateAccess-token-identity-data-does-not-exists-in-redis',
+              'Invalid token',
+            );
           } else {
             const mergedRedisResponseAndDecodedData = {
               ...accessTokenRedisResponse,
@@ -79,11 +92,8 @@ const validateAccess = async (req, res, next) => {
       },
     );
   } catch (error) {
-    logger.error('validate-access-error:', error);
-    return InternalServerError(res, {
-      message: 'oops! there is an Error',
-      result: error,
-    });
+    error.origin = error.origin ? error.origin : 'validateAccess-base-error:';
+    next(error);
   }
 };
 module.exports = validateAccess;
