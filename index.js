@@ -32,22 +32,20 @@ const graceFullyCloseServerAndPluginConnections = (exitCode) => {
 /**
  * * This event is emitted when there is any uncaughtException in the code.
  * * this will log the uncaughtException error in the error logger and proceed to
- * *  graceFullyCloseServerAndPluginConnections with exitCode = 1. Which means the process exited with error
- * @param graceFullyCloseServerAndPluginConnections(exitCode)
+ * *  process.exit with exitCode = 1. Which means the process exited with error
  */
 process.on('uncaughtException', (error) => {
   logger.error('uncaughtException-error:', error);
-  graceFullyCloseServerAndPluginConnections(1);
+  process.exit(1);
 });
 /**
  * * This event is emitted when there is any unhandledRejection in the code.
  * * this will log the unhandledRejection error in the error logger and proceed to
- * *  graceFullyCloseServerAndPluginConnections with exitCode = 1. Which means the process exited with error
- * @param graceFullyCloseServerAndPluginConnections(exitCode)
+ * *  process.exit with exitCode = 1. Which means the process exited with error
  */
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('unhandledRejection-at %s, %s', promise, `reason: ${reason}`);
-  graceFullyCloseServerAndPluginConnections(1);
+  process.exit(1);
 });
 /**
  * * on these events like SIGINT, SIGUSR1, SIGUSR2, SIGTERM this will also proceed to
