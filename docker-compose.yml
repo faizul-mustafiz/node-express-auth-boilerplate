@@ -1,0 +1,37 @@
+services:
+  auth-i-1:
+    image: auth-image
+    container_name: auth-i-1
+    ports:
+      - 6010:3030
+    restart: unless-stopped
+    environment:
+      - APP_VERSION=1.0.0
+      - APP_INSTANCE=1
+  auth-i-2:
+    image: auth-image
+    container_name: auth-i-2
+    ports:
+      - 6020:3030
+    restart: unless-stopped
+    environment:
+      - APP_VERSION=1.0.0
+      - APP_INSTANCE=2
+  auth-i-3:
+    image: auth-image
+    container_name: auth-i-3
+    ports:
+      - 6030:3030
+    restart: unless-stopped
+    environment:
+      - APP_VERSION=1.0.0
+      - APP_INSTANCE=3
+  auth-i-4:
+    image: auth-image
+    container_name: auth-i-4
+    ports:
+      - 6040:3030
+    restart: unless-stopped
+    environment:
+      - APP_VERSION=1.0.0
+      - APP_INSTANCE=4
