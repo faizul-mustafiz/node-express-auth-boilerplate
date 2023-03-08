@@ -4,7 +4,8 @@
   "description": "This is a jwt authentication boilerplate using node.js express redis and mongoose with all the best practices",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node index.js"
   },
   "husky": {
     "hooks": {
