@@ -1,5 +1,15 @@
 services:
+  redis:
+    image: redis/redis-stack:latest
+    container_name: redis-stack
+    ports:
+      - 6379:6379
+      - 8001:8001
+    restart: unless-stopped
+    volumes:
+      - auth-redis-data:/data
   auth-i-1:
+    build: .
     image: auth-image
     container_name: auth-i-1
     ports:
@@ -8,7 +18,13 @@ services:
     environment:
       - APP_VERSION=1.0.0
       - APP_INSTANCE=1
+    volumes:
+      - /home/faizulmustafiz/docker-container-logs:/app/src/v1/logs
+    depends_on:
+      redis:
+        condition: service_started
   auth-i-2:
+    build: .
     image: auth-image
     container_name: auth-i-2
     ports:
@@ -17,7 +33,13 @@ services:
     environment:
       - APP_VERSION=1.0.0
       - APP_INSTANCE=2
+    volumes:
+      - /home/faizulmustafiz/docker-container-logs:/app/src/v1/logs
+    depends_on:
+      redis:
+        condition: service_started
   auth-i-3:
+    build: .
     image: auth-image
     container_name: auth-i-3
     ports:
@@ -26,7 +48,13 @@ services:
     environment:
       - APP_VERSION=1.0.0
       - APP_INSTANCE=3
+    volumes:
+      - /home/faizulmustafiz/docker-container-logs:/app/src/v1/logs
+    depends_on:
+      redis:
+        condition: service_started
   auth-i-4:
+    build: .
     image: auth-image
     container_name: auth-i-4
     ports:
@@ -35,3 +63,10 @@ services:
     environment:
       - APP_VERSION=1.0.0
       - APP_INSTANCE=4
+    volumes:
+      - /home/faizulmustafiz/docker-container-logs:/app/src/v1/logs
+    depends_on:
+      redis:
+        condition: service_started
+volumes:
+  auth-redis-data:
