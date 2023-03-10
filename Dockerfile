@@ -9,7 +9,7 @@ RUN npm ci
 COPY . .
 # run the logFile.generator.js file to generate the logfile inside the workdir
 RUN node /app/src/v1/generators/logFile.generator.js
-# run the npm run dev to start the server
-CMD npm run dev
+# run the npm start command to start the server
+CMD npm start
 # expose the 3030 port
 EXPOSE 3030

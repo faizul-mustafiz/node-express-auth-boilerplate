@@ -16,7 +16,7 @@ services:
       - 6010:3030
     restart: unless-stopped
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - APP_VERSION=1.0.0
       - APP_INSTANCE=1
     volumes:
@@ -31,7 +31,7 @@ services:
       - 6020:3030
     restart: unless-stopped
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - APP_VERSION=1.0.0
       - APP_INSTANCE=2
     volumes:
@@ -46,7 +46,7 @@ services:
       - 6030:3030
     restart: unless-stopped
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - APP_VERSION=1.0.0
       - APP_INSTANCE=3
     volumes:
@@ -61,7 +61,7 @@ services:
       - 6040:3030
     restart: unless-stopped
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - APP_VERSION=1.0.0
       - APP_INSTANCE=4
     volumes:
