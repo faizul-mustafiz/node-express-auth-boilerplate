@@ -21,8 +21,7 @@ services:
     volumes:
       - ./container-logs:/app/src/v1/logs
     depends_on:
-      redis:
-        condition: service_started
+      - redis
   authi2:
     build: .
     image: auth-image
@@ -36,8 +35,7 @@ services:
     volumes:
       - ./container-logs:/app/src/v1/logs
     depends_on:
-      redis:
-        condition: service_started
+      - redis
   authi3:
     build: .
     image: auth-image
@@ -51,8 +49,7 @@ services:
     volumes:
       - ./container-logs:/app/src/v1/logs
     depends_on:
-      redis:
-        condition: service_started
+      - redis
   authi4:
     build: .
     image: auth-image
@@ -66,8 +63,7 @@ services:
     volumes:
       - ./container-logs:/app/src/v1/logs
     depends_on:
-      redis:
-        condition: service_started
+      - redis
   nginx:
     build: ./src/v1/nginx
     image: nginx-image
@@ -75,13 +71,9 @@ services:
     ports:
       - 8080:80
     depends_on:
-      authi1:
-        condition: service_started
-      authi2:
-        condition: service_started
-      authi3:
-        condition: service_started
-      authi4:
-        condition: service_started
+      - authi1
+      - authi2
+      - authi3
+      - authi4
 volumes:
   auth-redis-data:
