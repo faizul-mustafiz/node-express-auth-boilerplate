@@ -19,7 +19,7 @@ services:
       - APP_VERSION=1.0.0
       - APP_INSTANCE=1
     volumes:
-      - /home/faizulmustafiz/docker-container-logs/auth-app:/app/src/v1/logs
+      - ./container-logs:/app/src/v1/logs
     depends_on:
       redis:
         condition: service_started
@@ -34,7 +34,7 @@ services:
       - APP_VERSION=1.0.0
       - APP_INSTANCE=2
     volumes:
-      - /home/faizulmustafiz/docker-container-logs/auth-app:/app/src/v1/logs
+      - ./container-logs:/app/src/v1/logs
     depends_on:
       redis:
         condition: service_started
@@ -49,7 +49,7 @@ services:
       - APP_VERSION=1.0.0
       - APP_INSTANCE=3
     volumes:
-      - /home/faizulmustafiz/docker-container-logs/auth-app:/app/src/v1/logs
+      - ./container-logs:/app/src/v1/logs
     depends_on:
       redis:
         condition: service_started
@@ -64,7 +64,7 @@ services:
       - APP_VERSION=1.0.0
       - APP_INSTANCE=4
     volumes:
-      - /home/faizulmustafiz/docker-container-logs/auth-app:/app/src/v1/logs
+      - ./container-logs:/app/src/v1/logs
     depends_on:
       redis:
         condition: service_started
