@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} pushing docker image to docker hub
 on:
   push:
     branches:
-      - [ "master" ]
+      - main
 jobs:
   push-to-docker-hub:
     runs-on: ubuntu-latest
