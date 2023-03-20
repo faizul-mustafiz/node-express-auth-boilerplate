@@ -18,7 +18,6 @@ const {
   deleteIdentity,
 } = require('../helpers/redis.helper');
 const AuthActionType = require('../enums/authActionType.enum');
-const apiRouteGeneratorLocal = require('../utility/app.utility');
 const { Success, Created } = require('../responses/httpResponse');
 const logger = require('../loggers/logger');
 const BadRequestError = require('../errors/BadRequestError');
@@ -77,7 +76,6 @@ signUp = async (req, res, next) => {
      * * generate verify token response
      */
     const result = {
-      url: apiRouteGeneratorLocal('/auth/verify'),
       token: verifyToken,
       code: OTP,
     };
@@ -140,7 +138,6 @@ signIn = async (req, res, next) => {
      * * generate verify token response
      */
     const result = {
-      url: apiRouteGeneratorLocal('/auth/verify'),
       token: verifyToken,
       code: OTP,
     };
