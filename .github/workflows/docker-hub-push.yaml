@@ -2,8 +2,7 @@ name: node-express-auth-boilerplate push to docker hub
 run-name: ${{ github.actor }} pushing docker image to docker hub
 on:
   push:
-    branches:
-      - main
+    branches: [ "master" ]
 jobs:
   push-to-docker-hub:
     runs-on: ubuntu-latest
