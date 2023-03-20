@@ -32,7 +32,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/node-express-auth-boilerplate:${{ env.tag }}
-          env: |
+          build-args: |
             API_PORT=${{ secrets.API_PORT }}
             API_HOST=${{ secrets.API_HOST }}
             BASE_API_ROUTE=${{ secrets.BASE_API_ROUTE }}
@@ -49,6 +49,5 @@ jobs:
             RESET_PASSWORD_TOKEN_EXPIRY_TIME=${{ secrets.RESET_PASSWORD_TOKEN_EXPIRY_TIME }}
             CHANGE_PASSWORD_TOKEN_SECRET=${{ secrets.CHANGE_PASSWORD_TOKEN_SECRET }}
             CHANGE_PASSWORD_TOKEN_EXPIRY_TIME=${{ secrets.CHANGE_PASSWORD_TOKEN_EXPIRY_TIME }}
-          build-args: |
             "PUBLIC_KEY=${{ secrets.PUBLIC_KEY }}"
             "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}"
