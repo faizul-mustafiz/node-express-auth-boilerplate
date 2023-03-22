@@ -27,11 +27,11 @@ app.use(cors());
 /**
  * * Connect to redis client
  */
-const redisPlugin = require('./plugins/redis.plugin');
+// const redisPlugin = require('./plugins/redis.plugin');
 /**
  * * Connect to mongoDB client
  */
-const mongoPlugin = require('./plugins/mongo.plugin');
+// const mongoPlugin = require('./plugins/mongo.plugin');
 /**
  * * A basic health check route above all the routes for checking if the application is running
  */
