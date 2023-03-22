@@ -1,5 +1,6 @@
 FROM node:18-alpine
 # setting build arguments for github actions
+ARG NODE_ENV
 ARG API_PORT
 ARG API_HOST
 ARG BASE_API_ROUTE
@@ -19,6 +20,7 @@ ARG CHANGE_PASSWORD_TOKEN_EXPIRY_TIME
 ARG PUBLIC_KEY
 ARG PRIVATE_KEY
 # setting env files form build arguments for github actions
+ENV NODE_ENV=$NODE_ENV
 ENV API_PORT=$API_PORT
 ENV API_HOST=$API_HOST
 ENV BASE_API_ROUTE=$BASE_API_ROUTE

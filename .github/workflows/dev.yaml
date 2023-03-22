@@ -34,6 +34,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/node-express-auth-boilerplate:${{ env.tag }}
           build-args: |
+            NODE_ENV=development
             API_PORT=${{ secrets.API_PORT }}
             API_HOST=${{ secrets.API_HOST }}
             BASE_API_ROUTE=${{ secrets.BASE_API_ROUTE }}
