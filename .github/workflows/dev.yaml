@@ -1,5 +1,5 @@
 name: node-express-auth-boilerplate
-run-name: ${{ github.actor }} running dev workflow for commit- $(git rev-parse --short HEAD)
+run-name: ${{ github.actor }} running dev workflow for commit-${GITHUB_SHA::6}
 on:
   push:
     branches: 
