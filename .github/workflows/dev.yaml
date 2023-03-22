@@ -1,11 +1,11 @@
 name: node-express-auth-boilerplate
-run-name: ${{ github.actor }} running dev workflow and pushing docker image to docker hub
+run-name: ${{ github.actor }} running dev workflow for commit- $(git rev-parse --short HEAD)
 on:
   push:
     branches: 
       - master
 jobs:
-  push-to-docker-hub:
+  dev-env-job:
     runs-on: ubuntu-latest
     steps:
       - 
