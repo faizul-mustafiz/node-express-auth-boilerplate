@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-app
+  namespace: development
+spec:
+  selector:
+    matchLabels:
+      app: auth-app
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: auth-app
+    spec:
+      containers:
+      - name: auth-app
+        image: faizulmustafiz/node-express-auth-boilerplate:master-9209f1d
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3030
+          name: app-port
+      imagePullSecrets:
+      - name: docker-hub-cred-2
