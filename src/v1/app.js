@@ -31,15 +31,14 @@ app.use(cors());
 /**
  * * Connect to mongoDB client
  */
-// const mongoPlugin = require('./plugins/mongo.plugin');
+const mongoPlugin = require('./plugins/mongo.plugin');
 /**
  * * A basic health check route above all the routes for checking if the application is running
  */
 app.get(`${baseRoute}/health`, (req, res) => {
   res.status(200).json({ 
     message: 'Basic Health Check.',
-    version: process.env.APP_VERSION,
-    instance: process.env.APP_INSTANCE,
+    environment: process.env.NODE_ENV
    });
 });
 /**
