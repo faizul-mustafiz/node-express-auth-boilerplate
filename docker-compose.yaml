@@ -8,7 +8,7 @@ services:
     volumes:
       - auth-redis-data:/data
   authi1:
-    image: faizulmustafiz/node-express-auth-boilerplate:master
+    image: faizulmustafiz/node-express-auth-boilerplate:<image-tag>
     container_name: auth-i-1
     ports:
       - 6010:3030
@@ -22,7 +22,7 @@ services:
     depends_on:
       - redis
   authi2:
-    image: faizulmustafiz/node-express-auth-boilerplate:master
+    image: faizulmustafiz/node-express-auth-boilerplate:<image-tag>
     container_name: auth-i-2
     ports:
       - 6020:3030
@@ -36,7 +36,7 @@ services:
     depends_on:
       - redis
   authi3:
-    image: faizulmustafiz/node-express-auth-boilerplate:master
+    image: faizulmustafiz/node-express-auth-boilerplate:<image-tag>
     container_name: auth-i-3
     ports:
       - 6030:3030
@@ -50,7 +50,7 @@ services:
     depends_on:
       - redis
   authi4:
-    image: faizulmustafiz/node-express-auth-boilerplate:master
+    image: faizulmustafiz/node-express-auth-boilerplate:<image-tag>
     container_name: auth-i-4
     ports:
       - 6040:3030
