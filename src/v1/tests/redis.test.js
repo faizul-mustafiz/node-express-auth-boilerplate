@@ -1,4 +1,4 @@
-// const { redisClient } = require('../plugins/redis.plugin');
+const { redisClient } = require('../plugins/redis.plugin');
 
 /**
  * * Redis set() demo code

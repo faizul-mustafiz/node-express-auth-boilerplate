@@ -1,7 +1,7 @@
 const app = require('./src/v1/app');
 const { port, host } = require('./src/v1/configs/app.config');
 const { closeMongoPluginConnection } = require('./src/v1/plugins/mongo.plugin');
-// const { closeRedisPluginConnection } = require('./src/v1/plugins/redis.plugin');
+const { closeRedisPluginConnection } = require('./src/v1/plugins/redis.plugin');
 const logger = require('./src/v1/loggers/logger');
 
 /**

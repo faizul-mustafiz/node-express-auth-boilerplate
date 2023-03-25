@@ -27,7 +27,7 @@ app.use(cors());
 /**
  * * Connect to redis client
  */
-// const redisPlugin = require('./plugins/redis.plugin');
+const redisPlugin = require('./plugins/redis.plugin');
 /**
  * * Connect to mongoDB client
  */

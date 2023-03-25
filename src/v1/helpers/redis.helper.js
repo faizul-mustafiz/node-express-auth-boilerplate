@@ -1,4 +1,4 @@
-// const { redisClient } = require('../plugins/redis.plugin');
+const { redisClient } = require('../plugins/redis.plugin');
 const { jsonToArray } = require('../helpers/conversion.helper');
 const logger = require('../loggers/logger');
 
