@@ -8,6 +8,11 @@ spec:
     matchLabels:
       app: auth-app
   replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
