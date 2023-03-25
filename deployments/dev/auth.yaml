@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: auth-app
-        image: faizulmustafiz/node-express-auth-boilerplate:master-9209f1d
+        image: faizulmustafiz/node-express-auth-boilerplate:master-2456ea4
         imagePullPolicy: Always
         ports:
         - containerPort: 3030
