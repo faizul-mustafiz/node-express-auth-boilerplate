@@ -1,12 +1,11 @@
-const { createClient } = require('redis');
+const { createClient, createCluster } = require('redis');
 const redisConfig = require('../configs/redis.config');
 const logger = require('../loggers/logger');
 /**
  * * create redisClient with redisLabs connection string url imported from the redisConfig
  */
-const redisClient = createClient({
-  url: redisConfig.url
-});
+const REDIS_PORT = 6379;
+const redisClient = createClient(REDIS_PORT, 'redis://redis-primary.redis.svc.cluster.local');
 /**
  * * redisClient onConnect callback function
  */
