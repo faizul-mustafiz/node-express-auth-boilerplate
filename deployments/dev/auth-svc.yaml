@@ -9,4 +9,4 @@ spec:
   ports:
   - name: auth-svc-port
     port: 80
-    targetPort: 3030
+    targetPort: app-port
