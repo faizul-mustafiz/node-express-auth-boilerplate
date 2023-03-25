@@ -5,7 +5,7 @@ const logger = require('../loggers/logger');
  * * create redisClient with redisLabs connection string url imported from the redisConfig
  */
 const redisClient = createClient({
-  url: redisConfig.url
+  url: 'http://redis-primary.redis.svc.cluster.local"'
 });
 /**
  * * redisClient onConnect callback function
