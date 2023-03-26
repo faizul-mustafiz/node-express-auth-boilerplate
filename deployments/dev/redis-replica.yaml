@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  redis-replica
+  namespace: redis
+  labels:
+    name: redis-replica
+spec:
+  selector:
+    matchLabels:
+      name: redis-replica
+  replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: redis-replica
+    spec:
+      subdomain: redis-replica
+      containers:
+      - name: redis-replica
+        image: redis:alpine
+        command:
+        - 'redis-server'
+        args:
+        - '--slaveof'
+        - redis-primary.redis.svc.cluster.local
+        - '6379'
+        - '--protected-mode'
+        - 'no'
+        ports:
+        - containerPort: 6379
+          name: redisport
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi

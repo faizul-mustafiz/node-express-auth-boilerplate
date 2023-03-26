@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-primary
+  namespace: redis
+  labels:
+    name: redis-primary
+spec:
+  selector:
+    matchLabels:
+      name: redis-primary
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: redis-primary
+    spec:
+      subdomain: redis-primary
+      containers:
+      - name: redis-primary
+        image:  redis:alpine
+        command:
+        - 'redis-server'
+        args:
+        - '--protected-mode'
+        - 'no'
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
+        volumeMounts:
+          - name: storage
+            mountPath: /data
+          - name: data
+            mountPath: /redis-master-data
+          - name: config
+            mountPath: /redis-master
+      volumes:
+      - name:  storage
+        persistentVolumeClaim:
+          claimName: redis-pvc
+      - name: data
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: redis-config
+          defaultMode: 420
+          items:
+          - key: redis-config
+            path: redis.conf
