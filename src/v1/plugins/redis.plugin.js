@@ -4,8 +4,9 @@ const logger = require('../loggers/logger');
 /**
  * * create redisClient with redisLabs connection string url imported from the redisConfig
  */
-const REDIS_PORT = 6379;
-const redisClient = createClient(REDIS_PORT, 'redis://redis-primary.redis.svc.cluster.local');
+const redisClient = createClient({
+  url: 'redis://redis-primary.redis.svc.cluster.local:6379'
+});
 /**
  * * redisClient onConnect callback function
  */
