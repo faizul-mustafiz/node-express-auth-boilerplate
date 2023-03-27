@@ -101,7 +101,7 @@ updateOneUser = async (req, res, next) => {
     }
 
     const updatingUserDocument = await User.findOne({ _id: userId });
-    console.log('updatingUserDocument', updatingUserDocument);
+    logger.debug('updatingUserDocument: %s', updatingUserDocument);
     if (!updatingUserDocument) {
       throw new NotFoundError(
         'updateOneUser-no-user-with-provided-id',
