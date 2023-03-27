@@ -24,7 +24,7 @@ const graceFullyCloseServerAndPluginConnections = (exitCode) => {
   server.close(() => {
     logger.debug('Closing the Server...');
     closeMongoPluginConnection();
-    // closeRedisPluginConnection();
+    closeRedisPluginConnection();
     logger.debug(`Closing the main process with exitCode: ${exitCode}`);
     process.exit(exitCode);
   });
