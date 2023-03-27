@@ -85,27 +85,36 @@ updateOneUser = async (req, res, next) => {
       );
     }
     const { email } = req.body;
-    const existingUser = await User.emailExist(email);
-    logger.debug('existingUser: %s', existingUser);
-    /**
-     * * if the updated email matches to an existing user email send 400 BadRequestError
-     * @param BadRequestError(origin, message)
-     */
-    if (existingUser._id != userId) {
-      throw new BadRequestError(
-        'update-email-is-of-an-existing-user',
-        'There is already an account present with the email provided for update. Please login or try forgot password',
+    if (email) {
+      const existingUser = await User.emailExist(email);
+      logger.debug('existingUser: %s', existingUser);
+      /**
+       * * if the updated email matches to an existing user email send 400 BadRequestError
+       * @param BadRequestError(origin, message)
+       */
+      if (existingUser && existingUser?._id != userId) {
+        throw new BadRequestError(
+          'update-email-is-of-an-existing-user',
+          'There is already an account present with the email provided for update. Please login or try forgot password',
+        );
+      }
+    }
+
+    const updatingUserDocument = await User.findOne({ _id: userId });
+    console.log('updatingUserDocument', updatingUserDocument);
+    if (!updatingUserDocument) {
+      throw new NotFoundError(
+        'updateOneUser-no-user-with-provided-id',
+        'No document found by this request',
       );
     }
-    let changes = {
-      email: req.body.email,
-      password: req.body.password,
-    };
+
+    let changes = { ...req.body };
     changes.password = await User.generateHash(changes.password);
     logger.debug('changes: %s', changes);
-    const updatedUser = Object.assign(existingUser, changes);
+    const updatedUser = Object.assign(updatingUserDocument, changes);
     logger.debug('updatedUser: %s', updatedUser);
-    const result = await existingUser.save();
+    const result = await updatedUser.save();
     logger.debug('result: %s', result);
     return Success(res, {
       message: 'Successfully updated user',
