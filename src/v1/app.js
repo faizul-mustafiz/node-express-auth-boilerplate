@@ -3,6 +3,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+const swaggerUI = require('swagger-ui-express');
+const docs = require('./docs');
+
 const { AuthRoutes, UserRoutes } = require('./routes');
 const { baseRoute } = require('./configs/app.config');
 
@@ -36,16 +39,20 @@ const mongoPlugin = require('./plugins/mongo.plugin');
  * * A basic health check route above all the routes for checking if the application is running
  */
 app.get(`${baseRoute}/health`, (req, res) => {
-  res.status(200).json({ 
+  res.status(200).json({
     message: 'Basic Health Check.',
-    environment: process.env.NODE_ENV
-   });
+    environment: process.env.NODE_ENV,
+  });
 });
 /**
  * * Route injection to the app module
  */
 app.use(`${baseRoute}/auth`, AuthRoutes);
 app.use(`${baseRoute}/users`, UserRoutes);
+/**
+ * * Route injection for swagger documentation
+ */
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(docs));
 /**
  * * Error logger middleware
  * * Error handler middleware
