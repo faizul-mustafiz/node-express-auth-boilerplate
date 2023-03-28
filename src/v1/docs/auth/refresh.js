@@ -1,7 +1,8 @@
 module.exports = {
   post: {
     tags: ['Auth'],
-    description: 'refresh access-token & refresh-token',
+    description:
+      'This route is for refreshing access-token & refresh-token. Need to use refresh-token as authorization header',
     operationId: 'refresh',
     security: [
       {

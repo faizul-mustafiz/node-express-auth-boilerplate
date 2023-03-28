@@ -1,7 +1,8 @@
 module.exports = {
   post: {
     tags: ['Auth'],
-    description: 'change-password',
+    description:
+      'This route is for change-password. Use the forgot-password code and provide a new password to change-password. Need to use forgot-password-token as authorization header',
     operationId: 'changePassword',
     parameters: [],
     security: [

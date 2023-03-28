@@ -1,7 +1,8 @@
 module.exports = {
   post: {
     tags: ['Auth'],
-    description: 'forgot-password',
+    description:
+      'This route is for creating a forgot-password request which will give a token and code and then we need to user that token and code to change password',
     operationId: 'forgotPassword',
     requestBody: {
       content: {

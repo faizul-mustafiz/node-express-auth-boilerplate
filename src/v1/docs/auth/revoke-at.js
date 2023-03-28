@@ -1,7 +1,8 @@
 module.exports = {
   post: {
     tags: ['Auth'],
-    description: 'revoke-access-token',
+    description:
+      'This route is for revoking access-token. Need to use access-token as authorization header',
     operationId: 'revoke-at',
     security: [
       {

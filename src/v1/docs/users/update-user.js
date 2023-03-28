@@ -1,7 +1,7 @@
 module.exports = {
   post: {
     tags: ['Users'],
-    description: 'update a user document',
+    description: 'This route is to update a user document',
     operationId: 'updateOneUser',
     parameters: [
       {

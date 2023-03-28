@@ -1,7 +1,8 @@
 module.exports = {
   post: {
     tags: ['Auth'],
-    description: 'revoke-refresh-token',
+    description:
+      'This route is for revoking refresh-token. Need to use refresh-token as authorization header',
     operationId: 'revoke-rt',
     security: [
       {

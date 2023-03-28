@@ -1,7 +1,7 @@
 module.exports = {
   delete: {
     tags: ['Users'],
-    description: 'delete a user document',
+    description: 'This route is for deleting a user document',
     operationId: 'deleteOneUser',
     parameters: [
       {

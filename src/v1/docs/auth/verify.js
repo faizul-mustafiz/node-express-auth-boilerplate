@@ -1,7 +1,8 @@
 module.exports = {
   post: {
     tags: ['Auth'],
-    description: 'verify sign-up/sign-in process',
+    description:
+      'This route is for verifying sign-up/sign-in using the token and code provided at the sign-in/sign-up process. Need to use verify-token as authorization header',
     operationId: 'verify',
     security: [
       {

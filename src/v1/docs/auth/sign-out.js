@@ -1,7 +1,7 @@
 module.exports = {
   post: {
     tags: ['Auth'],
-    description: 'sign-out',
+    description: 'This route is for signing out',
     operationId: 'sign-out',
     security: [
       {

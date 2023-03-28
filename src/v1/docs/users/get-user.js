@@ -1,7 +1,7 @@
 module.exports = {
   get: {
     tags: ['Users'],
-    description: 'get a user document',
+    description: 'This route is for getting a user document',
     operationId: 'getOneUser',
     parameters: [
       {

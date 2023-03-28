@@ -2,7 +2,7 @@ module.exports = {
   post: {
     tags: ['Auth'],
     description:
-      'sign-in using email and password, you will get a verify token and code. then use /verify route to verify using token and code to sign-in',
+      'sign-in using email and password, you will get a verify token and code. Then got to /verify route to verify using token and code to sign-in',
     operationId: 'signIn',
     requestBody: {
       content: {
