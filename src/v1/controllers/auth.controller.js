@@ -86,7 +86,7 @@ signUp = async (req, res, next) => {
      */
     return Success(res, {
       message:
-        'Please continue to provided url with token and code for successful sign-up',
+        'Please verify with provided token and code for successful sign-up',
       result,
     });
   } catch (error) {
@@ -146,7 +146,7 @@ signIn = async (req, res, next) => {
      */
     return Success(res, {
       message:
-        'Please continue to provided url with token and code for successful sign-in',
+        'Please verify with provided token and code for successful sign-in',
       result,
     });
   } catch (error) {
