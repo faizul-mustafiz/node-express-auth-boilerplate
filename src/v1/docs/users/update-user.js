@@ -16,7 +16,7 @@ module.exports = {
     ],
     security: [
       {
-        bearerAuth: [],
+        accessToken: [],
       },
     ],
     requestBody: {

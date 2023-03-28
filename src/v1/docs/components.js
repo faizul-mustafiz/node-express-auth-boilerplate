@@ -295,11 +295,39 @@ module.exports = {
       },
     },
     securitySchemes: {
-      bearerAuth: {
+      verifyToken: {
         type: 'http',
         in: 'header',
-        name: 'Authorization',
-        description: 'Bearer token to access these api endpoints',
+        name: 'VerifyToken',
+        description:
+          'Verify Bearer token to access all endpoints requiring verify_token.[/sign-in, /sign-up]',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      accessToken: {
+        type: 'http',
+        in: 'header',
+        name: 'AccessToken',
+        description:
+          'Access Bearer token to access all endpoints requiring access_token. [/users*, /revoke-at]',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      refreshToken: {
+        type: 'http',
+        in: 'header',
+        name: 'RefreshToken',
+        description:
+          'Refresh Bearer token to access all endpoints requiring refresh_token. [/refresh, /revoke-rt, /sign-out]',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      forgotPasswordToken: {
+        type: 'http',
+        in: 'header',
+        name: 'RefreshToken',
+        description:
+          'Forgot Password Bearer token to complete /change-password',
         scheme: 'bearer',
         bearerFormat: 'JWT',
       },

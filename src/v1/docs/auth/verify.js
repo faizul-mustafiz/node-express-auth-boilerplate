@@ -6,7 +6,7 @@ module.exports = {
     operationId: 'verify',
     security: [
       {
-        bearerAuth: [],
+        verifyToken: [],
       },
     ],
     requestBody: {

@@ -6,7 +6,7 @@ module.exports = {
     operationId: 'revoke-at',
     security: [
       {
-        bearerAuth: [],
+        accessToken: [],
       },
     ],
     responses: {

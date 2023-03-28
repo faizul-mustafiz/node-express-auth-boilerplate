@@ -5,7 +5,7 @@ module.exports = {
     operationId: 'sign-out',
     security: [
       {
-        bearerAuth: [],
+        refreshToken: [],
       },
     ],
     responses: {

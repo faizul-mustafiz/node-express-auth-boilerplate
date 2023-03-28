@@ -6,7 +6,7 @@ module.exports = {
     parameters: [],
     security: [
       {
-        bearerAuth: [],
+        accessToken: [],
       },
     ],
     responses: {

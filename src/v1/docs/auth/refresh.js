@@ -6,7 +6,7 @@ module.exports = {
     operationId: 'refresh',
     security: [
       {
-        bearerAuth: [],
+        refreshToken: [],
       },
     ],
     responses: {
