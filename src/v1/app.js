@@ -52,7 +52,7 @@ app.use(`${baseRoute}/users`, UserRoutes);
 /**
  * * Route injection for swagger documentation
  */
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(docs));
+app.use('/v1/docs', swaggerUI.serve, swaggerUI.setup(docs));
 /**
  * * Error logger middleware
  * * Error handler middleware
