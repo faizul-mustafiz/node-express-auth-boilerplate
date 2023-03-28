@@ -6,7 +6,193 @@ module.exports = {
         description: 'An id of a user',
         example: '63ee753cc451ec1551e64d94',
       },
-      UserResponse: {
+      signUpInput: {
+        type: 'object',
+        require: ['email', 'password'],
+        properties: {
+          email: {
+            type: 'string',
+            description: 'User email address',
+            example: 'example@email.com',
+          },
+          password: {
+            type: 'string',
+            description: 'User password',
+            minimum: 6,
+            example: 'very-strong-password',
+          },
+        },
+      },
+      signInInput: {
+        type: 'object',
+        require: ['email', 'password'],
+        properties: {
+          email: {
+            type: 'string',
+            description: 'User email address',
+            example: 'example@email.com',
+          },
+          password: {
+            type: 'string',
+            description: 'User password',
+            minimum: 6,
+            example: 'very-strong-password',
+          },
+        },
+      },
+      verify: {
+        type: 'object',
+        require: ['code'],
+        properties: {
+          code: {
+            type: 'string',
+            description:
+              'Verification code to proceed signUp or signIn process',
+            example: '1M57VIRS',
+          },
+        },
+      },
+      forgotPassword: {
+        type: 'object',
+        require: ['email'],
+        properties: {
+          email: {
+            type: 'string',
+            description: 'User email address',
+            example: 'example@email.com',
+          },
+        },
+      },
+      changePassword: {
+        type: 'object',
+        require: ['code', 'new_password'],
+        properties: {
+          code: {
+            type: 'string',
+            description: 'Verification code',
+            example: '1M57VIRS',
+          },
+          new_password: {
+            type: 'string',
+            description: 'New password',
+            minimum: 6,
+            example: '<very-strong-password>',
+          },
+        },
+      },
+      userInput: {
+        type: 'object',
+        properties: {
+          email: {
+            type: 'string',
+            description: 'User email address',
+            example: 'example@email.com',
+          },
+          password: {
+            type: 'string',
+            description: 'User password',
+            minimum: 6,
+            example: 'very-strong-password',
+          },
+          name: {
+            type: 'string',
+            description: 'User full name',
+            example: 'John Doe',
+          },
+          avatar: {
+            type: 'string',
+            description: 'User avatar url',
+            example: 'https://<bucket-name>/<user-id>/avatar.png',
+          },
+          mobile: {
+            type: 'string',
+            description: 'User mobile number',
+            example: '+8801700000000',
+          },
+          dob: {
+            type: 'string',
+            description: 'User date of birth',
+            example: '1970-02-16',
+          },
+          organization: {
+            type: 'string',
+            description: 'User organization',
+            example: 'Evil Corp.',
+          },
+        },
+      },
+      /**
+       * * Response schemas
+       */
+      verificationTokenAndCodeResponse: {
+        type: 'object',
+        properties: {
+          success: {
+            type: 'boolean',
+            example: true,
+          },
+          message: {
+            type: 'string',
+            example: 'Please verify using token and code',
+          },
+          result: {
+            type: 'object',
+            properties: {
+              token: {
+                type: 'string',
+                example: '<jwt-token>',
+              },
+              code: {
+                type: 'string',
+                example: 'FUZ0V894',
+              },
+            },
+          },
+        },
+      },
+      accessAndRefreshAuthResponse: {
+        type: 'object',
+        properties: {
+          success: {
+            type: 'boolean',
+            example: true,
+          },
+          message: {
+            type: 'string',
+            example: 'Sign-in/Sign-up successful',
+          },
+          result: {
+            type: 'object',
+            properties: {
+              accessToken: {
+                type: 'string',
+                example: '<access-token>',
+              },
+              refreshToken: {
+                type: 'string',
+                example: '<refresh-token>',
+              },
+            },
+          },
+        },
+      },
+      basicAuthResponse: {
+        type: 'object',
+        properties: {
+          success: {
+            type: 'boolean',
+            example: true,
+          },
+          message: {
+            type: 'string',
+            example: 'Sign-in/Sign-up successful',
+          },
+          result: {
+            type: 'object',
+          },
+        },
+      },
+      userResponse: {
         type: 'object',
         properties: {
           id: {
@@ -66,48 +252,7 @@ module.exports = {
           },
         },
       },
-      UserUpdateInput: {
-        type: 'object',
-        properties: {
-          email: {
-            type: 'string',
-            description: 'User email address',
-            example: 'example@email.com',
-          },
-          password: {
-            type: 'string',
-            description: 'User password',
-            minimum: 6,
-            example: 'very-strong-password',
-          },
-          name: {
-            type: 'string',
-            description: 'User full name',
-            example: 'John Doe',
-          },
-          avatar: {
-            type: 'string',
-            description: 'User avatar url',
-            example: 'https://<bucket-name>/<user-id>/avatar.png',
-          },
-          mobile: {
-            type: 'string',
-            description: 'User mobile number',
-            example: '+8801700000000',
-          },
-          dob: {
-            type: 'string',
-            description: 'User date of birth',
-            example: '1970-02-16',
-          },
-          organization: {
-            type: 'string',
-            description: 'User organization',
-            example: 'Evil Corp.',
-          },
-        },
-      },
-      UserDeleteResponse: {
+      userDeleteResponse: {
         type: 'object',
         properties: {
           id: {
@@ -132,53 +277,7 @@ module.exports = {
           },
         },
       },
-      SignUp: {
-        type: 'object',
-        require: ['email', 'password'],
-        properties: {
-          email: {
-            type: 'string',
-            description: 'User email address',
-            example: 'example@email.com',
-          },
-          password: {
-            type: 'string',
-            description: 'User password',
-            minimum: 6,
-            example: 'very-strong-password',
-          },
-        },
-      },
-      SignIn: {
-        type: 'object',
-        require: ['email', 'password'],
-        properties: {
-          email: {
-            type: 'string',
-            description: 'User email address',
-            example: 'example@email.com',
-          },
-          password: {
-            type: 'string',
-            description: 'User password',
-            minimum: 6,
-            example: 'very-strong-password',
-          },
-        },
-      },
-      Verify: {
-        type: 'object',
-        require: ['code'],
-        properties: {
-          code: {
-            type: 'string',
-            description:
-              'Verification code to proceed signUp or signIn process',
-            example: '1M57VIRS',
-          },
-        },
-      },
-      Error: {
+      error: {
         type: 'object',
         properties: {
           success: {
@@ -226,7 +325,7 @@ module.exports = {
                 },
                 result: {
                   type: 'object',
-                  $ref: '#/components/schemas/UserResponse',
+                  $ref: '#/components/schemas/userResponse',
                 },
               },
             },
@@ -251,7 +350,7 @@ module.exports = {
                 result: {
                   type: 'array',
                   items: {
-                    $ref: '#/components/schemas/UserResponse',
+                    $ref: '#/components/schemas/userResponse',
                   },
                 },
               },
@@ -276,7 +375,7 @@ module.exports = {
                 },
                 result: {
                   type: 'object',
-                  $ref: '#/components/schemas/UserResponse',
+                  $ref: '#/components/schemas/userResponse',
                 },
               },
             },
@@ -300,9 +399,100 @@ module.exports = {
                 },
                 result: {
                   type: 'object',
-                  $ref: '#/components/schemas/UserDeleteResponse',
+                  $ref: '#/components/schemas/userDeleteResponse',
                 },
               },
+            },
+          },
+        },
+      },
+      /**
+       * * Auth success response template
+       */
+      SuccessSignUp: {
+        description: 'Success sign-up',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              $ref: '#/components/schemas/verificationTokenAndCodeResponse',
+            },
+          },
+        },
+      },
+      SuccessSignIn: {
+        description: 'Success sign-in',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              $ref: '#/components/schemas/verificationTokenAndCodeResponse',
+            },
+          },
+        },
+      },
+      SuccessVerify: {
+        description: 'Success verify sign-in/sign-up',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              $ref: '#/components/schemas/accessAndRefreshAuthResponse',
+            },
+          },
+        },
+      },
+      SuccessForgotPassword: {
+        description: 'Success forgot-password',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              $ref: '#/components/schemas/verificationTokenAndCodeResponse',
+            },
+          },
+        },
+      },
+      SuccessChangePassword: {
+        description: 'Success change-password',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              $ref: '#/components/schemas/basicAuthResponse',
+            },
+          },
+        },
+      },
+      SuccessRefresh: {
+        description: 'Success refresh',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              $ref: '#/components/schemas/accessAndRefreshAuthResponse',
+            },
+          },
+        },
+      },
+      SuccessRevoke: {
+        description: 'Success revoke-token',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              $ref: '#/components/schemas/basicAuthResponse',
+            },
+          },
+        },
+      },
+      SuccessSignOut: {
+        description: 'Success sign-out',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              $ref: '#/components/schemas/basicAuthResponse',
             },
           },
         },
@@ -316,7 +506,7 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              $ref: '#/components/schemas/Error',
+              $ref: '#/components/schemas/error',
             },
           },
         },
@@ -327,7 +517,7 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              $ref: '#/components/schemas/Error',
+              $ref: '#/components/schemas/error',
             },
           },
         },
@@ -338,7 +528,7 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              $ref: '#/components/schemas/Error',
+              $ref: '#/components/schemas/error',
             },
           },
         },
@@ -349,7 +539,7 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              $ref: '#/components/schemas/Error',
+              $ref: '#/components/schemas/error',
             },
           },
         },
@@ -360,7 +550,7 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              $ref: '#/components/schemas/Error',
+              $ref: '#/components/schemas/error',
             },
           },
         },
@@ -371,7 +561,7 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              $ref: '#/components/schemas/Error',
+              $ref: '#/components/schemas/error',
             },
           },
         },
@@ -382,7 +572,7 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              $ref: '#/components/schemas/Error',
+              $ref: '#/components/schemas/error',
             },
           },
         },
@@ -393,7 +583,7 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              $ref: '#/components/schemas/Error',
+              $ref: '#/components/schemas/error',
             },
           },
         },
