@@ -23,7 +23,7 @@ module.exports = {
       content: {
         'application/json': {
           schema: {
-            $ref: '#/components/schemas/UserUpdateInput',
+            $ref: '#/components/schemas/userInput',
           },
         },
       },
