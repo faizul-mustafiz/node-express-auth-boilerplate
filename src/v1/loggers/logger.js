@@ -18,6 +18,7 @@ const customFormat = printf(({ level, message, timestamp, stack }) => {
 const path = require('path');
 const appLogFilePath = path.join(__dirname, '../logs', 'app.log');
 const errorLogFilePath = path.join(__dirname, '../logs', 'error.log');
+
 /**
  * * transporter options for app, error and console transporters
  */
@@ -40,10 +41,18 @@ const transporterOptions = {
     maxsize: 5242880, // 5MB
     maxFiles: 5,
     colorize: false,
-    // format: customFormat,
   },
   console: {
     level: 'debug',
+    handleExceptions: true,
+    json: true,
+    colorize: true,
+  },
+};
+
+const testEnvTransporterOption = {
+  console: {
+    level: 'error',
     handleExceptions: true,
     json: true,
     colorize: true,
@@ -55,15 +64,27 @@ const transporterOptions = {
  * * you can also build different loggers with different transporters
  * * testLogger = winston.createLogger({level: winston.config.npm.levels, transports:[your custom transporter here]})
  */
-const logger = winston.createLogger({
-  level: winston.config.npm.levels,
-  format: combine(timestamp(), splat(), json()),
-  transports: [
-    new winston.transports.File(transporterOptions.app),
-    new winston.transports.File(transporterOptions.error),
-    new winston.transports.Console(transporterOptions.console),
-  ],
-  exitOnError: false,
-});
+let logger = {};
+if (process.env.NODE_ENV === 'test') {
+  logger = winston.createLogger({
+    level: winston.config.npm.levels,
+    format: combine(timestamp(), splat(), json()),
+    transports: [
+      new winston.transports.Console(testEnvTransporterOption.console),
+    ],
+    exitOnError: false,
+  });
+} else {
+  logger = winston.createLogger({
+    level: winston.config.npm.levels,
+    format: combine(timestamp(), splat(), json()),
+    transports: [
+      new winston.transports.File(transporterOptions.app),
+      new winston.transports.File(transporterOptions.error),
+      new winston.transports.Console(transporterOptions.console),
+    ],
+    exitOnError: false,
+  });
+}
 
 module.exports = logger;
