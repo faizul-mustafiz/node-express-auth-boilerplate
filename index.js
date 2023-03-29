@@ -70,3 +70,5 @@ process.on('beforeExit', (code) => {
 process.on('exit', (code) => {
   logger.debug(`Process exit event with code: ${code}`);
 });
+
+module.exports = app;
