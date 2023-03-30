@@ -1,0 +1,95 @@
+name: auth-app-test-and-push-image to Docker-Hub
+run-name: ${{ github.actor }} running auth-app test and push-image workflow for commit-${{ github.sha }}
+on:
+  push:
+    branches: 
+      - master
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    # Set node-version strategy
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      # Checkout to the branch mentioned on the branches section
+      - name: Checkout
+        uses: actions/checkout@v3
+      # Setup node on the vm with defined node-version 18
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      # Install needed application and dev dependencies
+      - name: Install project dependencies
+        run: |
+          npm Install
+          npm ci
+      # Perform test on the application using defined test cases
+      - name: Test the Application
+        run: npm test
+        env:
+          NODE_ENV=test
+          API_PORT=${{ secrets.API_PORT }}
+          API_HOST=${{ secrets.API_HOST }}
+          BASE_API_ROUTE=${{ secrets.BASE_API_ROUTE }}
+          REDIS_URL_TEST=${{ secrets.REDIS_URL_TEST }}
+          MONGO_URL_TEST=${{ secrets.MONGO_URL_TEST }}
+          HASHING_ALGORITHM=${{ secrets.HASHING_ALGORITHM }}
+          ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}
+          ACCESS_TOKEN_EXPIRY_TIME=${{ secrets.ACCESS_TOKEN_EXPIRY_TIME }}
+          REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}
+          REFRESH_TOKEN_EXPIRY_TIME=${{ secrets.REFRESH_TOKEN_EXPIRY_TIME }}
+          VERIFY_TOKEN_SECRET=${{ secrets.VERIFY_TOKEN_SECRET }}
+          VERIFY_TOKEN_EXPIRY_TIME=${{ secrets.VERIFY_TOKEN_EXPIRY_TIME }}
+          CHANGE_PASSWORD_TOKEN_SECRET=${{ secrets.CHANGE_PASSWORD_TOKEN_SECRET }}
+          CHANGE_PASSWORD_TOKEN_EXPIRY_TIME=${{ secrets.CHANGE_PASSWORD_TOKEN_EXPIRY_TIME }}
+          "PUBLIC_KEY=${{ secrets.PUBLIC_KEY }}"
+          "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}"
+
+  push-image-to-Docker-Hub:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout to the branch mentioned on the branches section
+      - name: Checkout
+        uses: actions/checkout@v3
+      # Gets the branch name and short commit hash which we will use as image tag for Docker hub
+      - name: Get branch name and Short SHA commit hash
+        shell: bash
+        run: |
+          echo "tag=${GITHUB_REF#refs/heads/}-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        # Logs in to Docker Hub using the docker hub secrets
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Set up docker image builder inside vm
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      # Build and push the image to Docker Hub with all the necessary listed arguments
+      - name: Build and push image to Docker Hub
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/node-express-auth-boilerplate:${{ env.tag }}
+          build-args: |
+            NODE_ENV=development
+            API_PORT=${{ secrets.API_PORT }}
+            API_HOST=${{ secrets.API_HOST }}
+            BASE_API_ROUTE=${{ secrets.BASE_API_ROUTE }}
+            REDIS_URL=${{ secrets.REDIS_URL }}
+            MONGO_URL=${{ secrets.MONGO_URL }}
+            HASHING_ALGORITHM=${{ secrets.HASHING_ALGORITHM }}
+            ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}
+            ACCESS_TOKEN_EXPIRY_TIME=${{ secrets.ACCESS_TOKEN_EXPIRY_TIME }}
+            REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}
+            REFRESH_TOKEN_EXPIRY_TIME=${{ secrets.REFRESH_TOKEN_EXPIRY_TIME }}
+            VERIFY_TOKEN_SECRET=${{ secrets.VERIFY_TOKEN_SECRET }}
+            VERIFY_TOKEN_EXPIRY_TIME=${{ secrets.VERIFY_TOKEN_EXPIRY_TIME }}
+            CHANGE_PASSWORD_TOKEN_SECRET=${{ secrets.CHANGE_PASSWORD_TOKEN_SECRET }}
+            CHANGE_PASSWORD_TOKEN_EXPIRY_TIME=${{ secrets.CHANGE_PASSWORD_TOKEN_EXPIRY_TIME }}
+            "PUBLIC_KEY=${{ secrets.PUBLIC_KEY }}"
+            "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}"
