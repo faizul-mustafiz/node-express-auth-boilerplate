@@ -110,7 +110,9 @@ updateOneUser = async (req, res, next) => {
     }
 
     let changes = { ...req.body };
-    changes.password = await User.generateHash(changes.password);
+    if (changes.password) {
+      changes.password = await User.generateHash(changes.password);
+    }
     logger.debug('changes: %s', changes);
     const updatedUser = Object.assign(updatingUserDocument, changes);
     logger.debug('updatedUser: %s', updatedUser);
