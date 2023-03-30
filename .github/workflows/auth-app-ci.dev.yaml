@@ -44,7 +44,7 @@ jobs:
           VERIFY_TOKEN_EXPIRY_TIME: ${{ secrets.VERIFY_TOKEN_EXPIRY_TIME }}
           CHANGE_PASSWORD_TOKEN_SECRET: ${{ secrets.CHANGE_PASSWORD_TOKEN_SECRET }}
           CHANGE_PASSWORD_TOKEN_EXPIRY_TIME: ${{ secrets.CHANGE_PASSWORD_TOKEN_EXPIRY_TIME }}
-          PUBLIC_KEY$: ${{ secrets.PUBLIC_KEY }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 
   push-image-to-Docker-Hub:
