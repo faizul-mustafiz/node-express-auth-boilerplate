@@ -14,8 +14,8 @@ module.exports = {
   REDIS_PASSWORD: process.env.REDIS_PASSWORD,
   // mongo environment variables
   MONGO_URL: process.env.MONGO_URL_TEST,
-  MONGO_USERNAME: process.env.MONGO_USERNAME_TEST,
-  MONGO_PASSWORD: process.env.MONGO_PASSWORD_TEST,
+  MONGO_USERNAME: process.env.MONGO_USERNAME,
+  MONGO_PASSWORD: process.env.MONGO_PASSWORD,
   // hashing algorithm for encryption
   HASHING_ALGORITHM: process.env.HASHING_ALGORITHM,
   // JWT environment variables
