@@ -2,7 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
+const JsonEncryptDecryptAES =
+  require('@faizul-mustafiz/json-ed-aes-gcm').default;
 const swaggerUI = require('swagger-ui-express');
 const docs = require('./docs');
 
@@ -61,5 +62,13 @@ app.use('/v1/docs', swaggerUI.serve, swaggerUI.setup(docs));
 app.use(ErrorLogger);
 app.use(ErrorHandler);
 app.use(invalidPath);
+
+let aes = new JsonEncryptDecryptAES('my-super-secret');
+const encryptMessage = aes.encrypt({
+  deviceId: '67256558250eda49',
+});
+console.log('encryptMessage', encryptMessage);
+const decryptMessage = aes.decrypt(encryptMessage);
+console.log('decryptMessage', decryptMessage);
 
 module.exports = app;
