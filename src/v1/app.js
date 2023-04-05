@@ -61,8 +61,4 @@ app.use(ErrorLogger);
 app.use(ErrorHandler);
 app.use(invalidPath);
 
-console.log('encryptMessage', encryptMessage);
-const decryptMessage = aes.decrypt(encryptMessage);
-console.log('decryptMessage', decryptMessage);
-
 module.exports = app;
