@@ -2,8 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const JsonEncryptDecryptAES =
-  require('@faizul-mustafiz/json-ed-aes-gcm').default;
+const JsonEncryptDecryptAES = require('@faizul-mustafiz/json-ed-aes').default;
 const swaggerUI = require('swagger-ui-express');
 const docs = require('./docs');
 
