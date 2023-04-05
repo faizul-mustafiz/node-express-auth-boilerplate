@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/faiz-fiz/node-express-auth-boilerplate#readme",
   "dependencies": {
-    "@faizul-mustafiz/json-ed-aes": "^1.0.2",
+    "@faizul-mustafiz/json-ed-aes": "^1.0.5",
     "bcryptjs": "^2.4.3",
     "bip39": "^3.0.4",
     "body-parser": "^1.20.1",
