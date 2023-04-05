@@ -1,7 +1,13 @@
 node_modules
 logs
 container-logs
-.husky
 docker-compose
 deployments
+env.example
+.husky
 .github
+.git
+.gitignore
+.mocharc.json
+.prettierignore
+.prettierrc
