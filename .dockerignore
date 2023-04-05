@@ -3,7 +3,7 @@ logs
 container-logs
 docker-compose
 deployments
-env.example
+.env.example
 .husky
 .github
 .git
