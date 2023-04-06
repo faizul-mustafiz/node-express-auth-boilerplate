@@ -80,7 +80,7 @@ updateOneUser = async (req, res, next) => {
     const { userId } = req.params;
     if (!userId) {
       throw new NotFoundError(
-        'getOneUser-no-userId-param',
+        'updateOneUser-no-userId-param',
         'Invalid path not found',
       );
     }
@@ -89,7 +89,7 @@ updateOneUser = async (req, res, next) => {
       const existingUser = await User.emailExist(email);
       logger.debug('existingUser: %s', existingUser);
       /**
-       * * if the updated email matches to an existing user email send 400 BadRequestError
+       * * if the updating email matches to an existing user email send 400 BadRequestError
        * @param BadRequestError(origin, message)
        */
       if (existingUser && existingUser?._id != userId) {
