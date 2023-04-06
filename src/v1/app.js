@@ -5,7 +5,7 @@ const cors = require('cors');
 const swaggerUI = require('swagger-ui-express');
 const docs = require('./docs');
 
-const { AuthRoutes, UserRoutes } = require('./routes');
+const { AuthRoutes, UserRoutes, ApplicationRoutes } = require('./routes');
 const { baseRoute } = require('./configs/app.config');
 
 const httpLogger = require('./loggers/httpLogger');
@@ -48,6 +48,7 @@ app.get(`${baseRoute}/health`, (req, res) => {
  */
 app.use(`${baseRoute}/auth`, AuthRoutes);
 app.use(`${baseRoute}/users`, UserRoutes);
+app.use(`${baseRoute}/applications`, ApplicationRoutes);
 /**
  * * Route injection for swagger documentation
  */
