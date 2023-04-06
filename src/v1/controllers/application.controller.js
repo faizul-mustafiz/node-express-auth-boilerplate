@@ -9,13 +9,7 @@ const {
   generateApiSecret,
 } = require('../generators/apiCredential.generator');
 
-const origin = {
-  getAllApplications: 'getAllApplications-base-error:',
-  getOneApplication: 'getOneApplication-base-error:',
-  createOneApplication: 'createOneApplication-base-error',
-  updateOneApplication: 'updateOneApplication-base-error:',
-  deleteOneApplication: 'deleteOneApplication-base-error:',
-};
+const ApplicationControllerOrigin = require('../enums/applicationControllerOrigin.enum');
 
 const NonAuthoritativeError = require('../errors/NonAuthoritativeError');
 const NotFoundError = require('../errors/NotFoundError');
@@ -43,7 +37,9 @@ getAllApplications = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.getAllApplications;
+    error.origin = error.origin
+      ? error.origin
+      : ApplicationControllerOrigin.getAllApplications;
     next(error);
   }
 };
@@ -78,7 +74,9 @@ getOneApplication = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.getOneApplication;
+    error.origin = error.origin
+      ? error.origin
+      : ApplicationControllerOrigin.getOneApplication;
     next(error);
   }
 };
@@ -112,7 +110,9 @@ createOneApplication = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.createOneApplication;
+    error.origin = error.origin
+      ? error.origin
+      : ApplicationControllerOrigin.createOneApplication;
     next(error);
   }
 };
@@ -171,7 +171,9 @@ updateOneApplication = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.updateOneApplication;
+    error.origin = error.origin
+      ? error.origin
+      : ApplicationControllerOrigin.updateOneApplication;
     next(error);
   }
 };
@@ -205,7 +207,9 @@ deleteOneApplication = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.deleteOneApplication;
+    error.origin = error.origin
+      ? error.origin
+      : ApplicationControllerOrigin.deleteOneApplication;
     next(error);
   }
 };

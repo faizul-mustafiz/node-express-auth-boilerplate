@@ -2,12 +2,7 @@ require('dotenv');
 const { Success } = require('../responses/httpResponse');
 const User = require('../models/user.model');
 const logger = require('../loggers/logger');
-const origin = {
-  getAllUser: 'getAllUser-base-error:',
-  getOneUser: 'getOneUser-base-error:',
-  updateOneUser: 'updateOneUser-base-error:',
-  deleteOneUser: 'deleteOneUser-base-error:',
-};
+const UserControllerOrigin = require('../enums/userControllerOrigin.enum');
 const NonAuthoritativeError = require('../errors/NonAuthoritativeError');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
@@ -33,7 +28,9 @@ getAllUser = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.getAllUser;
+    error.origin = error.origin
+      ? error.origin
+      : UserControllerOrigin.getAllUser;
     next(error);
   }
 };
@@ -67,7 +64,9 @@ getOneUser = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.getOneUser;
+    error.origin = error.origin
+      ? error.origin
+      : UserControllerOrigin.getOneUser;
     next(error);
   }
 };
@@ -123,7 +122,9 @@ updateOneUser = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.updateOneUser;
+    error.origin = error.origin
+      ? error.origin
+      : UserControllerOrigin.updateOneUser;
     next(error);
   }
 };
@@ -157,7 +158,9 @@ deleteOneUser = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.deleteOneUser;
+    error.origin = error.origin
+      ? error.origin
+      : UserControllerOrigin.deleteOneUser;
     next(error);
   }
 };

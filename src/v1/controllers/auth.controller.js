@@ -12,6 +12,7 @@ const {
   generateChangePasswordTokenPayloadForRedis,
 } = require('../utility/jwt.utility');
 
+const AuthControllerOrigin = require('../enums/authControllerOrigin.enum');
 const TokenType = require('../enums/tokenType.enum');
 const {
   setIdentityToBlacklist,
@@ -23,20 +24,6 @@ const logger = require('../loggers/logger');
 const BadRequestError = require('../errors/BadRequestError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
-
-const origin = {
-  signUp: 'signUp-base-error:',
-  signIn: 'signIn-base-error:',
-  signOut: 'signOut-base-error:',
-  continueSingUp: 'continueSingUp-base-error:',
-  continueSignIn: 'continueSignIn-base-error:',
-  verifyAuth: 'verifyAuth-base-error:',
-  forgotPassword: 'forgotPassword-base-error:',
-  changePassword: 'changePassword-base-error:',
-  refresh: 'refresh-base-error:',
-  revokeAccessToken: 'refresh-base-error:',
-  revokeRefreshToken: 'refresh-base-error:',
-};
 
 signUp = async (req, res, next) => {
   try {
@@ -90,7 +77,7 @@ signUp = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.signUp;
+    error.origin = error.origin ? error.origin : AuthControllerOrigin.signUp;
     next(error);
   }
 };
@@ -150,7 +137,7 @@ signIn = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.signIn;
+    error.origin = error.origin ? error.origin : AuthControllerOrigin.signIn;
     next(error);
   }
 };
@@ -208,7 +195,7 @@ signOut = async (req, res, next) => {
       });
     }
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.signOut;
+    error.origin = error.origin ? error.origin : AuthControllerOrigin.signOut;
     next(error);
   }
 };
@@ -267,7 +254,9 @@ continueSingUp = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.continueSingUp;
+    error.origin = error.origin
+      ? error.origin
+      : AuthControllerOrigin.continueSingUp;
     next(error);
   }
 };
@@ -312,7 +301,9 @@ continueSignIn = async (req, res, next) => {
       result: result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.continueSignIn;
+    error.origin = error.origin
+      ? error.origin
+      : AuthControllerOrigin.continueSignIn;
     next(error);
   }
 };
@@ -355,7 +346,9 @@ verifyAuth = async (req, res, next) => {
       await continueSignIn(req, res, next);
     }
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.verifyAuth;
+    error.origin = error.origin
+      ? error.origin
+      : AuthControllerOrigin.verifyAuth;
     next(error);
   }
 };
@@ -428,7 +421,9 @@ forgotPassword = async (req, res, next) => {
       result,
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.forgotPassword;
+    error.origin = error.origin
+      ? error.origin
+      : AuthControllerOrigin.forgotPassword;
     next(error);
   }
 };
@@ -512,7 +507,9 @@ changePassword = async (req, res, next) => {
       result: {},
     });
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.changePassword;
+    error.origin = error.origin
+      ? error.origin
+      : AuthControllerOrigin.changePassword;
     next(error);
   }
 };
@@ -582,7 +579,7 @@ refresh = async (req, res, next) => {
       });
     }
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.refresh;
+    error.origin = error.origin ? error.origin : AuthControllerOrigin.refresh;
     next(error);
   }
 };
@@ -640,7 +637,9 @@ revokeAccessToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.revokeAccessToken;
+    error.origin = error.origin
+      ? error.origin
+      : AuthControllerOrigin.revokeAccessToken;
     next(error);
   }
 };
@@ -699,7 +698,9 @@ revokeRefreshToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    error.origin = error.origin ? error.origin : origin.revokeRefreshToken;
+    error.origin = error.origin
+      ? error.origin
+      : AuthControllerOrigin.revokeRefreshToken;
     next(error);
   }
 };
