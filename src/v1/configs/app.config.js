@@ -6,6 +6,7 @@ const {
 } = require('../environments');
 
 module.exports = {
+  version: 'v1',
   baseRoute: BASE_API_ROUTE,
   port: API_PORT,
   host: API_HOST,
