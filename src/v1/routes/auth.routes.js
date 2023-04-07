@@ -11,41 +11,64 @@ const validateAuthRequestBody = require('../middlewares/validateAuthRequestBody.
 const validateForgotPasswordRequestBody = require('../middlewares/validateForgotPasswordRequestBody.middleware');
 const validateChangePasswordRequestBody = require('../middlewares/validateChangePasswordRequestBody.middleware');
 
-authRouter.post('/sign-up', validateAuthRequestBody, AuthController.signUp);
-authRouter.post('/sign-in', validateAuthRequestBody, AuthController.signIn);
+const hasCustomHeader = require('../middlewares/hasCustomHeader.middleware');
+const validateCustomHeader = require('../middlewares/validateCustomHeader.middleware');
+
+authRouter.post(
+  '/sign-up',
+  [hasCustomHeader, validateCustomHeader, validateAuthRequestBody],
+  AuthController.signUp,
+);
+authRouter.post(
+  '/sign-in',
+  [hasCustomHeader, validateCustomHeader, validateAuthRequestBody],
+  AuthController.signIn,
+);
 authRouter.post(
   '/sign-out',
-  [hasAuthorization, validateRefresh],
+  [hasAuthorization, hasCustomHeader, validateCustomHeader, validateRefresh],
   AuthController.signOut,
 );
 authRouter.post(
   '/verify',
-  [hasAuthorization, validateVerifyRequestBody, validateVerification],
+  [
+    hasAuthorization,
+    hasCustomHeader,
+    validateCustomHeader,
+    validateVerifyRequestBody,
+    validateVerification,
+  ],
   AuthController.verifyAuth,
 );
 authRouter.post(
   '/forgot-password',
-  validateForgotPasswordRequestBody,
+  [hasCustomHeader, validateCustomHeader, validateForgotPasswordRequestBody],
   AuthController.forgotPassword,
 );
 authRouter.post(
   '/change-password',
-  [hasAuthorization, validateChangePasswordRequestBody, validateChangePassword],
+  [
+    hasAuthorization,
+    hasCustomHeader,
+    validateCustomHeader,
+    validateChangePasswordRequestBody,
+    validateChangePassword,
+  ],
   AuthController.changePassword,
 );
 authRouter.post(
   '/refresh',
-  [hasAuthorization, validateRefresh],
+  [hasAuthorization, hasCustomHeader, validateCustomHeader, validateRefresh],
   AuthController.refresh,
 );
 authRouter.post(
   '/revoke-at',
-  [hasAuthorization, validateAccess],
+  [hasAuthorization, hasCustomHeader, validateCustomHeader, validateAccess],
   AuthController.revokeAccessToken,
 );
 authRouter.post(
   '/revoke-rt',
-  [hasAuthorization, validateRefresh],
+  [hasAuthorization, hasCustomHeader, validateCustomHeader, validateRefresh],
   AuthController.revokeRefreshToken,
 );
 
