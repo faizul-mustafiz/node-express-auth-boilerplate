@@ -10,6 +10,9 @@ getXAppIdHeader = (req) => {
 getXAppVersionHeader = (req) => {
   return req.headers['x-app-version'] || req.headers['X-APP-VERSION'];
 };
+getXDeviceInfoHeader = (req) => {
+  return req.headers['x-device-info'] || req.headers['X-DEVICE-INFO'];
+};
 splitAuthorizationHeader = (authorization) => {
   const bearer =
     authorization && authorization.startsWith('Bearer ') ? authorization : null;
@@ -24,5 +27,6 @@ module.exports = {
   getXApiKeyHeader,
   getXAppIdHeader,
   getXAppVersionHeader,
+  getXDeviceInfoHeader,
   splitAuthorizationHeader,
 };

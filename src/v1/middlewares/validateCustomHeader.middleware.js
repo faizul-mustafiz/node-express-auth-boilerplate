@@ -1,4 +1,3 @@
-const logger = require('../loggers/logger');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const {
   isAppIdIdentityExists,
@@ -7,7 +6,10 @@ const {
 const {
   compareStoredKeyWithApiKey,
   compareStoredSecretWithApiKey,
+  compareStoredAppMinVersionWithAppVersion,
 } = require('../helpers/applicationCredential.helper');
+
+const JsonEncryptDecryptAes = require('@faizul-mustafiz/json-ed-aes').default;
 
 const validateCustomHeader = async (req, res, next) => {
   try {
@@ -15,6 +17,7 @@ const validateCustomHeader = async (req, res, next) => {
      * * get the passed customHeaders value form the res.locals
      */
     const customHeaders = res.locals.customHeaders;
+    console.log('customHeaders', customHeaders);
     try {
       /**
        * * check if header xAppId exists in redis if not send 401 UnauthorizedError
@@ -29,12 +32,28 @@ const validateCustomHeader = async (req, res, next) => {
       }
       /**
        * * get data form redis using xAppId as identity
-       * * check if redis apiKey and xApiKey are same if not send 401 UnauthorizedError
-       * @param UnauthorizedError(origin, message)
        */
       const applicationRedisResponse = await getAppIdIdentity(
         customHeaders.xAppId,
       );
+      /**
+       * * check if redis appMinVersion and xAppVersion are same if not send 401 UnauthorizedError
+       * @param UnauthorizedError(origin, message)
+       */
+      const isAppVersionIdentical = compareStoredAppMinVersionWithAppVersion(
+        applicationRedisResponse.appMinVersion,
+        customHeaders.xAppVersion,
+      );
+      if (!isAppVersionIdentical) {
+        throw new UnauthorizedError(
+          'validateCustomHeader-app-version-do-not-match',
+          'Invalid application header',
+        );
+      }
+      /**
+       * * check if redis apiKey and xApiKey are same if not send 401 UnauthorizedError
+       * @param UnauthorizedError(origin, message)
+       */
       const isApiKeyIdentical = compareStoredKeyWithApiKey(
         applicationRedisResponse.apiKey,
         customHeaders.xApiKey,
@@ -59,12 +78,29 @@ const validateCustomHeader = async (req, res, next) => {
           'Invalid application header',
         );
       }
+      const aes = new JsonEncryptDecryptAes(applicationRedisResponse.apiSecret);
+      let decryptedDeviceInfo = {};
+      try {
+        decryptedDeviceInfo = aes.decrypt(customHeaders.xDeviceInfo);
+      } catch (error) {
+        throw new UnauthorizedError(
+          'validateCustomHeader-device-info-decryption-error',
+          'Invalid application header',
+        );
+      }
+      if (!decryptedDeviceInfo) {
+        throw new UnauthorizedError(
+          'validateCustomHeader-device-info-pattern-not-supported',
+          'Invalid application header',
+        );
+      }
       /**
        * * generate validatedCustomHeaderResponse using customHeaders data and
        * * applicationRedisResponse data then assign it to res.locals
        */
       const validatedCustomHeaderResponse = {
         appId: customHeaders.xAppId,
+        deviceId: decryptedDeviceInfo.deviceId,
         ...applicationRedisResponse,
       };
       res.locals.validatedCustomHeaderResponse = validatedCustomHeaderResponse;
