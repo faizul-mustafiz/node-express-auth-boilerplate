@@ -53,18 +53,6 @@ generateOtp = (length) => {
     specialChars: false,
   });
 };
-getAuthorizationHeader = (req) => {
-  return req.headers['authorization'] || req.headers['Authorization'];
-};
-splitAuthorizationHeader = (authorization) => {
-  const bearer =
-    authorization && authorization.startsWith('Bearer ') ? authorization : null;
-  const token = bearer ? bearer.split('Bearer ')[1] : null;
-  return {
-    bearer,
-    token,
-  };
-};
 
 module.exports = {
   generateIdentityHash,
@@ -73,6 +61,4 @@ module.exports = {
   generateVerifyTokenPayloadForRedis,
   generateChangePasswordTokenPayloadForRedis,
   generateOtp,
-  getAuthorizationHeader,
-  splitAuthorizationHeader,
 };
