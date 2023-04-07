@@ -30,17 +30,14 @@ const generateApplicationCredentialData = () => {
     status: ApplicationStatus.Active,
   };
 };
-
 const setApplicationCredentialToRedis = async (payload) => {
   const identity = generateApplicationIdentity(payload);
   const redisPayload = generateApplicationPayloadForRedis(payload);
   await setAppIdIdentity(identity, redisPayload);
 };
-
 const deleteApplicationCredentialFromRedis = async (identity) => {
   await deleteAppIdIdentity(identity);
 };
-
 const compareStoredKeyWithApiKey = (storedApiKey, apiKey) => {
   return storedApiKey === apiKey;
 };
@@ -50,6 +47,12 @@ const compareStoredSecretWithApiKey = (storedApiSecret, apiKey) => {
   const buffer = scryptSync(apiKey, salt, 64);
   return timingSafeEqual(Buffer.from(key, 'hex'), buffer);
 };
+const compareStoredAppMinVersionWithAppVersion = (
+  storedAppMinVersion,
+  appVersion,
+) => {
+  return storedAppMinVersion === appVersion;
+};
 
 module.exports = {
   generateApplicationCredentialData,
@@ -57,4 +60,5 @@ module.exports = {
   deleteApplicationCredentialFromRedis,
   compareStoredKeyWithApiKey,
   compareStoredSecretWithApiKey,
+  compareStoredAppMinVersionWithAppVersion,
 };
