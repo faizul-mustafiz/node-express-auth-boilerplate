@@ -6,7 +6,12 @@ const {
   changePasswordTokenConfig,
   privateKey,
 } = require('../configs/jwt.config');
-const { generateTokenId } = require('../utility/jwt.utility');
+const {
+  generateIdentityHash,
+  generateTokenId,
+  generateTokenPayloadForRedis,
+  generateVerifyTokenPayloadForRedis,
+} = require('../utility/jwt.utility');
 const {
   setIdentityWithHSet,
   setVerifyTokenIdentity,
