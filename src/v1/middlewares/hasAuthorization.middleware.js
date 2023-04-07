@@ -1,7 +1,7 @@
 const {
   getAuthorizationHeader,
   splitAuthorizationHeader,
-} = require('../utility/jwt.utility');
+} = require('../utility/header.utility');
 const ForbiddenError = require('../errors/ForbiddenError');
 
 const hasAuthorization = (req, res, next) => {
