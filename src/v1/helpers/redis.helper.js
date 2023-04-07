@@ -25,6 +25,16 @@ setIdentityWithHSet = async (identity, expiry, payload) => {
     logger.error('setIdentityWithHSet-error:', error);
   }
 };
+setIdentityWithHSetNoExpiry = async (identity, payload) => {
+  try {
+    const payloadArray = jsonToArray(payload);
+    const result = await redisClient.hSet(identity, payloadArray);
+    logger.debug('setIdentityWithHSetNoExpiry-result: %s', result);
+    return result;
+  } catch (error) {
+    logger.error('setIdentityWithHSetNoExpiry-error:', error);
+  }
+};
 setIdentity = async (identity, expiry, payload) => {
   try {
     let result = await redisClient.set(identity, payload);
@@ -165,6 +175,49 @@ deleteChangePasswordTokenIdentity = async (identity) => {
   }
 };
 
+/**
+ * * application related methods
+ */
+isAppIdIdentityExists = async (identity) => {
+  try {
+    const result = await isIdentityExists(`app:${identity}`);
+    logger.debug('isAppIdIdentityExists-result: %s', result);
+    return result;
+  } catch (error) {
+    logger.error('isAppIdIdentityExists-error:', error);
+  }
+};
+setAppIdIdentity = async (identity, payload) => {
+  try {
+    const result = await setIdentityWithHSetNoExpiry(
+      `app:${identity}`,
+      payload,
+    );
+    logger.debug('setAppIdIdentity-result: %s', result);
+    return result;
+  } catch (error) {
+    logger.error('setAppIdIdentity-error:', error);
+  }
+};
+getAppIdIdentity = async (identity) => {
+  try {
+    let result = await getHSetIdentityPayload(`app:${identity}`);
+    logger.debug('getAppIdIdentity-result: %s', result);
+    return result;
+  } catch (error) {
+    logger.error('getAppIdIdentity-error:', error);
+  }
+};
+deleteAppIdIdentity = async (identity) => {
+  try {
+    const result = await deleteIdentity(`app:${identity}`);
+    logger.debug('deleteAppIdIdentity-result: %s', result);
+    return result;
+  } catch (error) {
+    logger.error('deleteAppIdIdentity-error:', error);
+  }
+};
+
 module.exports = {
   isIdentityExists,
   setIdentityWithHSet,
@@ -182,4 +235,8 @@ module.exports = {
   setChangePasswordTokenIdentity,
   getChangePasswordTokenIdentity,
   deleteChangePasswordTokenIdentity,
+  isAppIdIdentityExists,
+  setAppIdIdentity,
+  getAppIdIdentity,
+  deleteAppIdIdentity,
 };
