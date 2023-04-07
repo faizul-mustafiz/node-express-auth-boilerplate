@@ -1,14 +1,12 @@
 require('dotenv');
 const Application = require('../models/application.model');
 const logger = require('../loggers/logger');
-const { version } = require('../configs/app.config');
-const ApplicationStatus = require('../enums/applicationStatus.enum');
-const {
-  generateAppId,
-  generateApiKey,
-  generateApiSecret,
-} = require('../generators/apiCredential.generator');
 
+const {
+  generateApplicationCredentialData,
+  setApplicationCredentialToRedis,
+  deleteApplicationCredentialFromRedis,
+} = require('../helpers/applicationCredential.helper');
 const ApplicationControllerOrigin = require('../enums/applicationControllerOrigin.enum');
 
 const NonAuthoritativeError = require('../errors/NonAuthoritativeError');
@@ -91,17 +89,9 @@ createOneApplication = async (req, res, next) => {
         'An application with this name already exists',
       );
     }
-    const appId = generateAppId();
-    const apiKey = generateApiKey();
-    const apiSecret = generateApiSecret(apiKey);
-    const generatedApplicationData = {
-      appId,
-      apiKey,
-      apiSecret,
-      appMinVersion: version,
-      status: ApplicationStatus.Active,
-    };
+    const generatedApplicationData = generateApplicationCredentialData();
     const applicationObject = { ...generatedApplicationData, ...req.body };
+    await setApplicationCredentialToRedis(applicationObject);
     const application = new Application(applicationObject);
     logger.debug('application: %s', application);
     const result = await application.save();
@@ -164,6 +154,7 @@ updateOneApplication = async (req, res, next) => {
       changes,
     );
     logger.debug('updatedApplication: %s', updatedApplication);
+    await setApplicationCredentialToRedis(updatingApplicationDocument);
     const result = await updatedApplication.save();
     logger.debug('result: %s', result);
     return Success(res, {
@@ -201,6 +192,7 @@ deleteOneApplication = async (req, res, next) => {
         'No document found by this request',
       );
     }
+    await deleteApplicationCredentialFromRedis(appId);
     const result = await Application.findOneAndDelete({ appId });
     return Success(res, {
       message: 'Successfully deleted application',
