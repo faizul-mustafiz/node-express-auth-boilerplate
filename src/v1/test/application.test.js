@@ -3,6 +3,7 @@
  */
 const { baseRoute } = require('../configs/app.config');
 const Application = require('../models/application.model');
+const { deleteTestDataFromRedis } = require('../helpers/redis.helper');
 const {
   testApplicationCreateObj,
   testApplicationUpdateObj,
@@ -56,6 +57,7 @@ describe('Application controller test', () => {
    */
   after((done) => {
     resetAllTestVariables();
+    deleteTestDataFromRedis();
     done();
   });
   /**

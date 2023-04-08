@@ -218,6 +218,18 @@ deleteAppIdIdentity = async (identity) => {
   }
 };
 
+/**
+ * * clean up redis test db after test complete
+ */
+deleteTestDataFromRedis = async () => {
+  try {
+    const result = await redisClient.flushDb('ASYNC');
+    logger.debug('deleteTestDataFromRedis-result: %s', result);
+  } catch (error) {
+    logger.error('deleteTestDataFromRedis-error', error);
+  }
+};
+
 module.exports = {
   isIdentityExists,
   setIdentityWithHSet,
@@ -239,4 +251,5 @@ module.exports = {
   setAppIdIdentity,
   getAppIdIdentity,
   deleteAppIdIdentity,
+  deleteTestDataFromRedis,
 };
