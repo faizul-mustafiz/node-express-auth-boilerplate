@@ -13,8 +13,17 @@ const testUserUpdateObj = {
   organization: 'Evil Corp',
 };
 
+const testApplicationCreateObj = {
+  appName: 'test_app',
+  origin: 'http://test_app.com',
+};
+const testDeviceInfoObj = {
+  deviceId: '67256558250eda49',
+};
 module.exports = {
   testUserObj,
   testNewPassword,
   testUserUpdateObj,
+  testApplicationCreateObj,
+  testDeviceInfoObj,
 };

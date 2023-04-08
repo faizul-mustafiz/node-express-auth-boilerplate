@@ -3,21 +3,36 @@
  */
 const { baseRoute } = require('../configs/app.config');
 const User = require('../models/user.model');
-const { testUserObj, testUserUpdateObj } = require('./common');
+const Application = require('../models/application.model');
+const {
+  testUserObj,
+  testUserUpdateObj,
+  testApplicationCreateObj,
+  testDeviceInfoObj,
+} = require('./common');
+const JsonEncryptDecryptAes = require('@faizul-mustafiz/json-ed-aes').default;
 /**
  * * import chai, chai-http dependencies
  * * also inject server for mocha to run tests
  * * import should aggregator from chai
+ * * import expect aggregator form chai
  * * use chai-http with chai to perform http request
  */
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../../index');
 const should = chai.should();
+const expect = chai.expect;
 chai.use(chaiHttp);
 /**
  * * global variables needed for the entire test file
  */
+let xAppId = '';
+let xApiKey = '';
+let xApiSecret = '';
+let xApiMinVersion = '';
+let xDeviceInfo = '';
+
 let testUserId = '';
 let verifyToken = '';
 let verifyCode = '';
@@ -27,6 +42,11 @@ let refreshToken = '';
  * * all global variable reset method
  */
 resetAllTestVariables = () => {
+  xAppId = '';
+  xApiKey = '';
+  xApiSecret = '';
+  xApiMinVersion = '';
+  xDeviceInfo = '';
   testUserId = '';
   verifyToken = '';
   verifyCode = '';
@@ -42,8 +62,10 @@ describe('User controller tests', () => {
    * * here we delete all the old data from test db user collection
    */
   before((done) => {
-    User.deleteMany({}, () => {
-      done();
+    Application.deleteMany({}, () => {
+      User.deleteMany({}, () => {
+        done();
+      });
     });
   });
   /**
@@ -55,6 +77,59 @@ describe('User controller tests', () => {
   after((done) => {
     resetAllTestVariables();
     done();
+  });
+  /**
+   * * perform application creation process as entire auth test file use the created
+   * * application credential as custom header and without header the test will fail
+   */
+  describe('[POST] /applications | Application creation test', () => {
+    it('it should create-one-application and encrypt', (done) => {
+      chai
+        .request(server)
+        .post(`${baseRoute}/applications`)
+        .send(testApplicationCreateObj)
+        .end((err, res) => {
+          res.should.have.status(201);
+          res.body.should.be.a('object');
+          res.body.should.have.property('success').eql(true);
+          res.body.should.have.property('message');
+          res.body.should.have.property('result');
+          res.body.result.should.be.a('object');
+          res.body.result.should.have.property('_id');
+          res.body.result.should.have.property('appId');
+          res.body.result.should.have
+            .property('appName')
+            .eql(testApplicationCreateObj.appName);
+          res.body.result.should.have.property('apiKey');
+          res.body.result.should.have.property('apiSecret');
+          res.body.result.should.have.property('appMinVersion');
+          res.body.result.should.have
+            .property('origin')
+            .eql(testApplicationCreateObj.origin);
+          res.body.result.should.have.property('status');
+          res.body.result.should.have.property('created_at');
+          res.body.result.should.have.property('updated_at');
+          xAppId = res.body.result.appId;
+          xApiKey = res.body.result.apiKey;
+          xApiSecret = res.body.result.apiSecret;
+          xApiMinVersion = res.body.result.appMinVersion;
+          done();
+        });
+    });
+  });
+  /**
+   * * perform device info encryption process as this will be need to perform sing-up
+   * * process as sign-up method verify custom header validator checks if a perfectly encrypted
+   * * device info is preset with all the application credential custom header
+   */
+  describe('Device info encryption test', () => {
+    it('it should encrypt a device info object using json-ed-aes encrypt()', (done) => {
+      let aes = new JsonEncryptDecryptAes(xApiSecret);
+      let encryptedDeviceInfo = aes.encrypt(testDeviceInfoObj);
+      expect(encryptedDeviceInfo).to.be.string;
+      xDeviceInfo = encryptedDeviceInfo;
+      done();
+    });
   });
   /**
    * * perform sign-up process test. Here this test will first request the /sign-up
@@ -69,6 +144,10 @@ describe('User controller tests', () => {
       chai
         .request(server)
         .post(`${baseRoute}/auth/sign-up`)
+        .set('x-app-id', xAppId)
+        .set('x-api-key', xApiKey)
+        .set('x-app-version', xApiMinVersion)
+        .set('x-device-info', xDeviceInfo)
         .send(testUserObj)
         .end((err, res) => {
           res.should.have.status(200);
@@ -90,6 +169,10 @@ describe('User controller tests', () => {
         .request(server)
         .post(`${baseRoute}/auth/verify`)
         .set('Authorization', `Bearer ${verifyToken}`)
+        .set('x-app-id', xAppId)
+        .set('x-api-key', xApiKey)
+        .set('x-app-version', xApiMinVersion)
+        .set('x-device-info', xDeviceInfo)
         .send({ code: verifyCode })
         .end((err, res) => {
           res.should.have.status(201);
@@ -119,6 +202,10 @@ describe('User controller tests', () => {
         .request(server)
         .get(`${baseRoute}/users`)
         .set('Authorization', `Bearer ${accessToken}`)
+        .set('x-app-id', xAppId)
+        .set('x-api-key', xApiKey)
+        .set('x-app-version', xApiMinVersion)
+        .set('x-device-info', xDeviceInfo)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
@@ -146,6 +233,10 @@ describe('User controller tests', () => {
         .request(server)
         .get(`${baseRoute}/users/${testUserId}`)
         .set('Authorization', `Bearer ${accessToken}`)
+        .set('x-app-id', xAppId)
+        .set('x-api-key', xApiKey)
+        .set('x-app-version', xApiMinVersion)
+        .set('x-device-info', xDeviceInfo)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
@@ -173,6 +264,10 @@ describe('User controller tests', () => {
         .request(server)
         .post(`${baseRoute}/users/${testUserId}`)
         .set('Authorization', `Bearer ${accessToken}`)
+        .set('x-app-id', xAppId)
+        .set('x-api-key', xApiKey)
+        .set('x-app-version', xApiMinVersion)
+        .set('x-device-info', xDeviceInfo)
         .send(testUserUpdateObj)
         .end((err, res) => {
           res.should.have.status(200);
@@ -200,6 +295,10 @@ describe('User controller tests', () => {
         .request(server)
         .delete(`${baseRoute}/users/${testUserId}`)
         .set('Authorization', `Bearer ${accessToken}`)
+        .set('x-app-id', xAppId)
+        .set('x-api-key', xApiKey)
+        .set('x-app-version', xApiMinVersion)
+        .set('x-device-info', xDeviceInfo)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
