@@ -1,5 +1,5 @@
 /**
- * * import baseRoute, User model and test static data
+ * * import baseRoute, User model, Application model and test static data
  */
 const { baseRoute } = require('../configs/app.config');
 const User = require('../models/user.model');
@@ -73,7 +73,7 @@ describe('Auth controller tests', () => {
   });
   /**
    * @after will run after the last test cases of the file
-   * * here we reset all the global variables user for the entire test file
+   * * here we reset all the global variables used for the entire test file
    */
   after((done) => {
     resetAllTestVariables();

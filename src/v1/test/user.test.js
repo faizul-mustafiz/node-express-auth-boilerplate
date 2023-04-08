@@ -1,5 +1,5 @@
 /**
- * * import baseRoute, User model and test static data
+ * * import baseRoute, User model, Application model and test static data
  */
 const { baseRoute } = require('../configs/app.config');
 const User = require('../models/user.model');
@@ -59,7 +59,8 @@ resetAllTestVariables = () => {
 describe('User controller tests', () => {
   /**
    * @before will run at the start of the test cases
-   * * here we delete all the old data from test db user collection
+   * * here we delete all the old data from auth_test_db
+   * * applications collection and users collection
    */
   before((done) => {
     Application.deleteMany({}, () => {
@@ -70,7 +71,7 @@ describe('User controller tests', () => {
   });
   /**
    * @after will run after the last test cases of the file
-   * * here we reset all the global variables user for the entire test file
+   * * here we reset all the global variables used for the entire test file
    * * also we do not need to perform any delete operation here as user delete
    * * test case does that for us
    */
