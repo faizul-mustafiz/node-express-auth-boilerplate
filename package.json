@@ -1,6 +1,6 @@
 {
   "name": "express-auth-boilerplate",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "This is a jwt authentication boilerplate using node.js express redis and mongoose with all the best practices",
   "main": "index.js",
   "scripts": {
