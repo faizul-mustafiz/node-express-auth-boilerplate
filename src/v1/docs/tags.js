@@ -6,5 +6,8 @@ module.exports = {
     {
       name: 'Users',
     },
+    {
+      name: 'Applications',
+    },
   ],
 };
