@@ -1,11 +1,16 @@
 const express = require('express');
 const userRouter = express.Router();
 const { UserController } = require('../controllers/index');
-const hasAuthorization = require('../middlewares/hasAuthorization.middleware');
-const validateAccess = require('../middlewares/validateAccess.middleware');
-
+/**
+ * * application info header check and validation relate imports
+ */
 const hasAppInfoHeader = require('../middlewares/hasAppInfoHeader.middleware');
 const validateAppInfoHeader = require('../middlewares/validateAppInfoHeader.middleware');
+/**
+ * * Jwt header check and validation relate imports
+ */
+const hasAuthorization = require('../middlewares/hasAuthorization.middleware');
+const validateAccess = require('../middlewares/validateAccess.middleware');
 
 userRouter.get(
   '/',

@@ -1,6 +1,19 @@
 const express = require('express');
 const authRouter = express.Router();
 const { AuthController } = require('../controllers/index');
+/**
+ * * application info header check and validation relate imports
+ */
+const hasAppInfoHeader = require('../middlewares/hasAppInfoHeader.middleware');
+const validateAppInfoHeader = require('../middlewares/validateAppInfoHeader.middleware');
+/**
+ * * device info header check and validation relate imports
+ */
+const hasDeviceInfoHeader = require('../middlewares/hasDeviceInfoHeader.middleware');
+const validateDeviceInfoHeader = require('../middlewares/validateDeviceInfoHeader.middleware');
+/**
+ * * Jwt header check and validation relate imports
+ */
 const hasAuthorization = require('../middlewares/hasAuthorization.middleware');
 const validateAccess = require('../middlewares/validateAccess.middleware');
 const validateChangePassword = require('../middlewares/validateChangePassword.middleware');
@@ -10,12 +23,6 @@ const validateVerifyRequestBody = require('../middlewares/validateVerifyRequestB
 const validateAuthRequestBody = require('../middlewares/validateAuthRequestBody.middleware');
 const validateForgotPasswordRequestBody = require('../middlewares/validateForgotPasswordRequestBody.middleware');
 const validateChangePasswordRequestBody = require('../middlewares/validateChangePasswordRequestBody.middleware');
-
-const hasAppInfoHeader = require('../middlewares/hasAppInfoHeader.middleware');
-const validateAppInfoHeader = require('../middlewares/validateAppInfoHeader.middleware');
-
-const hasDeviceInfoHeader = require('../middlewares/hasDeviceInfoHeader.middleware');
-const validateDeviceInfoHeader = require('../middlewares/validateDeviceInfoHeader.middleware');
 
 authRouter.post(
   '/sign-up',
