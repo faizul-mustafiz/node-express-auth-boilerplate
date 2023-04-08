@@ -1,7 +1,7 @@
 module.exports = {
   post: {
     tags: ['Users'],
-    description: 'This route is to update a user document',
+    description: 'This route is to update a user',
     operationId: 'updateOneUser',
     parameters: [
       {
@@ -16,6 +16,9 @@ module.exports = {
     ],
     security: [
       {
+        appId: [],
+        apiKey: [],
+        appVersion: [],
         accessToken: [],
       },
     ],

@@ -1,11 +1,14 @@
 module.exports = {
   get: {
     tags: ['Users'],
-    description: 'This route is to get all the user documents',
+    description: 'This route is to get all user',
     operationId: 'getAllUser',
     parameters: [],
     security: [
       {
+        appId: [],
+        apiKey: [],
+        appVersion: [],
         accessToken: [],
       },
     ],

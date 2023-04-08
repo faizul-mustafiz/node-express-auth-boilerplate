@@ -1,7 +1,7 @@
 module.exports = {
   delete: {
     tags: ['Users'],
-    description: 'This route is for deleting a user document',
+    description: 'This route is for deleting a user',
     operationId: 'deleteOneUser',
     parameters: [
       {
@@ -11,11 +11,14 @@ module.exports = {
           $ref: '#/components/schemas/id',
         },
         required: true,
-        description: 'Delete a single user document',
+        description: 'Delete a single user',
       },
     ],
     security: [
       {
+        appId: [],
+        apiKey: [],
+        appVersion: [],
         accessToken: [],
       },
     ],
