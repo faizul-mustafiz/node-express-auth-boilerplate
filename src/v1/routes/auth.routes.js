@@ -11,30 +11,45 @@ const validateAuthRequestBody = require('../middlewares/validateAuthRequestBody.
 const validateForgotPasswordRequestBody = require('../middlewares/validateForgotPasswordRequestBody.middleware');
 const validateChangePasswordRequestBody = require('../middlewares/validateChangePasswordRequestBody.middleware');
 
-const hasCustomHeader = require('../middlewares/hasCustomHeader.middleware');
-const validateCustomHeader = require('../middlewares/validateCustomHeader.middleware');
+const hasAppInfoHeader = require('../middlewares/hasAppInfoHeader.middleware');
+const validateAppInfoHeader = require('../middlewares/validateAppInfoHeader.middleware');
+
+const hasDeviceInfoHeader = require('../middlewares/hasDeviceInfoHeader.middleware');
+const validateDeviceInfoHeader = require('../middlewares/validateDeviceInfoHeader.middleware');
 
 authRouter.post(
   '/sign-up',
-  [hasCustomHeader, validateCustomHeader, validateAuthRequestBody],
+  [
+    hasAppInfoHeader,
+    hasDeviceInfoHeader,
+    validateAppInfoHeader,
+    validateDeviceInfoHeader,
+    validateAuthRequestBody,
+  ],
   AuthController.signUp,
 );
 authRouter.post(
   '/sign-in',
-  [hasCustomHeader, validateCustomHeader, validateAuthRequestBody],
+  [
+    hasAppInfoHeader,
+    hasDeviceInfoHeader,
+    validateAppInfoHeader,
+    validateDeviceInfoHeader,
+    validateAuthRequestBody,
+  ],
   AuthController.signIn,
 );
 authRouter.post(
   '/sign-out',
-  [hasAuthorization, hasCustomHeader, validateCustomHeader, validateRefresh],
+  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateRefresh],
   AuthController.signOut,
 );
 authRouter.post(
   '/verify',
   [
     hasAuthorization,
-    hasCustomHeader,
-    validateCustomHeader,
+    hasAppInfoHeader,
+    validateAppInfoHeader,
     validateVerifyRequestBody,
     validateVerification,
   ],
@@ -42,15 +57,21 @@ authRouter.post(
 );
 authRouter.post(
   '/forgot-password',
-  [hasCustomHeader, validateCustomHeader, validateForgotPasswordRequestBody],
+  [
+    hasAppInfoHeader,
+    hasDeviceInfoHeader,
+    validateAppInfoHeader,
+    validateDeviceInfoHeader,
+    validateForgotPasswordRequestBody,
+  ],
   AuthController.forgotPassword,
 );
 authRouter.post(
   '/change-password',
   [
     hasAuthorization,
-    hasCustomHeader,
-    validateCustomHeader,
+    hasAppInfoHeader,
+    validateAppInfoHeader,
     validateChangePasswordRequestBody,
     validateChangePassword,
   ],
@@ -58,17 +79,17 @@ authRouter.post(
 );
 authRouter.post(
   '/refresh',
-  [hasAuthorization, hasCustomHeader, validateCustomHeader, validateRefresh],
+  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateRefresh],
   AuthController.refresh,
 );
 authRouter.post(
   '/revoke-at',
-  [hasAuthorization, hasCustomHeader, validateCustomHeader, validateAccess],
+  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateAccess],
   AuthController.revokeAccessToken,
 );
 authRouter.post(
   '/revoke-rt',
-  [hasAuthorization, hasCustomHeader, validateCustomHeader, validateRefresh],
+  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateRefresh],
   AuthController.revokeRefreshToken,
 );
 
