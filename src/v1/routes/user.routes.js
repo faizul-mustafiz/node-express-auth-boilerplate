@@ -9,22 +9,22 @@ const validateAppInfoHeader = require('../middlewares/validateAppInfoHeader.midd
 
 userRouter.get(
   '/',
-  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateAccess],
+  [hasAppInfoHeader, validateAppInfoHeader, hasAuthorization, validateAccess],
   UserController.getAllUser,
 );
 userRouter.get(
   '/:userId',
-  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateAccess],
+  [hasAppInfoHeader, validateAppInfoHeader, hasAuthorization, validateAccess],
   UserController.getOneUser,
 );
 userRouter.post(
   '/:userId',
-  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateAccess],
+  [hasAppInfoHeader, validateAppInfoHeader, hasAuthorization, validateAccess],
   UserController.updateOneUser,
 );
 userRouter.delete(
   '/:userId',
-  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateAccess],
+  [hasAppInfoHeader, validateAppInfoHeader, hasAuthorization, validateAccess],
   UserController.deleteOneUser,
 );
 module.exports = userRouter;

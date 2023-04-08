@@ -41,15 +41,15 @@ authRouter.post(
 );
 authRouter.post(
   '/sign-out',
-  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateRefresh],
+  [hasAppInfoHeader, validateAppInfoHeader, hasAuthorization, validateRefresh],
   AuthController.signOut,
 );
 authRouter.post(
   '/verify',
   [
-    hasAuthorization,
     hasAppInfoHeader,
     validateAppInfoHeader,
+    hasAuthorization,
     validateVerifyRequestBody,
     validateVerification,
   ],
@@ -69,9 +69,9 @@ authRouter.post(
 authRouter.post(
   '/change-password',
   [
-    hasAuthorization,
     hasAppInfoHeader,
     validateAppInfoHeader,
+    hasAuthorization,
     validateChangePasswordRequestBody,
     validateChangePassword,
   ],
@@ -79,17 +79,17 @@ authRouter.post(
 );
 authRouter.post(
   '/refresh',
-  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateRefresh],
+  [hasAppInfoHeader, validateAppInfoHeader, hasAuthorization, validateRefresh],
   AuthController.refresh,
 );
 authRouter.post(
   '/revoke-at',
-  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateAccess],
+  [hasAppInfoHeader, validateAppInfoHeader, hasAuthorization, validateAccess],
   AuthController.revokeAccessToken,
 );
 authRouter.post(
   '/revoke-rt',
-  [hasAuthorization, hasAppInfoHeader, validateAppInfoHeader, validateRefresh],
+  [hasAppInfoHeader, validateAppInfoHeader, hasAuthorization, validateRefresh],
   AuthController.revokeRefreshToken,
 );
 
