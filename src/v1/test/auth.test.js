@@ -81,7 +81,7 @@ describe('Auth controller tests', () => {
   });
   /**
    * * perform application creation process as entire auth test file use the created
-   * * application credential as custom header and without header the test will fail
+   * * application credential as app info header and without header the test will fail
    */
   describe('[POST] /applications | Application creation test', () => {
     it('it should create-one-application and encrypt', (done) => {
@@ -119,9 +119,9 @@ describe('Auth controller tests', () => {
     });
   });
   /**
-   * * perform device info encryption process as this will be need to perform sing-up
-   * * process as sign-up method verify custom header validator checks if a perfectly encrypted
-   * * device info is preset with all the application credential custom header
+   * * perform device info encryption process as this will be needed to perform sing-up process
+   * * as sign-up method verify device info header validator check. if a perfectly
+   * * encrypted device info is present with all the app info header
    */
   describe('Device info encryption test', () => {
     it('it should encrypt a device info object using json-ed-aes encrypt()', (done) => {
@@ -135,6 +135,7 @@ describe('Auth controller tests', () => {
   /**
    * * complete sign-up process test. Here this test will first request the /sign-up
    * * route and the get the verify token and code and using this token and code will
+   * * it will use app info and device info header to request
    * * compete sign-up using /verify route
    */
   describe('[POST] /auth/sign-up |Sign-Up Process Test', () => {
@@ -170,7 +171,6 @@ describe('Auth controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .send({ code: verifyCode })
         .end((err, res) => {
           res.should.have.status(201);
@@ -192,6 +192,7 @@ describe('Auth controller tests', () => {
   /**
    * * complete sign-in process test. Here this test will first request the /sign-in
    * * route and the get the verify token and code and using this token and code will
+   * * it will use app info and device info header to request
    * * compete sign-in using /verify route
    */
   describe('[POST] /auth/sign-in |Sign-in Process Test', () => {
@@ -227,7 +228,6 @@ describe('Auth controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .send({ code: verifyCode })
         .end((err, res) => {
           res.should.have.status(200);
@@ -245,7 +245,8 @@ describe('Auth controller tests', () => {
     });
   });
   /**
-   * * forgot-password process test.
+   * * forgot-password process test. it will use app info and device info header
+   * * as this is a public route and need this request to perform from valid device
    */
   describe('[POST] /auth/forgot-password |Forgot-Password Process Test', () => {
     it('it should initiate forgot-password process', (done) => {
@@ -285,7 +286,6 @@ describe('Auth controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .send({ code: forgotPassCode, new_password: testNewPassword })
         .end((err, res) => {
           res.should.have.status(200);
@@ -311,7 +311,6 @@ describe('Auth controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .send({})
         .end((err, res) => {
           res.should.have.status(200);
@@ -341,7 +340,6 @@ describe('Auth controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .send({})
         .end((err, res) => {
           res.should.have.status(200);
@@ -367,7 +365,6 @@ describe('Auth controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .send({})
         .end((err, res) => {
           res.should.have.status(200);

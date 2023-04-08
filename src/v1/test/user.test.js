@@ -80,7 +80,7 @@ describe('User controller tests', () => {
   });
   /**
    * * perform application creation process as entire auth test file use the created
-   * * application credential as custom header and without header the test will fail
+   * * application credential as app info header and without header the test will fail
    */
   describe('[POST] /applications | Application creation test', () => {
     it('it should create-one-application and encrypt', (done) => {
@@ -172,7 +172,6 @@ describe('User controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .send({ code: verifyCode })
         .end((err, res) => {
           res.should.have.status(201);
@@ -205,7 +204,6 @@ describe('User controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
@@ -236,7 +234,6 @@ describe('User controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
@@ -267,7 +264,6 @@ describe('User controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .send(testUserUpdateObj)
         .end((err, res) => {
           res.should.have.status(200);
@@ -298,7 +294,6 @@ describe('User controller tests', () => {
         .set('x-app-id', xAppId)
         .set('x-api-key', xApiKey)
         .set('x-app-version', xApiMinVersion)
-        .set('x-device-info', xDeviceInfo)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
