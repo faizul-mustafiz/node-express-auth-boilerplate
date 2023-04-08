@@ -7,7 +7,9 @@
 process.env.NODE_ENV = 'test';
 const authTest = require('./auth.test');
 const userTest = require('./user.test');
+const applicationTest = require('../test/application.test');
 module.exports = {
   authTest,
   userTest,
+  applicationTest,
 };
