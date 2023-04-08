@@ -17,7 +17,6 @@ const validateCustomHeader = async (req, res, next) => {
      * * get the passed customHeaders value form the res.locals
      */
     const customHeaders = res.locals.customHeaders;
-    console.log('customHeaders', customHeaders);
     try {
       /**
        * * check if header xAppId exists in redis if not send 401 UnauthorizedError
