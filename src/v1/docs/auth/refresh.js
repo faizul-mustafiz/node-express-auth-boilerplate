@@ -6,6 +6,9 @@ module.exports = {
     operationId: 'refresh',
     security: [
       {
+        appId: [],
+        apiKey: [],
+        appVersion: [],
         refreshToken: [],
       },
     ],

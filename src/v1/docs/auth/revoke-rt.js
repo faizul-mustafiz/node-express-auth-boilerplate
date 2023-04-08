@@ -6,6 +6,9 @@ module.exports = {
     operationId: 'revoke-rt',
     security: [
       {
+        appId: [],
+        apiKey: [],
+        appVersion: [],
         refreshToken: [],
       },
     ],

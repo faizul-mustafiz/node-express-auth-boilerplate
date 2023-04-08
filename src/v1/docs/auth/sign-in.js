@@ -4,6 +4,14 @@ module.exports = {
     description:
       'sign-in using email and password, you will get a verify token and code. Then got to /verify route to verify using token and code to sign-in',
     operationId: 'signIn',
+    security: [
+      {
+        appId: [],
+        apiKey: [],
+        appVersion: [],
+        deviceInfo: [],
+      },
+    ],
     requestBody: {
       content: {
         'application/json': {

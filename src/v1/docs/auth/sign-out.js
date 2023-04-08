@@ -5,6 +5,9 @@ module.exports = {
     operationId: 'sign-out',
     security: [
       {
+        appId: [],
+        apiKey: [],
+        appVersion: [],
         refreshToken: [],
       },
     ],

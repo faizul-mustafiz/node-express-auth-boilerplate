@@ -6,6 +6,9 @@ module.exports = {
     operationId: 'verify',
     security: [
       {
+        appId: [],
+        apiKey: [],
+        appVersion: [],
         verifyToken: [],
       },
     ],
@@ -19,7 +22,7 @@ module.exports = {
       },
     },
     responses: {
-      200: {
+      201: {
         $ref: '#/components/responses/SuccessVerify',
       },
       400: {

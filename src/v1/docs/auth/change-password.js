@@ -7,6 +7,9 @@ module.exports = {
     parameters: [],
     security: [
       {
+        appId: [],
+        apiKey: [],
+        appVersion: [],
         forgotPasswordToken: [],
       },
     ],
