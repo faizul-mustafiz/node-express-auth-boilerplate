@@ -1,11 +1,6 @@
 module.exports = {
   components: {
     schemas: {
-      id: {
-        type: 'string',
-        description: 'An id of a user',
-        example: '63ee753cc451ec1551e64d94',
-      },
       signUpInput: {
         type: 'object',
         require: ['email', 'password'],
@@ -80,6 +75,11 @@ module.exports = {
           },
         },
       },
+      id: {
+        type: 'string',
+        description: 'An id of a user',
+        example: '63ee753cc451ec1551e64d94',
+      },
       userInput: {
         type: 'object',
         properties: {
@@ -118,6 +118,57 @@ module.exports = {
             type: 'string',
             description: 'User organization',
             example: 'Evil Corp.',
+          },
+        },
+      },
+      appId: {
+        type: 'string',
+        description: 'Id of an application',
+        example: '3f374310-b48d-440c-9f46-2ac3508d1291',
+      },
+      applicationCreateInput: {
+        type: 'object',
+        require: ['appName'],
+        properties: {
+          appName: {
+            type: 'string',
+            description: 'Application name',
+            example: 'test_app',
+          },
+          origin: {
+            type: 'string',
+            description: 'Application origin name',
+            example: 'http://test_app.com',
+          },
+          appUser: {
+            type: 'string',
+            description: 'Application User id/name',
+            example: '63ee753cc451ec1551e64d94/John Doe',
+          },
+        },
+      },
+      applicationUpdateInput: {
+        type: 'object',
+        properties: {
+          appName: {
+            type: 'string',
+            description: 'Application name',
+            example: 'test_app',
+          },
+          origin: {
+            type: 'string',
+            description: 'Application origin name',
+            example: 'http://test_app.com',
+          },
+          appUser: {
+            type: 'string',
+            description: 'Application user id/name',
+            example: '63ee753cc451ec1551e64d94/John Doe',
+          },
+          status: {
+            type: 'string',
+            description: 'Application status',
+            example: 'active | inactive | deprecate',
           },
         },
       },
@@ -277,6 +328,122 @@ module.exports = {
           },
         },
       },
+      applicationCreateResponse: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'Application db identification',
+            example: '64318d17439b2f6f2d7358b9',
+          },
+          appID: {
+            type: 'string',
+            description: 'Application generated identification',
+            example: '3f374310-b48d-440c-9f46-2ac3508d1291',
+          },
+          apiKey: {
+            type: 'string',
+            description: 'Api key, using this compare api secret',
+            example: '7neQ9gPz/YaV3P5+r9RfrF70j1ttKTTAOeleSoK4xXI=',
+          },
+          apiSecret: {
+            type: 'string',
+            description:
+              'Api secret for encryption and decryption of device info',
+            example: 'a very long secret string',
+          },
+          appMinVersion: {
+            type: 'string',
+            description: 'Application minimum required version',
+            example: 'v1',
+          },
+          appName: {
+            type: 'string',
+            description: 'Application name',
+            example: 'test_app',
+          },
+          origin: {
+            type: 'string',
+            description: 'Application origin name',
+            example: 'http://test_app.com',
+          },
+          appUser: {
+            type: 'string',
+            description: 'Application user id/name',
+            example: '63ee753cc451ec1551e64d94/John Doe',
+          },
+          status: {
+            type: 'string',
+            description: 'Application status',
+            example: 'active | inactive | deprecate',
+          },
+          created_at: {
+            type: 'string',
+            description: 'Application creation time',
+            example: '2023-04-08T15:49:43.694Z',
+          },
+          updated_at: {
+            type: 'string',
+            description: 'Application update time',
+            example: '2023-04-08T15:49:43.694Z',
+          },
+        },
+      },
+      applicationRUDResponse: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'Application db identification',
+            example: '64318d17439b2f6f2d7358b9',
+          },
+          appID: {
+            type: 'string',
+            description: 'Application generated identification',
+            example: '3f374310-b48d-440c-9f46-2ac3508d1291',
+          },
+          apiKey: {
+            type: 'string',
+            description: 'Api key, using this compare api secret',
+            example: '7neQ9gPz/YaV3P5+r9RfrF70j1ttKTTAOeleSoK4xXI=',
+          },
+          appMinVersion: {
+            type: 'string',
+            description: 'Application minimum required version',
+            example: 'v1',
+          },
+          appName: {
+            type: 'string',
+            description: 'Application name',
+            example: 'test_app',
+          },
+          origin: {
+            type: 'string',
+            description: 'Application origin name',
+            example: 'http://test_app.com',
+          },
+          appUser: {
+            type: 'string',
+            description: 'Application user id or name',
+            example: '63ee753cc451ec1551e64d94 | John Doe',
+          },
+          status: {
+            type: 'string',
+            description: 'Application status',
+            example: 'active | inactive | deprecate',
+          },
+          created_at: {
+            type: 'string',
+            description: 'Application creation time',
+            example: '2023-04-08T15:49:43.694Z',
+          },
+          updated_at: {
+            type: 'string',
+            description: 'Application update time',
+            example: '2023-04-08T15:49:43.694Z',
+          },
+        },
+      },
       error: {
         type: 'object',
         properties: {
@@ -295,6 +462,26 @@ module.exports = {
       },
     },
     securitySchemes: {
+      appId: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-APP-ID',
+      },
+      apiKey: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-API-KEY',
+      },
+      appVersion: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-APP-VERSION',
+      },
+      deviceInfo: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-DEVICE-INFO',
+      },
       verifyToken: {
         type: 'http',
         in: 'header',
@@ -334,7 +521,132 @@ module.exports = {
     },
     responses: {
       /**
-       * * User CRUD success response template
+       * * Application CRUD success response template
+       */
+      SuccessCreateApplication: {
+        description: 'Success create-one-application',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                success: {
+                  type: 'boolean',
+                  example: true,
+                },
+                message: {
+                  type: 'string',
+                  example: 'Application created',
+                },
+                result: {
+                  type: 'object',
+                  $ref: '#/components/schemas/applicationCreateResponse',
+                },
+              },
+            },
+          },
+        },
+      },
+      SuccessGetApplication: {
+        description: 'Success get-one-application',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                success: {
+                  type: 'boolean',
+                  example: true,
+                },
+                message: {
+                  type: 'string',
+                  example: 'Successfully found application document',
+                },
+                result: {
+                  type: 'object',
+                  $ref: '#/components/schemas/applicationRUDResponse',
+                },
+              },
+            },
+          },
+        },
+      },
+      SuccessGetAllApplication: {
+        description: 'Success get-all-applications',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                success: {
+                  type: 'boolean',
+                  example: true,
+                },
+                message: {
+                  type: 'string',
+                  example: 'Successfully found all applications documents',
+                },
+                result: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/components/schemas/applicationRUDResponse',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      SuccessUpdateApplication: {
+        description: 'Success update-one-application',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                success: {
+                  type: 'boolean',
+                  example: true,
+                },
+                message: {
+                  type: 'string',
+                  example: 'Successfully updated application',
+                },
+                result: {
+                  type: 'object',
+                  $ref: '#/components/schemas/applicationRUDResponse',
+                },
+              },
+            },
+          },
+        },
+      },
+      SuccessDeleteApplication: {
+        description: 'Success delete-one-application',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                success: {
+                  type: 'boolean',
+                  example: true,
+                },
+                message: {
+                  type: 'string',
+                  example: 'Successfully deleted application',
+                },
+                result: {
+                  type: 'object',
+                  $ref: '#/components/schemas/applicationRUDResponse',
+                },
+              },
+            },
+          },
+        },
+      },
+      /**
+       * * User RUD success response template
        */
       SuccessGetUser: {
         description: 'Success get-one-user',
