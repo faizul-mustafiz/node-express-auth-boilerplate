@@ -6,6 +6,22 @@ This app comes with many build-in features like `JWT`, `authentication`, `author
 
 This application leverages technologies like `Node.js`, `Express`, `MongoDB`, `Redis/Redis Cluster`, `JWT`, `Docker`, `Docker Hub`, `Kubernetes`, `CI/CD using GitHub Action`. This application is build with the mindset of maintaining industry good practices of developing on Node.js and Express.
 
+## Table of contents
+
+- Quick Start
+- Features
+- Project Structure
+- Environment Variables
+- API Documentation
+- API Endpoints
+- Testing
+- CI using GitHub Actions
+- Deployment Process
+- Authentication and Authorization Flow
+- Forgot Password Flow
+- Client Application Creation
+- Conclusion
+
 ## Quick Start
 
 To get started with the project quickly do these steps
@@ -195,7 +211,7 @@ Documentation is available at `http://{host}:{port}/v1/docs` you can see the sch
 - `[POST]` update-one-application: `http://{host}:{port}/api/v1/applications/{appId}`
 - `[DELETE]` delete-one-application: `http://{host}:{port}/api/v1/applications/{appId}`
 
-## Testing the application
+## Testing
 
 By default the application is tested before every commit using `github hooks` and while performing CI integration using `github actions`.
 For testing Mocha and Chai.js is used. you can see the test command in `package.json` file.
@@ -242,7 +258,7 @@ secrets.PRIVATE_KEY                         # access and refresh token private k
                                               ({algorithm: 'ES512' })
 ```
 
-## Running the application
+## Deployment Process
 
 ### Using Docker Compose
 
@@ -329,3 +345,52 @@ So if you have any servers running on port 80 stop them first and then run this 
 ```
 minikube tunnel
 ```
+
+## Authentication and Authorization Flow
+
+This application uses JWT authentication system. Pair of JWT (access and refresh) tokens are provided when successfully sign-up or sign-in. This application is specific for registered applications.
+The concept is Client application who are willing to use this application need to register as an application first and then on successful registration `API_KEY` `API_SECRET` `APP_ID` is provided and client application needs to append these as custom header. The `API_SECRET` is provided for once and client applications should store them.
+
+**Custom Headers:**
+
+- X-APP-ID
+- X-API-KEY
+- X-API-SECRET
+- X-APP-VERSION
+- x-DEVICE-INFO
+
+for security purpose to stop ddos attack and any malicious behavior there is an extra security check in `sign-up` `sign-in` and `forgot-password` routes as they are public. Client applications need to encrypt their device info json using `API_SECRET` key and [json-ed-aes](https://www.npmjs.com/package/@faizul-mustafiz/json-ed-aes) as encryption handler. This npm package takes a `json object` and `secret_key` then encrypts device info.
+Now when a client application requests for sign-up/sign-in/forgot password needs to add one new header
+
+- X-DEVICE-INFO
+  Then server checks if the request is from a registered application and using `app_id` it gets the stored `api_secret` and decrypt the `device-info` if all goes well the request is passed to controller.
+
+There are multi layers of middleware for authentication and authorization with custom validation middleware. After passing the middlewares injected on routes a request is passed to designated controller.
+
+### Sing Up
+
+For `sign-up` process user requests at `http://{host}:{port}/api/v1/auth/sign-up` this route with `custom headers`. Then client application will get a `verify_token` and `verify_code`. Using this verification code in body and token as `Authorization` header users will complete sign-up at route `http://{host}:{port}/api/v1/auth/verify`.
+On completing sign-up a new user is created and provided with `accessToken` and `refreshToken`
+
+### Sing In
+
+Like `sign-up` process user requests at `http://{host}:{port}/api/v1/auth/sign-in` for `sign-in` process with `custom headers`. Then client application will get a `verify_token` and `verify_code`. Using this verification code in body and token as `Authorization` header users will complete sign-up at route `http://{host}:{port}/api/v1/auth/verify`.
+On completing sign-up a new user is created and provided with `accessToken` and `refreshToken`
+
+### Sign Out
+
+There are two different routes for revoking accessToken and refreshToken. It is encouraged to `revoke-at` and `revoke-rt` for sign out but there is also a simpler version where only refresh-token is needed and revoked.
+
+All the required fields, headers, schemas, response schemas are described inside swagger documentation.
+
+## Forgot Password Flow
+
+Just like sign-up and sign-in users request for forgot password at `http://{host}:{port}/api/v1/auth/forgot-password` this route. Here user is provided with change-password token and change-password code. then user request with the code and new-password inside request body and then token as Authorization header at `http://{host}:{port}/api/v1/auth/change-password`. Client applications need to add the custom headers for this rout as mentioned earlier.
+
+## Client Application Creation
+
+For now registering `client application` is only supported by admin and can be further modified for dynamic application creation.
+
+## Conclusion
+
+This application is a starting point for Express REST API's development with authentication, security and Error Handling out of the box with industry good practice and users can edit them as they develope and add new features. To put all things together in this boilerplate I have used my experience of developing REST API's and countless documents on every topic and good practices and many problems I faced in my development carrier.
