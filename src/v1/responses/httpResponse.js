@@ -13,7 +13,16 @@ const Created = (res, { message, result }) => {
   });
 };
 
+const BadRequest = (res, { message, result }) => {
+  return res.status(400).json({
+    success: true,
+    message,
+    result,
+  });
+};
+
 module.exports = {
   Success,
   Created,
+  BadRequest,
 };

@@ -1,4 +1,3 @@
-const logger = require('../loggers/logger');
 const { BadRequest } = require('../responses/httpResponse');
 const invalidPath = (req, res, next) => {
   return BadRequest(res, {
