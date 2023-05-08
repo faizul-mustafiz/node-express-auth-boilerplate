@@ -18,7 +18,7 @@ const validateAppInfoHeader = async (req, res, next) => {
     try {
       /**
        * * check if header xAppId exists in redis if not send 401 UnauthorizedError
-       * @param UnauthorizedError(origin, message)
+       * @function UnauthorizedError(origin,message)
        */
       const identityExists = await isAppIdIdentityExists(appInfoHeaders.xAppId);
       if (!identityExists) {
@@ -35,7 +35,7 @@ const validateAppInfoHeader = async (req, res, next) => {
       );
       /**
        * * check if redis appMinVersion and xAppVersion are same if not send 401 UnauthorizedError
-       * @param UnauthorizedError(origin, message)
+       * @function UnauthorizedError(origin,message)
        */
       const isAppVersionIdentical = compareStoredAppMinVersionWithAppVersion(
         applicationRedisResponse.appMinVersion,
@@ -49,7 +49,7 @@ const validateAppInfoHeader = async (req, res, next) => {
       }
       /**
        * * check if redis apiKey and xApiKey are same if not send 401 UnauthorizedError
-       * @param UnauthorizedError(origin, message)
+       * @function UnauthorizedError(origin,message)
        */
       const isApiKeyIdentical = compareStoredKeyWithApiKey(
         applicationRedisResponse.apiKey,
@@ -63,7 +63,7 @@ const validateAppInfoHeader = async (req, res, next) => {
       }
       /**
        * * check if xApiKey can validate redis apiSecret if not send 401 UnauthorizedError
-       * @param UnauthorizedError(origin, message)
+       * @function UnauthorizedError(origin,message)
        */
       const isApiKeyAuthorized = compareStoredSecretWithApiKey(
         applicationRedisResponse.apiSecret,

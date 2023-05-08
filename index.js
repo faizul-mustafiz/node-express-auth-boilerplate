@@ -16,7 +16,7 @@ const server = app.listen(port, host, () => {
 });
 /**
  * * this method is for gracefully closing the express server(node.js process)
- * @param graceFullyCloseServerAndPluginConnections(exitCode)
+ * @function graceFullyCloseServerAndPluginConnections(exitCode)
  * * this function will first close the http server and then close mogoDB and redis plugin connection
  * * and then proceed with process.exit(exitCode)
  */
@@ -50,7 +50,7 @@ process.on('unhandledRejection', (reason, promise) => {
 /**
  * * on these events like SIGINT, SIGUSR1, SIGUSR2, SIGTERM this will also proceed to
  * * graceFullyCloseServerAndPluginConnections with exitCode = 0. Which means the process exited without error
- * @param graceFullyCloseServerAndPluginConnections(exitCode)
+ * @function graceFullyCloseServerAndPluginConnections(exitCode)
  */
 [`SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((event) => {
   process.on(event, () => {

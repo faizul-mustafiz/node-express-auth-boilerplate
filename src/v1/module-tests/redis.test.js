@@ -3,13 +3,13 @@ const { redisClient } = require('../plugins/redis.plugin');
 /**
  * * Redis set() demo code
  * ! This method only supports string
- * @param set('key', 'value')
+ * @function set('key','value')
  * * you can pass the expiry with the set init as object
- * @param set('key', 'value', {EX: seconds<Number>})
+ * @function set('key','value',{EX:seconds<Number>})
  * * you can use setEX() to set value with expiry
- * @param setEx('key', expiry<Number>,'value')
+ * @function setEx('key',expiry<Number>,'value')
  * * or you can pass the expiry explicitly like
- * @param redisClient.expire('key', seconds<Number>)
+ * @function redisClient.expire('key',seconds<Number>)
  */
 setDemo = async () => {
   try {
@@ -23,7 +23,7 @@ setDemo = async () => {
 /**
  * * Redis get() demo code
  * ! This method only supports string
- * @param get('key')
+ * @function get('key')
  */
 getDemo = async () => {
   try {
@@ -37,9 +37,9 @@ getDemo = async () => {
 /**
  * * Redis mSet() demo code
  * ! This method only supports Array of strings
- * @param mSet(['key1', 'value1', 'key2', 'value2'])
+ * @function mSet(['key1','value1','key2','value2'])
  * * you can not pass the expiry with the mSet init, you need to pass the expiry explicitly
- * @param redisClient.expire('key', seconds<Number>)
+ * @function redisClient.expire('key', seconds<Number>)
  */
 mSetDemo = async () => {
   try {
@@ -60,7 +60,7 @@ mSetDemo = async () => {
 /**
  * * Redis mGet() demo code
  * ! This method only supports Array of strings
- * @param mGet(['key1', 'key2'])
+ * @function mGet(['key1','key2'])
  */
 mgetDemo = async () => {
   try {
@@ -74,10 +74,10 @@ mgetDemo = async () => {
 /**
  * * Redis hSet() demo code
  * ! This method only supports string
- * @param hSet('key', 'field', 'value')
- * @param hSet('key', ['field1', 'value1', 'filed2', 'value2', ..... ,'fieldN', 'valueN'])
+ * @function hSet('key','field','value')
+ * @function hSet('key',['field1','value1','filed2','value2',.....,'fieldN','valueN'])
  * * you can not pass the expiry with the hSet init, you need to pass the expiry explicitly
- * @param redisClient.expire('key', seconds<Number>)
+ * @function redisClient.expire('key',seconds<Number>)
  */
 hSetDemo = async () => {
   try {
@@ -97,9 +97,9 @@ hSetDemo = async () => {
 /**
  * * Redis hGet() & hGetAll() demo code.
  * ! This method only supports string key, and field.
- * @param hGetAll('key')
+ * @function hGetAll('key')
  * * This method gets all the fields inside any given key.
- * @param hGet('key', 'field1')
+ * @function hGet('key','field1')
  * * In this method you can only pass one field with the identifying key
  * * Suppose you just want to get a single field value of a stored key.
  */
@@ -117,9 +117,9 @@ hGetDemo = async () => {
 /**
  * * Redis del() demo code.
  * ! This method only supports string key.
- * @param del('key')
+ * @function del('key')
  * * This method delete any given key.
- * @param hGet('key', 'field1')
+ * @function hGet('key','field1')
  */
 deleteDemo = async () => {
   try {

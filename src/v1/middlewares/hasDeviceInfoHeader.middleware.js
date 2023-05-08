@@ -6,7 +6,7 @@ const hasDeviceInfoHeader = (req, res, next) => {
     /**
      * * check if x-app-version header exists
      * * if there is no x-app-version header send 403 ForbiddenError
-     * @param ForbiddenError(origin, message)
+     * @function ForbiddenError(origin,message)
      */
     const xDeviceInfo = getXDeviceInfoHeader(req);
     if (!xDeviceInfo) {

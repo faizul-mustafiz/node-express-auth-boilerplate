@@ -6,7 +6,7 @@ const validateVerifyRequestBody = async (req, res, next) => {
     /**
      * * check if {code} is present in request body and validate using joi
      * * if code not provided send 400 BadRequestError
-     * @param BadRequestError(origin, message)
+     * @function BadRequestError(origin,message)
      */
     const result = await verifyRequestBody.validateAsync(req.body);
     logger.debug('verify-request-body-validation-result: %s', result);

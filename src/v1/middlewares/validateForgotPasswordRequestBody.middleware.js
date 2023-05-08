@@ -6,7 +6,7 @@ const validateForgotPasswordRequestBody = async (req, res, next) => {
     /**
      * * check if {email} is present in request body and validate using joi
      * * if email provided send 400 bad request
-     * @param BadRequestError(origin, message)
+     * @function BadRequestError(origin,message)
      */
     const result = await forgotPasswordRequestBody.validateAsync(req.body);
     logger.debug('forgot-password-request-body-validation-result: %s', result);

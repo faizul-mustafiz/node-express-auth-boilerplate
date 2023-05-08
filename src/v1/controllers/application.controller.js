@@ -22,7 +22,7 @@ getAllApplications = async (req, res, next) => {
     logger.info('getAllApplications-count: %s', count);
     /**
      * * if there is no application in the applications collection send 203 NonAuthoritativeError
-     * @param NonAuthoritativeError(origin, message)
+     * @function NonAuthoritativeError(origin,message)
      */
     if (count === 0) {
       throw new NonAuthoritativeError(
@@ -46,7 +46,7 @@ getOneApplication = async (req, res, next) => {
     logger.debug('getOneApplication: %s', req.params);
     /**
      * * if there is no appId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin,message)
      */
     const { appId } = req.params;
     if (!appId) {
@@ -57,7 +57,7 @@ getOneApplication = async (req, res, next) => {
     }
     /**
      * * if there is no data for provided appId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin,message)
      */
     const result = await Application.findOne({ appId });
     logger.debug('application-get-result: %s', result);
@@ -110,7 +110,7 @@ updateOneApplication = async (req, res, next) => {
   try {
     /**
      * * if there is no appId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin,message)
      */
     const { appId } = req.params;
     if (!appId) {
@@ -126,7 +126,7 @@ updateOneApplication = async (req, res, next) => {
       logger.debug('existingApplication: %s', existingApplication);
       /**
        * * if the updating appName matches to an existing appName send 400 BadRequestError
-       * @param BadRequestError(origin, message)
+       * @function BadRequestError(origin,message)
        */
       if (existingApplication && existingApplication?.appId != appId) {
         throw new BadRequestError(
@@ -172,7 +172,7 @@ deleteOneApplication = async (req, res, next) => {
   try {
     /**
      * * if there is no appId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin,message)
      */
     const { appId } = req.params;
     if (!appId) {
@@ -183,7 +183,7 @@ deleteOneApplication = async (req, res, next) => {
     }
     /**
      * * if there is no data for provided appId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin,message)
      */
     const application = await Application.findOne({ appId });
     if (!application) {

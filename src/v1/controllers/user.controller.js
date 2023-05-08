@@ -14,14 +14,16 @@ getAllUser = async (req, res, next) => {
     logger.debug('getAllUser-result: %s', result);
     logger.info('getAllUser-count: %s', count);
     /**
-     * * if there is no user in the user collection send 203 NonAuthoritativeError
-     * @param NonAuthoritativeError(origin, message)
+     * * if there is no user in the user collection send 200 OK response
+     * * with message is pointing the user collection is empty
+     * @function Success(res,payload)
+     * @returns {success, message, result}
      */
     if (count === 0) {
-      throw new NonAuthoritativeError(
-        'getAllUser-count-zero',
-        'User collection is Empty',
-      );
+      return Success(res, {
+        message: 'User collection is Empty',
+        result,
+      });
     }
     return Success(res, {
       message: 'Successfully found all user documents',
@@ -39,7 +41,7 @@ getOneUser = async (req, res, next) => {
     logger.debug('getOneUser: %s', req.params);
     /**
      * * if there is no userId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin,message)
      */
     const { userId } = req.params;
     if (!userId) {
@@ -50,7 +52,7 @@ getOneUser = async (req, res, next) => {
     }
     /**
      * * if there is no data for provided userId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin,message)
      */
     const result = await User.findOne({ _id: userId });
     if (!result) {
@@ -74,7 +76,7 @@ updateOneUser = async (req, res, next) => {
   try {
     /**
      * * if there is no userId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin, message)
      */
     const { userId } = req.params;
     if (!userId) {
@@ -89,7 +91,7 @@ updateOneUser = async (req, res, next) => {
       logger.debug('existingUser: %s', existingUser);
       /**
        * * if the updating email matches to an existing user email send 400 BadRequestError
-       * @param BadRequestError(origin, message)
+       * @function BadRequestError(origin, message)
        */
       if (existingUser && existingUser?._id != userId) {
         throw new BadRequestError(
@@ -132,7 +134,7 @@ deleteOneUser = async (req, res, next) => {
   try {
     /**
      * * if there is no userId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin, message)
      */
     const { userId } = req.params;
     if (!userId) {
@@ -143,7 +145,7 @@ deleteOneUser = async (req, res, next) => {
     }
     /**
      * * if there is no data for provided userId in request param send 404 NotFoundError
-     * @param NotFoundError(origin, message)
+     * @function NotFoundError(origin, message)
      */
     const existingUser = await User.findOne({ _id: userId });
     if (!existingUser) {

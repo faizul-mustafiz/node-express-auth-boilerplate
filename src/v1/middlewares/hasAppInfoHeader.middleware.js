@@ -10,7 +10,7 @@ const hasAppInfoHeader = (req, res, next) => {
     /**
      * * check if x-api-key header exists
      * * if there is no x-api-key header send 403 ForbiddenError
-     * @param ForbiddenError(origin, message)
+     * @function ForbiddenError(origin,message)
      */
     const xApiKey = getXApiKeyHeader(req);
     if (!xApiKey) {
@@ -22,7 +22,7 @@ const hasAppInfoHeader = (req, res, next) => {
     /**
      * * check if x-app-id header exists
      * * if there is no x-app-id header send 403 ForbiddenError
-     * @param ForbiddenError(origin, message)
+     * @function ForbiddenError(origin,message)
      */
     const xAppId = getXAppIdHeader(req);
     if (!xAppId) {
@@ -34,7 +34,7 @@ const hasAppInfoHeader = (req, res, next) => {
     /**
      * * check if x-app-version header exists
      * * if there is no x-app-version header send 403 ForbiddenError
-     * @param ForbiddenError(origin, message)
+     * @function ForbiddenError(origin,message)
      */
     const xAppVersion = getXAppVersionHeader(req);
     if (!xAppVersion) {

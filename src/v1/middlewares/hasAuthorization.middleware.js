@@ -9,7 +9,7 @@ const hasAuthorization = (req, res, next) => {
     /**
      * * check if authorization header exists
      * * if there is no authorization header send 403 ForbiddenError
-     * @param ForbiddenError(origin, message)
+     * @function ForbiddenError(origin,message)
      */
     const authorization = getAuthorizationHeader(req);
     if (!authorization) {
@@ -21,7 +21,7 @@ const hasAuthorization = (req, res, next) => {
     /**
      * * check if Bearer and Token exists
      * * if the token format is not Bearer [token] format send 403 ForbiddenError
-     * @param ForbiddenError(origin, message)
+     * @function ForbiddenError(origin,message)
      */
     const { bearer, token } = splitAuthorizationHeader(authorization);
     if (!bearer) {

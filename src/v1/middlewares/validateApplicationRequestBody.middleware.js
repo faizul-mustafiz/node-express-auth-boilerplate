@@ -10,7 +10,7 @@ const validateApplicationCreateRequestBody = async (req, res, next) => {
     /**
      * * check if {appName, origin, appUser} is present in request body and validate using joi
      * * if any of these not provided send 400 BadRequestError
-     * @param BadRequestError(origin, message)
+     * @function BadRequestError(origin,message)
      */
     const result = await applicationCreateRequestBody.validateAsync(req.body);
     logger.debug(
@@ -33,7 +33,7 @@ const validateApplicationUpdateRequestBody = async (req, res, next) => {
     /**
      * * check if {appName, origin, appUser} is present in request body and validate using joi
      * * if any of these not provided send 400 BadRequestError
-     * @param BadRequestError(origin, message)
+     * @function BadRequestError(origin,message)
      */
     const result = await applicationUpdateRequestBody.validateAsync(req.body);
     logger.debug(

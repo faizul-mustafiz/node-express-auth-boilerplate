@@ -6,7 +6,7 @@ const validateChangePasswordRequestBody = async (req, res, next) => {
     /**
      * * check if {code, password} is present in request body and validate using joi
      * * if any of these not provided send 400 BadRequestError
-     * @param BadRequestError(origin, message)
+     * @function BadRequestError(origin,message)
      */
     const result = await changePasswordRequestBody.validateAsync(req.body);
     logger.debug('change-password-request-body-validation-result: %s', result);

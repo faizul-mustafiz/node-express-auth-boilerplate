@@ -24,15 +24,15 @@ const logger = require('../loggers/logger');
 
 /**
  * * Different type of token signing methods
- * @param signAccessToken(payload)
- * @param signRefreshToken(payload)
+ * @function signAccessToken(payload)
+ * @function signRefreshToken(payload)
  * * identity creation is handled inside these method and not passed as a parameter
- * @param signVerifyToken(identity, payload)
- * @param signResetPasswordToken(identity, payload)
- * @param signChangePasswordToken(identity, payload)
+ * @function signVerifyToken(identity,payload)
+ * @function signResetPasswordToken(identity,payload)
+ * @function signChangePasswordToken(identity,payload)
  * * identity parameter is the key that needs to be stored as a key in redis
  * * payload parameter is the payload that needs to be stored in redis.
- * @param setIdentityWithHSet(identity, expiry, payload)
+ * @function setIdentityWithHSet(identity,expiry,payload)
  */
 signAccessToken = async (payload) => {
   /**
@@ -196,7 +196,7 @@ signChangePasswordToken = async (identity, payload) => {
 };
 /**
  * * Different type of token verifying methods
- * @param verifyChangePasswordToken(token, res)
+ * @function verifyChangePasswordToken(token,res)
  */
 verifyChangePasswordToken = async (token, res) => {
   try {

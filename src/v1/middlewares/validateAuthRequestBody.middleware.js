@@ -6,7 +6,7 @@ const validateAuthRequestBody = async (req, res, next) => {
     /**
      * * check if {email, password} is present in request body and validate using joi
      * * if any of these not provided send 400 BadRequestError
-     * @param BadRequestError(origin, message)
+     * @function BadRequestError(origin,message)
      */
     const result = await authRequestBody.validateAsync(req.body);
     logger.debug('auth-request-body-validation-result: %s', result);
