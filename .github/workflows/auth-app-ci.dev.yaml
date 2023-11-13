@@ -32,7 +32,8 @@ jobs:
           NODE_ENV: test
           API_PORT: ${{ secrets.API_PORT }}
           API_HOST: ${{ secrets.API_HOST }}
-          BASE_API_ROUTE: ${{ secrets.BASE_API_ROUTE }}
+          API_VERSION: ${{ secrets.API_VERSION }}
+          ROUTE_PREFIX: ${{ secrets.ROUTE_PREFIX }}
           REDIS_URL_TEST: ${{ secrets.REDIS_URL_TEST }}
           MONGO_URL_TEST: ${{ secrets.MONGO_URL_TEST }}
           ACCESS_TOKEN_EXPIRY_TIME: ${{ secrets.ACCESS_TOKEN_EXPIRY_TIME }}
@@ -77,7 +78,8 @@ jobs:
             NODE_ENV=development
             API_PORT=${{ secrets.API_PORT }}
             API_HOST=${{ secrets.API_HOST }}
-            BASE_API_ROUTE=${{ secrets.BASE_API_ROUTE }}
+            API_VERSION=${{ secrets.API_VERSION }}
+            ROUTE_PREFIX=${{ secrets.ROUTE_PREFIX }}
             REDIS_URL=${{ secrets.REDIS_URL }}
             MONGO_URL=${{ secrets.MONGO_URL }}
             ACCESS_TOKEN_EXPIRY_TIME=${{ secrets.ACCESS_TOKEN_EXPIRY_TIME }}
