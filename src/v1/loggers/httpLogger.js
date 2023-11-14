@@ -5,16 +5,15 @@
  * * app.use(httpLogger)
  */
 const morgan = require('morgan');
-const json = require('morgan-json');
-const format = json({
+const format = {
   method: ':method',
   url: ':url',
   status: ':status',
   resContentLength: ':res[content-length]',
   responseTime: ':response-time',
-});
+};
 const logger = require('./logger');
-const httpLogger = morgan(format, {
+const httpLogger = morgan(JSON.stringify(format), {
   stream: {
     write: (message) => {
       const { method, url, status, resContentLength, responseTime } =
